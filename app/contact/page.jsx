@@ -3,7 +3,7 @@ import Footer from '@/components/Footer';
 import ContactContent from '@/components/ContactContent';
 
 export const metadata = {
-  title: 'যোগাযোগ - Developers Club',
+  title: 'Contact',
   description: 'আমাদের সাথে সরাসরি যোগাযোগ করুন। যেকোনো তথ্য, অভিযোগ বা টেকনিক্যাল সাপোর্টের জন্য মেসেজ পাঠান বা সরাসরি কল করুন।',
   keywords: ['contact', 'developers club support', 'bengal-it contact', 'যোগাযোগ', 'কাস্টমার সাপোর্ট'],
 };

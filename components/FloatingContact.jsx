@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function FloatingContact() {
   const [isOpen, setIsOpen] = useState(false);
   const [isHoveredMain, setIsHoveredMain] = useState(false);
+  const [isHoveredCall, setIsHoveredCall] = useState(false);
   const [isHoveredWhatsapp, setIsHoveredWhatsapp] = useState(false);
 
   return (
@@ -23,21 +24,39 @@ export default function FloatingContact() {
             className="flex flex-col items-end gap-3 mb-3"
           >
             {/* 1. Call Item */}
-            <motion.button
-              onClick={() => {
-                window.location.href = "tel:+8801793679254";
-              }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="group flex items-center gap-3 bg-white/95 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-slate-100 hover:shadow-xl transition-all cursor-pointer"
-            >
-              <span className="text-slate-800 font-bold text-sm pl-1 select-none">
-                Call
-              </span>
-              <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors duration-200 shadow-xs">
-                <Phone className="w-4 h-4 stroke-[2.5]" />
-              </div>
-            </motion.button>
+            <div className="relative flex items-center">
+              {/* Custom Tooltip on Call Hover */}
+              <AnimatePresence>
+                {isHoveredCall && (
+                  <motion.div
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 10 }}
+                    className="absolute right-full mr-3 px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-xl whitespace-nowrap shadow-lg select-none pointer-events-none"
+                  >
+                    Developers Club Team
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <motion.button
+                onClick={() => {
+                  window.location.href = "tel:+8801793679254";
+                }}
+                onMouseEnter={() => setIsHoveredCall(true)}
+                onMouseLeave={() => setIsHoveredCall(false)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="group flex items-center gap-3 bg-white/95 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-slate-100 hover:shadow-xl transition-all cursor-pointer"
+              >
+                <span className="text-slate-800 font-bold text-sm pl-1 select-none">
+                  Call
+                </span>
+                <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors duration-200 shadow-xs">
+                  <Phone className="w-4 h-4 stroke-[2.5]" />
+                </div>
+              </motion.button>
+            </div>
 
             {/* 2. WhatsApp Item */}
             <div className="relative flex items-center">
@@ -69,8 +88,9 @@ export default function FloatingContact() {
                   WhatsApp
                 </span>
                 <div className="w-9 h-9 rounded-full bg-emerald-100 text-[#25D366] flex items-center justify-center group-hover:bg-[#25D366] group-hover:text-white transition-colors duration-200 shadow-xs">
-                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.864.002-2.637-1.019-5.117-2.875-6.977C16.504 1.882 14.032.86 11.402.86c-5.437 0-9.865 4.42-9.869 9.866-.001 1.748.47 3.456 1.365 4.975L1.879 22.14l6.768-1.77zM17.89 15.3c-.31-.155-1.84-.908-2.128-1.012-.289-.104-.499-.155-.709.155-.21.31-.81.103-1.017-.156s-.414-.415-.788-.75c-.291-.26-.487-.58-.544-.677-.057-.097-.006-.15.043-.198.043-.044.097-.113.146-.17.049-.057.065-.097.097-.162.032-.065.016-.122-.008-.172-.024-.05-2.128-5.127-2.183-5.26-.057-.13-.113-.115-.156-.115h-.499c-.162 0-.427.06-.65.31-.223.25-.85.83-.85 2.025 0 1.196.87 2.35 1.017 2.535.15.185 1.71 2.61 4.14 3.655.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.15-.53-.305z"/>
+                  <svg className="w-4 h-4 fill-none stroke-current" strokeWidth="2.2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.42 13.43c-.22-.11-1.3-.64-1.5-.71-.2-.07-.35-.11-.5.11-.15.22-.58.73-.71.86-.13.13-.26.15-.48.04a6.11 6.11 0 0 1-1.79-1.1c-.43-.38-.72-.85-.81-1.07-.09-.22-.01-.34.1-.45.1-.1.22-.26.33-.39.11-.13.15-.22.22-.37.07-.15.04-.28-.02-.39-.06-.11-.5-1.2-.68-1.65-.18-.43-.37-.37-.5-.37h-.43c-.15 0-.39.06-.59.28-.2.22-.77.75-.77 1.83 0 1.08.79 2.12.9 2.27.11.15 1.55 2.37 3.76 3.32.53.23.94.36 1.26.47.53.17 1.02.14 1.4.09.43-.06 1.3-.53 1.49-1.05.19-.52.19-.97.13-1.07-.06-.1-.22-.15-.44-.26z" strokeWidth="1.8" />
                   </svg>
                 </div>
               </motion.button>

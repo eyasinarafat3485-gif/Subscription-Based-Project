@@ -1,11 +1,18 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Compass } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export default function NotFound() {
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      document.title = "404 Page Not Found | Developers Club - বাংলাদেশের WordPress Developer Platform";
+    }
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50/50">
       <Header />

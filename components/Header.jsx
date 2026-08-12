@@ -23,7 +23,7 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Brand Logo */}
-            <Link href="/" className="flex items-center gap-2.5 group">
+            <a href="/" className="flex items-center gap-2.5 group">
               <img
                 src="/icon.png"
                 alt="Developers Club"
@@ -37,34 +37,34 @@ export default function Header() {
                   BY BENGAL-IT
                 </span>
               </div>
-            </Link>
+            </a>
 
             {/* Navigation Links */}
             <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-700">
-              <Link href="/" className="hover:text-blue-600 transition-colors">
+              <a href="/" className="hover:text-blue-600 transition-colors">
                 হোম
-              </Link>
-              <Link href="/plugins" className="hover:text-blue-600 transition-colors">
+              </a>
+              <a href="/#plugins" className="hover:text-blue-600 transition-colors">
                 প্লাগইন
-              </Link>
-              <Link href="/themes" className="hover:text-blue-600 transition-colors">
+              </a>
+              <a href="/#themes" className="hover:text-blue-600 transition-colors">
                 থিম
-              </Link>
-              <Link href="/templates" className="hover:text-blue-600 transition-colors">
+              </a>
+              <a href="/#templates" className="hover:text-blue-600 transition-colors">
                 টেমপ্লেট
-              </Link>
-              <Link href="/resources" className="hover:text-blue-600 transition-colors">
+              </a>
+              <a href="/#resources" className="hover:text-blue-600 transition-colors">
                 রিসোর্স
-              </Link>
-              <Link href="/docs" className="hover:text-blue-600 transition-colors">
+              </a>
+              <a href="/#docs" className="hover:text-blue-600 transition-colors">
                 ডকুমেন্টেশন
-              </Link>
-              <Link href="/pricing" className="hover:text-blue-600 transition-colors">
+              </a>
+              <a href="/#pricing" className="hover:text-blue-600 transition-colors">
                 প্রাইসিং
-              </Link>
-              <Link href="/contact" className="hover:text-blue-600 transition-colors">
+              </a>
+              <a href="/contact" className="hover:text-blue-600 transition-colors">
                 যোগাযোগ
-              </Link>
+              </a>
             </nav>
 
             {/* Right Action Controls */}
@@ -85,13 +85,13 @@ export default function Header() {
               {/* User Session Check */}
               {session?.user ? (
                 <div className="flex items-center gap-3">
-                  <Link
+                  <a
                     href="/my-account"
                     className="flex items-center gap-2 py-2 px-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-semibold text-slate-800 transition"
                   >
                     <LayoutDashboard className="w-4 h-4 text-blue-600" />
                     <span>মাই অ্যাকাউন্ট</span>
-                  </Link>
+                  </a>
                   <button
                     onClick={() => signOut()}
                     className="p-2 text-slate-500 hover:text-red-600 rounded-lg hover:bg-red-50 transition"

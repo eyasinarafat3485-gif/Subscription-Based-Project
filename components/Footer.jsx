@@ -7,13 +7,13 @@ export default function Footer() {
   return (
     <footer className="bg-[#050D1E] text-slate-300 pt-16 pb-8 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Main 5 Columns Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800/80">
-          
+
           {/* Column 1: Brand & Socials */}
           <div className="lg:col-span-1 space-y-4">
-            <Link href="/" className="flex items-center gap-2.5 group">
+            <a href="/" className="flex items-center gap-2.5 group">
               <img
                 src="/icon.png"
                 alt="Developers Club"
@@ -27,34 +27,59 @@ export default function Footer() {
                   BY BENGAL-IT
                 </span>
               </div>
-            </Link>
+            </a>
 
             <p className="text-xs text-slate-400 leading-relaxed">
               বাংলাদেশের সেরা প্রিমিয়াম WordPress প্লাগইন, থিম এবং ডেভেলপমেন্ট রিসোর্স হাব।
             </p>
 
             <div className="flex items-center gap-3 pt-2">
-              {/* Facebook SVG */}
-              <a href="#" className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white flex items-center justify-center transition">
+              {/* Facebook */}
+              <a
+                href="https://www.facebook.com/bengalitbd"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white flex items-center justify-center transition"
+                title="Facebook"
+              >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
               </a>
-              {/* YouTube SVG */}
-              <a href="#" className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white flex items-center justify-center transition">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+
+              {/* WhatsApp */}
+              <a
+                href="https://wa.me/8801793679254"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-[#25D366] text-slate-300 hover:text-white flex items-center justify-center transition"
+                title="WhatsApp"
+              >
+                <svg className="w-4 h-4 fill-none stroke-current" strokeWidth="2.2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.42 13.43c-.22-.11-1.3-.64-1.5-.71-.2-.07-.35-.11-.5.11-.15.22-.58.73-.71.86-.13.13-.26.15-.48.04a6.11 6.11 0 0 1-1.79-1.1c-.43-.38-.72-.85-.81-1.07-.09-.22-.01-.34.1-.45.1-.1.22-.26.33-.39.11-.13.15-.22.22-.37.07-.15.04-.28-.02-.39-.06-.11-.5-1.2-.68-1.65-.18-.43-.37-.37-.5-.37h-.43c-.15 0-.39.06-.59.28-.2.22-.77.75-.77 1.83 0 1.08.79 2.12.9 2.27.11.15 1.55 2.37 3.76 3.32.53.23.94.36 1.26.47.53.17 1.02.14 1.4.09.43-.06 1.3-.53 1.49-1.05.19-.52.19-.97.13-1.07-.06-.1-.22-.15-.44-.26z" strokeWidth="1.8" />
                 </svg>
               </a>
-              {/* Telegram SVG */}
-              <a href="#" className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-sky-500 text-slate-300 hover:text-white flex items-center justify-center transition">
+
+              {/* Email */}
+              <a
+                href="mailto:info@bengal-it.com"
+                className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-[#EA4335] text-slate-300 hover:text-white flex items-center justify-center transition"
+                title="Email"
+              >
+                <svg className="w-4 h-4 fill-none stroke-current" strokeWidth="2.2" viewBox="0 0 24 24">
+                  <rect width="20" height="16" x="2" y="4" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </a>
+
+              {/* Send Contact */}
+              <a
+                href="/contact"
+                className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-sky-500 text-slate-300 hover:text-white flex items-center justify-center transition"
+                title="Contact Support"
+              >
                 <Send className="w-4 h-4" />
-              </a>
-              {/* Instagram SVG */}
-              <a href="#" className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-pink-600 text-slate-300 hover:text-white flex items-center justify-center transition">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                </svg>
               </a>
             </div>
           </div>
@@ -63,11 +88,11 @@ export default function Footer() {
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-white">প্রোডাক্ট</h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li><Link href="/#plugins" className="hover:text-blue-400 transition">প্লাগইন</Link></li>
-              <li><Link href="/#themes" className="hover:text-blue-400 transition">থিম</Link></li>
-              <li><Link href="/#templates" className="hover:text-blue-400 transition">টেমপ্লেট</Link></li>
-              <li><Link href="/#resources" className="hover:text-blue-400 transition">রিসোর্স</Link></li>
-              <li><Link href="/#tools" className="hover:text-blue-400 transition">টুলস</Link></li>
+              <li><a href="/#plugins" className="hover:text-blue-400 transition">প্লাগইন</a></li>
+              <li><a href="/#themes" className="hover:text-blue-400 transition">থিম</a></li>
+              <li><a href="/#templates" className="hover:text-blue-400 transition">টেমপ্লেট</a></li>
+              <li><a href="/#resources" className="hover:text-blue-400 transition">রিসোর্স</a></li>
+              <li><a href="/#tools" className="hover:text-blue-400 transition">টুলস</a></li>
             </ul>
           </div>
 
@@ -75,11 +100,11 @@ export default function Footer() {
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-white">সাপোর্ট</h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li><Link href="/#docs" className="hover:text-blue-400 transition">ডকুমেন্টেশন</Link></li>
-              <li><Link href="/contact" className="hover:text-blue-400 transition">যোগাযোগ ও সাপোর্ট</Link></li>
-              <li><Link href="#articles" className="hover:text-blue-400 transition">ব্লগ</Link></li>
-              <li><Link href="#" className="hover:text-blue-400 transition">প্রাইভেসি পলিসি</Link></li>
-              <li><Link href="#" className="hover:text-blue-400 transition">রিফান্ড পলিসি</Link></li>
+              <li><a href="/#docs" className="hover:text-blue-400 transition">ডকুমেন্টেশন</a></li>
+              <li><a href="/contact" className="hover:text-blue-400 transition">যোগাযোগ ও সাপোর্ট</a></li>
+              <li><a href="#articles" className="hover:text-blue-400 transition">ব্লগ</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition">প্রাইভেসি পলিসি</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition">রিফান্ড পলিসি</a></li>
             </ul>
           </div>
 
@@ -87,10 +112,10 @@ export default function Footer() {
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-white">আমাদের সম্পর্কে</h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li><Link href="#" className="hover:text-blue-400 transition">আমাদের টিম</Link></li>
-              <li><Link href="#" className="hover:text-blue-400 transition">ফেসবুক গ্রুপ</Link></li>
-              <li><Link href="#" className="hover:text-blue-400 transition">প্রিমিয়াম সাপোর্ট</Link></li>
-              <li><Link href="#" className="hover:text-blue-400 transition">কুপন এন্ড ডিসকাউন্ট</Link></li>
+              <li><a href="#" className="hover:text-blue-400 transition">আমাদের টিম</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition">ফেসবুক গ্রুপ</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition">প্রিমিয়াম সাপোর্ট</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition">কুপন এন্ড ডিসকাউন্ট</a></li>
             </ul>
           </div>
 

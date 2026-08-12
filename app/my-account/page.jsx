@@ -14,6 +14,9 @@ export default function MyAccountPage() {
 
   useEffect(() => {
     setMounted(true);
+    if (typeof window !== 'undefined') {
+      document.title = "My Account | Developers Club - বাংলাদেশের WordPress Developer Platform";
+    }
   }, []);
 
   useEffect(() => {
