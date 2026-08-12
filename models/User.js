@@ -8,8 +8,8 @@ const UserSchema = new mongoose.Schema(
     image: { type: String },
     role: {
       type: String,
-      enum: ['customer', 'vip_member', 'admin'],
-      default: 'customer',
+      enum: ['user', 'guest', 'admin'],
+      default: 'user',
     },
     membership: {
       planId: { type: String },

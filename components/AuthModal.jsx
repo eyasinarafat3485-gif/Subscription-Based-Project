@@ -10,6 +10,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('user');
+  const [coupon, setCoupon] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -58,10 +60,26 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           window.location.href = '/my-account';
         }
       } else {
+        if (role === 'guest') {
+          const verifyRes = await fetch('/api/coupons/use', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ coupon: coupon.trim(), email: email.trim() }),
+          });
+          const verifyData = await verifyRes.json();
+          if (!verifyRes.ok || verifyData.error) {
+            const msg = verifyData.error || 'কুপন কোড ভেরিফিকেশন ব্যর্থ হয়েছে!';
+            setError(msg);
+            toast.error(msg);
+            setLoading(false);
+            return;
+          }
+        }
         const res = await signUp.email({
           email,
           password,
           name,
+          role,
         });
         if (res?.error) {
           const msg = res.error.message || 'সাইনআপ করতে ব্যর্থ হয়েছে';
@@ -150,20 +168,66 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">আপনার নাম</label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                  <input
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="যেমন: মোঃ সাকিব হোসেন"
-                    className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white text-slate-800"
-                  />
+              <>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">আপনার নাম</label>
+                  <div className="relative">
+                    <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                    <input
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="যেমন: মোঃ সাকিব হোসেন"
+                      className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white text-slate-800"
+                    />
+                  </div>
                 </div>
-              </div>
+
+                {/* Account Role Dropdown */}
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">অ্যাকাউন্ট টাইপ (Role)</label>
+                  <div className="relative">
+                    <select
+                      value={role}
+                      onChange={(e) => {
+                        setRole(e.target.value);
+                        setError('');
+                      }}
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white text-slate-800 appearance-none cursor-pointer"
+                    >
+                      <option value="user">User (ইউজার)</option>
+                      <option value="guest">Guest (গেস্ট)</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Coupon Code Input for Guest */}
+                {role === 'guest' && (
+                  <div className="animate-fade-in">
+                    <label className="block text-xs font-medium text-slate-700 mb-1">কুপন কোড (Coupon Code)</label>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                      <input
+                        type="text"
+                        required
+                        value={coupon}
+                        onChange={(e) => setCoupon(e.target.value)}
+                        placeholder="যেমন: VIP2026"
+                        className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 focus:border-blue-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white text-slate-800"
+                      />
+                    </div>
+                    <p className="text-[10px] text-slate-500 mt-1 pl-1">
+                      * গেস্ট অ্যাকাউন্টের জন্য অবশ্যই সঠিক কুপন কোড প্রদান করুন।
+                    </p>
+                  </div>
+                )}
+              </>
             )}
 
             <div>

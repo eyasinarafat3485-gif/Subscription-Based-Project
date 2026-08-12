@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSession, signOut } from '@/lib/auth-client';
 import Link from 'next/link';
-import { User, Download, ShieldCheck, Calendar, LogOut, ArrowLeft, Zap, Sparkles, Loader2 } from 'lucide-react';
+import { User, Download, ShieldCheck, Calendar, LogOut, ArrowLeft, Zap, Sparkles, Loader2, Plus, Copy, Check } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { toast } from 'react-toastify';
@@ -11,6 +11,49 @@ import { toast } from 'react-toastify';
 export default function MyAccountPage() {
   const { data: session, isPending } = useSession();
   const [mounted, setMounted] = useState(false);
+  const [coupons, setCoupons] = useState([]);
+  const [couponsLoading, setCouponsLoading] = useState(false);
+  const [generatingCoupon, setGeneratingCoupon] = useState(false);
+  const [copiedCode, setCopiedCode] = useState('');
+
+  const fetchCoupons = async () => {
+    try {
+      setCouponsLoading(true);
+      const res = await fetch('/api/coupons');
+      if (res.ok) {
+        const data = await res.json();
+        setCoupons(data.coupons || []);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCouponsLoading(false);
+    }
+  };
+
+  const handleGenerateCoupon = async () => {
+    try {
+      setGeneratingCoupon(true);
+      const res = await fetch('/api/coupons', { method: 'POST' });
+      if (res.ok) {
+        toast.success('নতুন গেস্ট কুপন কোড তৈরি হয়েছে!');
+        fetchCoupons();
+      } else {
+        toast.error('কুপন তৈরি করতে ব্যর্থ হয়েছে');
+      }
+    } catch (err) {
+      toast.error('সার্ভার এরর');
+    } finally {
+      setGeneratingCoupon(false);
+    }
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopiedCode(text);
+    toast.success('কুপন কোড কপি করা হয়েছে!');
+    setTimeout(() => setCopiedCode(''), 2000);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -18,6 +61,12 @@ export default function MyAccountPage() {
       document.title = "My Account | Developers Club - বাংলাদেশের WordPress Developer Platform";
     }
   }, []);
+
+  useEffect(() => {
+    if (session?.user?.role === 'admin') {
+      fetchCoupons();
+    }
+  }, [session]);
 
   useEffect(() => {
     if (session?.user && typeof window !== 'undefined') {
@@ -173,6 +222,111 @@ export default function MyAccountPage() {
           </div>
 
         </div>
+
+        {/* Admin Coupon Management Dashboard Panel */}
+        {user.role === 'admin' && (
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden mb-8">
+            <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-blue-600" />
+                  <span>কুপন ম্যানেজমেন্ট (Admin Only)</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  গেস্ট রেজিস্ট্রেশনের জন্য ডাইনামিক ওটিপি/কুপন কোড জেনারেট ও ব্যবহারের হিস্ট্রি
+                </p>
+              </div>
+              <button
+                onClick={handleGenerateCoupon}
+                disabled={generatingCoupon}
+                className="py-2.5 px-5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+              >
+                {generatingCoupon ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Plus className="w-4 h-4" />
+                )}
+                <span>নতুন কুপন কোড তৈরি করুন</span>
+              </button>
+            </div>
+
+            {couponsLoading ? (
+              <div className="p-12 text-center text-slate-500 text-xs flex items-center justify-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                <span>কুপন লিস্ট লোড হচ্ছে...</span>
+              </div>
+            ) : coupons.length === 0 ? (
+              <div className="p-12 text-center text-slate-400 text-xs">
+                কোনো কুপন তৈরি করা হয়নি। "নতুন কুপন কোড তৈরি করুন" বাটনে ক্লিক করুন।
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs text-slate-600">
+                  <thead className="bg-slate-50/50 text-slate-500 font-bold uppercase border-b border-slate-100">
+                    <tr>
+                      <th className="p-4">কুপন কোড (Coupon)</th>
+                      <th className="p-4">অবস্থা (Status)</th>
+                      <th className="p-4">ব্যবহারকারী (Used By)</th>
+                      <th className="p-4">তৈরির সময় (Created At)</th>
+                      <th className="p-4 text-right">অ্যাকশন (Action)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {coupons.map((couponItem) => (
+                      <tr key={couponItem._id || couponItem.code} className="hover:bg-slate-50/40">
+                        <td className="p-4 font-mono font-bold text-slate-900 text-sm">
+                          {couponItem.code}
+                        </td>
+                        <td className="p-4">
+                          {couponItem.isUsed ? (
+                            <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md font-semibold text-[10px]">
+                              ব্যবহৃত (Used)
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md font-semibold text-[10px]">
+                              অব্যবহৃত (Available)
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-4 font-medium">
+                          {couponItem.usedBy ? (
+                            <span className="text-slate-700">{couponItem.usedBy}</span>
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </td>
+                        <td className="p-4 text-slate-400">
+                          {couponItem.createdAt ? new Date(couponItem.createdAt).toLocaleString('bn-BD') : '-'}
+                        </td>
+                        <td className="p-4 text-right">
+                          {!couponItem.isUsed && (
+                            <button
+                              onClick={() => copyToClipboard(couponItem.code)}
+                              className="py-1 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition inline-flex items-center gap-1.5 cursor-pointer"
+                              title="কপি করুন"
+                            >
+                              {copiedCode === couponItem.code ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                  <span>কপি হয়েছে</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3.5 h-3.5" />
+                                  <span>কপি করুন</span>
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Download History Table */}
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">

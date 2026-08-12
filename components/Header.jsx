@@ -3,19 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ShoppingBag, Code, User, LogOut, LayoutDashboard } from 'lucide-react';
-import AuthModal from './AuthModal';
 import { useSession, signOut } from '@/lib/auth-client';
 
 export default function Header() {
   const { data: session } = useSession();
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [authMode, setAuthMode] = useState('login');
   const [cartCount, setCartCount] = useState(0);
-
-  const openAuth = (mode) => {
-    setAuthMode(mode);
-    setIsAuthOpen(true);
-  };
 
   return (
     <>
@@ -29,11 +21,11 @@ export default function Header() {
                 alt="Developers Club"
                 className="w-10 h-10 object-contain transition-transform group-hover:scale-105"
               />
-              <div className="flex flex-col">
-                <span className="text-xl font-black text-slate-900 leading-tight tracking-tight">
-                  Developers <span className="text-blue-600">Club</span>
+              <div className="flex flex-col" suppressHydrationWarning={true}>
+                <span className="text-xl font-black text-slate-900 leading-tight tracking-tight" suppressHydrationWarning={true}>
+                  Developers <span className="text-blue-600" suppressHydrationWarning={true}>Club</span>
                 </span>
-                <span className="text-[9px] font-bold text-slate-400 tracking-widest uppercase -mt-0.5">
+                <span className="text-[9px] font-bold text-slate-400 tracking-widest uppercase -mt-0.5" suppressHydrationWarning={true}>
                   BY BENGAL-IT
                 </span>
               </div>
@@ -102,26 +94,24 @@ export default function Header() {
                 </div>
               ) : (
                 <div className="flex items-center gap-3 text-sm font-semibold">
-                  <button
-                    onClick={() => openAuth('login')}
+                  <a
+                    href="/login"
                     className="text-slate-700 hover:text-blue-600 px-3 py-2 transition"
                   >
                     লগইন
-                  </button>
-                  <button
-                    onClick={() => openAuth('signup')}
+                  </a>
+                  <a
+                    href="/register"
                     className="py-2.5 px-5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md shadow-blue-500/20 transition-all hover:shadow-blue-500/35"
                   >
                     সাইন আপ
-                  </button>
+                  </a>
                 </div>
               )}
             </div>
           </div>
         </div>
       </header>
-
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} initialMode={authMode} />
     </>
   );
 }
