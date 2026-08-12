@@ -23,16 +23,18 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Brand Logo */}
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-                <Code className="w-6 h-6 stroke-[2.5]" />
-              </div>
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <img
+                src="/icon.png"
+                alt="Developers Club"
+                className="w-10 h-10 object-contain transition-transform group-hover:scale-105"
+              />
               <div className="flex flex-col">
                 <span className="text-xl font-black text-slate-900 leading-tight tracking-tight">
                   Developers <span className="text-blue-600">Club</span>
                 </span>
                 <span className="text-[9px] font-bold text-slate-400 tracking-widest uppercase -mt-0.5">
-                  BY BENGALIT
+                  BY BENGAL-IT
                 </span>
               </div>
             </Link>
@@ -42,23 +44,26 @@ export default function Header() {
               <Link href="/" className="hover:text-blue-600 transition-colors">
                 হোম
               </Link>
-              <Link href="#plugins" className="hover:text-blue-600 transition-colors">
+              <Link href="/plugins" className="hover:text-blue-600 transition-colors">
                 প্লাগইন
               </Link>
-              <Link href="#themes" className="hover:text-blue-600 transition-colors">
+              <Link href="/themes" className="hover:text-blue-600 transition-colors">
                 থিম
               </Link>
-              <Link href="#templates" className="hover:text-blue-600 transition-colors">
+              <Link href="/templates" className="hover:text-blue-600 transition-colors">
                 টেমপ্লেট
               </Link>
-              <Link href="#resources" className="hover:text-blue-600 transition-colors">
+              <Link href="/resources" className="hover:text-blue-600 transition-colors">
                 রিসোর্স
               </Link>
-              <Link href="#docs" className="hover:text-blue-600 transition-colors">
+              <Link href="/docs" className="hover:text-blue-600 transition-colors">
                 ডকুমেন্টেশন
               </Link>
-              <Link href="#pricing" className="hover:text-blue-600 transition-colors">
+              <Link href="/pricing" className="hover:text-blue-600 transition-colors">
                 প্রাইসিং
+              </Link>
+              <Link href="/contact" className="hover:text-blue-600 transition-colors">
+                যোগাযোগ
               </Link>
             </nav>
 

@@ -13,16 +13,18 @@ export default function Footer() {
           
           {/* Column 1: Brand & Socials */}
           <div className="lg:col-span-1 space-y-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold">
-                <Code className="w-5 h-5" />
-              </div>
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <img
+                src="/icon.png"
+                alt="Developers Club"
+                className="w-9 h-9 object-contain transition-transform group-hover:scale-105"
+              />
               <div className="flex flex-col">
                 <span className="text-lg font-black text-white leading-tight">
                   Developers <span className="text-blue-500">Club</span>
                 </span>
                 <span className="text-[8px] font-bold text-slate-400 tracking-widest uppercase">
-                  BY BENGALIT
+                  BY BENGAL-IT
                 </span>
               </div>
             </Link>
@@ -61,11 +63,11 @@ export default function Footer() {
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-white">প্রোডাক্ট</h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li><Link href="#plugins" className="hover:text-blue-400 transition">প্লাগইন</Link></li>
-              <li><Link href="#themes" className="hover:text-blue-400 transition">থিম</Link></li>
-              <li><Link href="#templates" className="hover:text-blue-400 transition">টেমপ্লেট</Link></li>
-              <li><Link href="#resources" className="hover:text-blue-400 transition">রিসোর্স</Link></li>
-              <li><Link href="#tools" className="hover:text-blue-400 transition">টুলস</Link></li>
+              <li><Link href="/#plugins" className="hover:text-blue-400 transition">প্লাগইন</Link></li>
+              <li><Link href="/#themes" className="hover:text-blue-400 transition">থিম</Link></li>
+              <li><Link href="/#templates" className="hover:text-blue-400 transition">টেমপ্লেট</Link></li>
+              <li><Link href="/#resources" className="hover:text-blue-400 transition">রিসোর্স</Link></li>
+              <li><Link href="/#tools" className="hover:text-blue-400 transition">টুলস</Link></li>
             </ul>
           </div>
 
@@ -73,8 +75,8 @@ export default function Footer() {
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-white">সাপোর্ট</h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li><Link href="#docs" className="hover:text-blue-400 transition">ডকুমেন্টেশন</Link></li>
-              <li><Link href="#" className="hover:text-blue-400 transition">সাপোর্ট সেন্টার</Link></li>
+              <li><Link href="/#docs" className="hover:text-blue-400 transition">ডকুমেন্টেশন</Link></li>
+              <li><Link href="/contact" className="hover:text-blue-400 transition">যোগাযোগ ও সাপোর্ট</Link></li>
               <li><Link href="#articles" className="hover:text-blue-400 transition">ব্লগ</Link></li>
               <li><Link href="#" className="hover:text-blue-400 transition">প্রাইভেসি পলিসি</Link></li>
               <li><Link href="#" className="hover:text-blue-400 transition">রিফান্ড পলিসি</Link></li>
@@ -115,7 +117,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© 2024 Developers Club by BengalIT. All rights reserved.</p>
+          <p>© 2024 Developers Club by Bengal-IT. All rights reserved.</p>
 
           {/* Payment Partner Logos */}
           <div className="flex items-center gap-3">

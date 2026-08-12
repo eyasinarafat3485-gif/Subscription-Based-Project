@@ -1,6 +1,7 @@
 import './globals.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import FloatingContact from '@/components/FloatingContact';
 
 export const metadata = {
   title: 'Developers Club - বাংলাদেশের WordPress Developer Platform',
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="antialiased font-sans bg-white text-slate-900 selection:bg-blue-600 selection:text-white" suppressHydrationWarning>
         {children}
+        <FloatingContact />
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="colored" />
       </body>
     </html>

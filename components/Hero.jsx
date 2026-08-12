@@ -2,19 +2,46 @@
 
 import Link from 'next/link';
 import { Users, Download, ShieldCheck, Headphones, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function Hero() {
   return (
     <section className="relative pt-8 pb-14 overflow-hidden bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          
+
           {/* Left Content (6 columns) */}
           <div className="lg:col-span-6 space-y-6 text-left">
-            {/* Top Flag Tagline */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-100/70 border border-blue-200/60 rounded-full text-xs font-semibold text-blue-800">
-              <span>🇧🇩</span>
-              <span>বাংলাদেশের WordPress ডেভেলপারদের জন্য</span>
+            {/* Top Flag Tagline with professional animations */}
+            <div className="relative overflow-hidden inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-100/70 border border-blue-200/60 rounded-full text-xs font-semibold text-blue-800">
+              {/* Shiny animated border line sweep */}
+              <motion.div
+                className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-blue-400/40 to-transparent -skew-x-12 pointer-events-none"
+                initial={{ left: '-100%' }}
+                animate={{ left: '200%' }}
+                transition={{
+                  repeat: Infinity,
+                  repeatType: 'loop',
+                  duration: 2.3,
+                  ease: 'easeInOut',
+                  repeatDelay: 0.3,
+                }}
+              />
+
+              <motion.span
+                className="inline-block origin-center select-none"
+                animate={{
+                  scale: [1, 1.25, 1],
+                }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 2,
+                  ease: 'easeInOut',
+                }}
+              >
+                🇧🇩
+              </motion.span>
+              <span className="relative z-10">বাংলাদেশের WordPress ডেভেলপারদের জন্য</span>
             </div>
 
             {/* Main Headline (Always Strictly 2 Balanced Lines in Bangla & English) */}
