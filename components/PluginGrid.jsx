@@ -56,7 +56,7 @@ export default function PluginGrid({ onDownloadClick }) {
   return (
     <section id="plugins" className="py-12 bg-slate-50/50 border-y border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        
+
         {/* Header & Section Title */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -85,11 +85,10 @@ export default function PluginGrid({ onDownloadClick }) {
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition shrink-0 border ${
-                  isActive
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20'
-                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                }`}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition shrink-0 border ${isActive
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                  }`}
               >
                 {cat.id === 'Offer' && <Sparkles className="w-3.5 h-3.5 inline mr-1 text-amber-300 animate-pulse" />}
                 {cat.label}
@@ -113,7 +112,7 @@ export default function PluginGrid({ onDownloadClick }) {
             {products.map((item) => {
               const isExpired = item.offerEndsAt ? new Date(item.offerEndsAt).getTime() <= Date.now() : false;
               const isOfferActive = item.isOffer && !isExpired;
-              const displayPrice = isOfferActive ? item.price : (item.regularPrice || item.price);
+              const hasDiscount = item.regularPrice && Number(item.regularPrice) > Number(item.price);
 
               return (
                 <div
@@ -121,50 +120,51 @@ export default function PluginGrid({ onDownloadClick }) {
                   className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:-translate-y-1"
                 >
                   <div>
-                    {/* Image Container with Badges */}
-                    <div className="relative aspect-4/3 bg-slate-100 overflow-hidden border-b border-slate-100">
+                    {/* Image Container with Badges - Height বাড়িয়ে aspect-square & object-contain করা হয়েছে */}
+                    <div className="relative aspect-square w-full bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center p-3">
                       {item.image ? (
                         <img
                           src={item.image}
                           alt={item.title}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          /* object-contain ব্যবহারে পুরো ছবি না কেটে স্পষ্ট দেখাবে */
+                          className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-3xl">
+                        <div className="w-full h-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-3xl rounded-md">
                           {item.title.charAt(0)}
                         </div>
                       )}
 
                       {/* Category Badge */}
                       {isOfferActive ? (
-                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-rose-600 text-white text-[9px] font-black uppercase tracking-wider shadow-sm">
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-rose-600 text-white text-[9px] font-black uppercase tracking-wider shadow-sm z-10">
                           Mega Offer
                         </span>
                       ) : (
-                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-xs text-white text-[9px] font-bold">
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-xs text-white text-[9px] font-bold z-10">
                           {item.category}
                         </span>
                       )}
                     </div>
 
                     {/* Body Content */}
-                    <div className="p-4 space-y-2 text-center">
+                    <div className="p-2 space-y-2 text-center">
                       <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 min-h-[38px] group-hover:text-blue-600 transition-colors">
                         {item.title}
                       </h3>
-                      <p className="text-[11px] text-slate-400 font-mono">
+                      <p className="text-[12px] text-slate-400 font-mono">
                         {item.version || 'Latest Version'}
                       </p>
 
                       {/* Price Display */}
                       <div className="flex items-center justify-center gap-2 pt-1">
-                        {isOfferActive && item.regularPrice && item.regularPrice > item.price && (
-                          <span className="text-xs text-slate-400 line-through font-semibold">
+                        {hasDiscount && (
+                          <span className="text-sm text-slate-500 line-through font-semibold">
                             {item.regularPrice}৳
                           </span>
                         )}
                         <span className="text-base font-black text-blue-600 tracking-tight">
-                          {displayPrice}৳
+                          {item.price}৳
                         </span>
                       </div>
                     </div>

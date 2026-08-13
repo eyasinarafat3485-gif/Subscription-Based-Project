@@ -8,6 +8,7 @@ import {
   User,
   FolderHeart,
   PlusCircle,
+  Layers,
   Ticket,
   Users,
   Globe,
@@ -98,6 +99,11 @@ export default function DashboardSidebar() {
       title: 'Add Product',
       href: '/dashboard/admin/add-product',
       icon: PlusCircle,
+    },
+    {
+      title: 'All Products',
+      href: '/dashboard/admin/all-products',
+      icon: Layers,
     },
     {
       title: 'Guest Coupon',

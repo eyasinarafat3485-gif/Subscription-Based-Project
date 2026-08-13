@@ -136,10 +136,10 @@ export default function ProductDetailsPage({ params }) {
     );
   }
 
-  // Active Price Determination (If offer expired, switch to regularPrice)
+  // Active Price Determination
   const isOfferActive = product.isOffer && !isExpired;
-  const currentPrice = isOfferActive ? product.price : (product.regularPrice || product.price);
-  const showDiscountBadge = isOfferActive && product.regularPrice && product.regularPrice > product.price;
+  const hasDiscount = product.regularPrice && Number(product.regularPrice) > Number(product.price);
+  const currentPrice = product.price;
 
   // Qulabi 9 Grid Sample Icons for Showcase Banner Card
   const defaultShowcaseIcons = [
@@ -163,7 +163,7 @@ export default function ProductDetailsPage({ params }) {
       <Header />
 
       <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-10">
-        
+
         {/* Breadcrumb Navigation */}
         <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
           <Link href="/" className="hover:text-blue-600">Home</Link>
@@ -175,13 +175,13 @@ export default function ProductDetailsPage({ params }) {
 
         {/* Top Product Hero Section (Qulabi 2 Column Layout) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* Left Column: Authentic Qulabi Card Banner Image with Developers Club Branding */}
           <div className="lg:col-span-6 bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm relative space-y-4">
-            
+
             {/* Banner Main Promotional Display Card */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-tr from-slate-900 via-blue-950 to-slate-900 text-white p-6 sm:p-8 shadow-xl border border-blue-500/20">
-              
+
               {/* Header Branding Logo */}
               <div className="flex flex-col items-center text-center space-y-1 pb-4">
                 <div className="flex items-center gap-2">
@@ -206,8 +206,11 @@ export default function ProductDetailsPage({ params }) {
 
               {/* Central Price Pill Container */}
               <div className="my-4 text-center">
-                <div className="inline-flex items-center gap-1.5 px-6 py-2 rounded-2xl bg-white text-slate-900 shadow-lg border-2 border-blue-500">
+                <div className="inline-flex items-center gap-2 px-6 py-2 rounded-2xl bg-white text-slate-900 shadow-lg border-2 border-blue-500">
                   <span className="text-xs font-bold text-slate-500">Only</span>
+                  {hasDiscount && (
+                    <span className="text-md font-semibold text-slate-700 line-through">৳{product.regularPrice}</span>
+                  )}
                   <span className="text-2xl font-black text-blue-600">৳{currentPrice}</span>
                 </div>
               </div>
@@ -261,7 +264,7 @@ export default function ProductDetailsPage({ params }) {
 
           {/* Right Column: Product Details, Timer & Dynamic Price Switching Box */}
           <div className="lg:col-span-6 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-            
+
             {/* Title & Rating */}
             <div className="space-y-2">
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -277,9 +280,9 @@ export default function ProductDetailsPage({ params }) {
                 <span className="text-xs font-bold text-slate-700">5.0</span>
                 <span className="text-xs text-slate-400 font-medium"> Trusted by 1600+ Customers</span>
 
-                {showDiscountBadge && (
+                {hasDiscount && (
                   <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-black">
-                    {Math.round(((product.regularPrice - product.price) / product.regularPrice) * 100)}% OFF Applied
+                    {Math.round(((Number(product.regularPrice) - Number(product.price)) / Number(product.regularPrice)) * 100)}% OFF Applied
                   </span>
                 )}
               </div>
@@ -304,13 +307,13 @@ export default function ProductDetailsPage({ params }) {
             {/* Dynamic Price Display */}
             <div className="space-y-3 pt-2">
               <div className="flex items-baseline gap-3">
-                <span className="text-3xl font-black text-slate-900">৳{currentPrice}</span>
-                {isOfferActive && product.regularPrice && (
+                {hasDiscount && (
                   <span className="text-sm text-slate-400 line-through font-bold">৳{product.regularPrice}</span>
                 )}
-                {isExpired && (
+                <span className="text-3xl font-black text-slate-900">৳{currentPrice}</span>
+                {product.isOffer && isExpired && (
                   <span className="text-xs text-red-600 font-bold px-2 py-0.5 rounded bg-red-50 border border-red-200">
-                    Offer Expired (Regular Price Applies)
+                    Offer Expired
                   </span>
                 )}
               </div>
@@ -335,9 +338,8 @@ export default function ProductDetailsPage({ params }) {
 
             {/* Limited Time Offer Countdown Box (AUTO HIDES / EXPIRES ON TIMER END) */}
             {product.isOffer && (
-              <div className={`p-4 rounded-2xl border flex items-center justify-between gap-4 transition-all ${
-                isExpired ? 'bg-slate-100 border-slate-300 text-slate-500' : 'bg-rose-50 border-rose-200 text-rose-900'
-              }`}>
+              <div className={`p-4 rounded-2xl border flex items-center justify-between gap-4 transition-all ${isExpired ? 'bg-slate-100 border-slate-300 text-slate-500' : 'bg-rose-50 border-rose-200 text-rose-900'
+                }`}>
                 <span className="text-xs font-bold flex items-center gap-1.5">
                   <Clock className={`w-4 h-4 ${isExpired ? 'text-slate-500' : 'text-rose-600 animate-pulse'}`} />
                   <span>{isExpired ? 'Offer Expired!' : 'Limited Offers!'}</span>

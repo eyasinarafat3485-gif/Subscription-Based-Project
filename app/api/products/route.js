@@ -22,6 +22,8 @@ export async function GET(req) {
     const offer = searchParams.get('offer');
     const popular = searchParams.get('popular');
     const search = searchParams.get('search');
+    const pageParam = searchParams.get('page');
+    const limitParam = searchParams.get('limit');
 
     const mongooseConn = await connectToDatabase();
     const db = mongooseConn.connection.db;
@@ -54,6 +56,31 @@ export async function GET(req) {
         { description: new RegExp(search, 'i') },
         { category: new RegExp(search, 'i') },
       ];
+    }
+
+    if (pageParam && limitParam) {
+      const page = parseInt(pageParam, 10) || 1;
+      const limit = parseInt(limitParam, 10) || 8;
+      const skip = (page - 1) * limit;
+
+      const totalProducts = await db.collection('products').countDocuments(query);
+      const products = await db.collection('products')
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .toArray();
+
+      const totalPages = Math.max(1, Math.ceil(totalProducts / limit));
+
+      return NextResponse.json({
+        success: true,
+        products,
+        totalProducts,
+        page,
+        totalPages,
+        limit,
+      });
     }
 
     const products = await db.collection('products')
