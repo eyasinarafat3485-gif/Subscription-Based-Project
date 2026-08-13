@@ -58,7 +58,7 @@ export default function AdminDashboardPage() {
             className="px-5 py-3 rounded-2xl bg-white text-blue-600 hover:bg-slate-100 text-xs font-extrabold shadow-md flex items-center gap-2 transition-all hover:scale-105 shrink-0"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>এড প্রডাক্ট</span>
+            <span>Add Product</span>
           </Link>
         </div>
       </div>

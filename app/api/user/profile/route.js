@@ -3,6 +3,8 @@ import connectToDatabase from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req) {
   try {
     const session = await auth.api.getSession({

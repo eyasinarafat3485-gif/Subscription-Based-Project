@@ -37,7 +37,7 @@ export default function AdminAddProductPage() {
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight">এড প্রডাক্ট (Add New Product)</h1>
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Add Product</h1>
         <p className="text-slate-500 text-xs mt-1">নতুন ওয়ার্ডপ্রেস প্লাগইন, থিম বা টেমপ্লেট রিসোর্স আপলোড এবং পাবলিশ করুন</p>
       </div>
 

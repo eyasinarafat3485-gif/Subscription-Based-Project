@@ -10,22 +10,28 @@ export default function UserMyProfilePage() {
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
-    name: session?.user?.name || '',
-    email: session?.user?.email || '',
-    image: session?.user?.image || '',
+    name: '',
+    email: '',
+    image: '',
     plan: 'PRO Member (Monthly)',
   });
 
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [saved, setSaved] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    let isSubscribed = true;
     const fetchProfile = async () => {
       try {
         setFetching(true);
         const res = await fetch('/api/user/profile');
-        if (res.ok) {
+        if (res.ok && isSubscribed) {
           const data = await res.json();
           if (data?.user) {
             setFormData((prev) => ({
@@ -35,15 +41,25 @@ export default function UserMyProfilePage() {
               image: data.user.image || session?.user?.image || '',
             }));
           }
+        } else if (session?.user && isSubscribed) {
+          setFormData((prev) => ({
+            ...prev,
+            name: session.user.name || '',
+            email: session.user.email || '',
+            image: session.user.image || '',
+          }));
         }
       } catch (err) {
         console.error(err);
       } finally {
-        setFetching(false);
+        if (isSubscribed) setFetching(false);
       }
     };
 
     fetchProfile();
+    return () => {
+      isSubscribed = false;
+    };
   }, [session]);
 
   const handleImageChange = (e) => {
@@ -93,35 +109,35 @@ export default function UserMyProfilePage() {
     }
   };
 
-  if (fetching) {
-    return (
-      <div className="h-[60vh] flex flex-col items-center justify-center gap-3 text-slate-500">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-        <p className="text-sm font-semibold">প্রোফাইল লোড হচ্ছে...</p>
-      </div>
-    );
-  }
+  const isPageLoading = !mounted || fetching;
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl relative">
       <div>
         <h1 className="text-2xl font-black text-slate-900 tracking-tight">মাই প্রোফাইল (My Profile)</h1>
         <p className="text-slate-500 text-xs mt-1">আপনার ইউজার একাউন্ট তথ্য ও প্রোফাইল ছবি সেভ করুন</p>
       </div>
 
-      <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-6">
+      <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-6 relative min-h-[350px]">
+        {isPageLoading ? (
+          <div className="absolute inset-0 bg-white/90 backdrop-blur-xs flex flex-col items-center justify-center gap-3 text-slate-500 z-20 rounded-2xl">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            <p className="text-sm font-semibold">প্রোফাইল লোড হচ্ছে...</p>
+          </div>
+        ) : null}
+
         {/* User Card Header */}
         <div className="flex items-center gap-5 pb-6 border-b border-slate-100">
           <div className="relative group shrink-0">
             {formData.image ? (
               <img
                 src={formData.image}
-                alt={formData.name}
+                alt={formData.name || 'User'}
                 className="w-20 h-20 rounded-2xl object-cover border-4 border-blue-500 shadow-md"
               />
             ) : (
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-3xl flex items-center justify-center border-4 border-blue-400 shadow-md">
-                {formData.name.charAt(0).toUpperCase() || 'U'}
+                {formData.name ? formData.name.charAt(0).toUpperCase() : 'U'}
               </div>
             )}
 

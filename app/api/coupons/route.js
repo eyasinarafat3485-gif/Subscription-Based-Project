@@ -3,6 +3,8 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import connectToDatabase from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 // Helper to generate a random 5-character string
 function generateRandomCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

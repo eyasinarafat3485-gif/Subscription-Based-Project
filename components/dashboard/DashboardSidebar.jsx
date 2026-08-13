@@ -46,7 +46,7 @@ export default function DashboardSidebar() {
             localStorage.setItem('user_profile', JSON.stringify(data.user));
           }
         }
-      } catch (err) {}
+      } catch (err) { }
     };
 
     loadProfile();
@@ -95,7 +95,7 @@ export default function DashboardSidebar() {
       icon: FolderHeart,
     },
     {
-      title: 'এড প্রডাক্ট',
+      title: 'Add Product',
       href: '/dashboard/admin/add-product',
       icon: PlusCircle,
     },
@@ -209,9 +209,8 @@ export default function DashboardSidebar() {
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 text-slate-800 flex flex-col justify-between shadow-2xs transition-transform duration-300 ease-in-out ${
-          mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }`}
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 text-slate-800 flex flex-col justify-between shadow-2xs transition-transform duration-300 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          }`}
       >
         {/* Top Header & Branding */}
         <div>
@@ -229,8 +228,8 @@ export default function DashboardSidebar() {
                   {activeRole === 'admin'
                     ? 'ADMIN DASHBOARD'
                     : activeRole === 'guest'
-                    ? 'GUEST DASHBOARD'
-                    : 'MEMBER DASHBOARD'}
+                      ? 'GUEST DASHBOARD'
+                      : 'MEMBER DASHBOARD'}
                 </span>
               </div>
             </Link>
@@ -258,13 +257,12 @@ export default function DashboardSidebar() {
                 </div>
                 <span className="text-[10px] font-medium text-slate-500 truncate">{userEmail}</span>
                 <span
-                  className={`mt-1 inline-self-start px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border w-max ${
-                    activeRole === 'admin'
-                      ? 'bg-purple-100 text-purple-700 border-purple-200'
-                      : activeRole === 'guest'
+                  className={`mt-1 inline-self-start px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border w-max ${activeRole === 'admin'
+                    ? 'bg-purple-100 text-purple-700 border-purple-200'
+                    : activeRole === 'guest'
                       ? 'bg-amber-100 text-amber-800 border-amber-200'
                       : 'bg-blue-100 text-blue-700 border-blue-200'
-                  }`}
+                    }`}
                 >
                   {activeRole === 'admin' ? 'Admin' : activeRole === 'guest' ? 'Guest Pass' : 'Pro Member'}
                 </span>
@@ -278,8 +276,8 @@ export default function DashboardSidebar() {
               {activeRole === 'admin'
                 ? 'এডমিন নেভিগেশন'
                 : activeRole === 'guest'
-                ? 'গেস্ট নেভিগেশন'
-                : 'ইউজার নেভিগেশন'}
+                  ? 'গেস্ট নেভিগেশন'
+                  : 'ইউজার নেভিগেশন'}
             </div>
 
             {currentNavItems.map((item) => {
@@ -291,19 +289,17 @@ export default function DashboardSidebar() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`group relative flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-all duration-200 ${
-                    active
-                      ? 'bg-blue-50 text-blue-600 border border-blue-200 shadow-xs'
-                      : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600'
-                  }`}
+                  className={`group relative flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-all duration-200 ${active
+                    ? 'bg-blue-50 text-blue-600 border border-blue-200 shadow-xs'
+                    : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600'
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                        active
-                          ? 'bg-blue-600 text-white shadow-sm'
-                          : 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600'
-                      }`}
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${active
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600'
+                        }`}
                     >
                       <Icon className="w-4 h-4" />
                     </div>
@@ -311,9 +307,8 @@ export default function DashboardSidebar() {
                   </div>
 
                   <ChevronRight
-                    className={`w-4 h-4 transition-transform ${
-                      active ? 'text-blue-600 translate-x-0.5' : 'text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5'
-                    }`}
+                    className={`w-4 h-4 transition-transform ${active ? 'text-blue-600 translate-x-0.5' : 'text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5'
+                      }`}
                   />
                 </Link>
               );
@@ -331,7 +326,7 @@ export default function DashboardSidebar() {
           >
             <div className="flex items-center gap-2.5">
               <Home className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
-              <span>ওয়েবসাইটে ফিরে যান</span>
+              <span>হোমে ফিরে যান</span>
             </div>
             <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
           </Link>
