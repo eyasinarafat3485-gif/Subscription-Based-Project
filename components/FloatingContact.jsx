@@ -1,14 +1,20 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Phone, X, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function FloatingContact() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isHoveredMain, setIsHoveredMain] = useState(false);
   const [isHoveredCall, setIsHoveredCall] = useState(false);
   const [isHoveredWhatsapp, setIsHoveredWhatsapp] = useState(false);
+
+  if (pathname?.startsWith('/dashboard')) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">

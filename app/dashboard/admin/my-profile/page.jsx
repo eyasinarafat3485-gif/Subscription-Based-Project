@@ -1,0 +1,248 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { useSession } from '@/lib/auth-client';
+import { User, Mail, Save, CheckCircle, Camera, Lock, Loader2, Sparkles } from 'lucide-react';
+import { toast } from 'react-toastify';
+
+export default function AdminMyProfilePage() {
+  const { data: session } = useSession();
+  const fileInputRef = useRef(null);
+
+  const [formData, setFormData] = useState({
+    name: session?.user?.name || '',
+    email: session?.user?.email || '',
+    image: session?.user?.image || '',
+    bio: 'WordPress Senior Developer & Developers Club Platform Admin.',
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setFetching(true);
+        const res = await fetch('/api/user/profile');
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user) {
+            setFormData({
+              name: data.user.name || session?.user?.name || '',
+              email: data.user.email || session?.user?.email || '',
+              image: data.user.image || session?.user?.image || '',
+              bio: data.user.bio || 'WordPress Senior Developer & Developers Club Platform Admin.',
+            });
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    fetchProfile();
+  }, [session]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error('ছবি ফাইল সাইজ সর্বোচ্চ 2MB হতে হবে!');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, image: reader.result }));
+        toast.info('নতুন প্রোফাইল ছবি প্রিভিউ হচ্ছে, সেভ করুন বাটন প্রেস করুন');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const res = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          image: formData.image,
+          bio: formData.bio,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setSaved(true);
+        toast.success(data.message || 'প্রোফাইল ডাটাবেজে সেভ হয়েছে!');
+        localStorage.setItem('user_profile', JSON.stringify(data.user));
+        window.dispatchEvent(new Event('profileUpdated'));
+        setTimeout(() => setSaved(false), 3000);
+      } else {
+        toast.error(data.error || 'প্রোফাইল আপডেট করতে ব্যর্থ হয়েছে');
+      }
+    } catch (err) {
+      toast.error('সার্ভার কানেকশন এরর!');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (fetching) {
+    return (
+      <div className="h-[60vh] flex flex-col items-center justify-center gap-3 text-slate-500">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <p className="text-sm font-semibold">প্রোফাইল লোড হচ্ছে...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 max-w-4xl">
+      <div>
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight">মাই প্রোফাইল (Admin Profile)</h1>
+        <p className="text-slate-500 text-xs mt-1">আপনার এডমিন একাউন্ট তথ্য ও প্রোফাইল ছবি সেভ করুন</p>
+      </div>
+
+      <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-6">
+        {/* User Avatar & Header Info */}
+        <div className="flex items-center gap-5 pb-6 border-b border-slate-100">
+          {/* Avatar with Upload Camera Button */}
+          <div className="relative group shrink-0">
+            {formData.image ? (
+              <img
+                src={formData.image}
+                alt={formData.name}
+                className="w-20 h-20 rounded-2xl object-cover border-4 border-blue-500 shadow-md"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-3xl flex items-center justify-center border-4 border-blue-400 shadow-md">
+                {formData.name.charAt(0).toUpperCase() || 'A'}
+              </div>
+            )}
+
+            {/* Hidden File Input */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              accept="image/*"
+              className="hidden"
+            />
+
+            {/* Camera Upload Trigger */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute -bottom-2 -right-2 p-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md border-2 border-white transition-transform hover:scale-110 cursor-pointer"
+              title="নতুন ছবি আপলোড করুন"
+            >
+              <Camera className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              {formData.name || 'Admin User'}
+              <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black">
+                ADMIN
+              </span>
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">{formData.email}</p>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="mt-2 text-xs font-bold text-blue-600 hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <Camera className="w-3.5 h-3.5" />
+              <span>প্রোফাইল ছবি পরিবর্তন করুন</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Profile Form */}
+        <form onSubmit={handleSubmit} className="space-y-5 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-slate-700 font-bold mb-1.5">নাম</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none focus:border-blue-500 transition font-medium"
+                  required
+                />
+                <User className="w-4 h-4 text-slate-400 absolute right-3 top-3" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-slate-700 font-bold mb-1.5 flex items-center justify-between">
+                <span>ইমেইল এড্রেস</span>
+                <span className="text-[10px] text-slate-400 font-normal flex items-center gap-1">
+                  <Lock className="w-3 h-3 text-slate-400" />
+                  রিড-অনলি (পরিবর্তনযোগ্য নয়)
+                </span>
+              </label>
+              <div className="relative">
+                <input
+                  type="email"
+                  value={formData.email}
+                  readOnly
+                  disabled
+                  className="w-full bg-slate-100/90 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-500 font-medium cursor-not-allowed select-none"
+                />
+                <Lock className="w-4 h-4 text-slate-400 absolute right-3 top-3" />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-slate-700 font-bold mb-1.5">প্রোফাইল ছবি ইউআরএল (ঐচ্ছিক)</label>
+            <input
+              type="text"
+              placeholder="https://example.com/avatar.jpg"
+              value={formData.image}
+              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none focus:border-blue-500 transition font-medium"
+            />
+          </div>
+
+          <div>
+            <label className="block text-slate-700 font-bold mb-1.5">বায়ো / ডেসক্রিপশন</label>
+            <textarea
+              rows={3}
+              value={formData.bio}
+              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none focus:border-blue-500 transition font-medium"
+            />
+          </div>
+
+          <div className="pt-2 flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center gap-2 shadow-md transition cursor-pointer disabled:opacity-50"
+            >
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : saved ? (
+                <CheckCircle className="w-4 h-4 text-emerald-300" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              <span>{loading ? 'ডাটাবেজে সেভ হচ্ছে...' : saved ? 'ডাটাবেজে সেভ হয়েছে' : 'সেভ করুন (Save Changes)'}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

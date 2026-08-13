@@ -26,7 +26,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
       }
       await signIn.social({
         provider: 'google',
-        callbackURL: '/my-account',
+        callbackURL: '/dashboard',
       });
     } catch (err) {
       const msg = err.message || 'Google Sign-In ব্যর্থ হয়েছে';
@@ -57,7 +57,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
             sessionStorage.setItem('just_logged_in', 'true');
           }
           onClose();
-          window.location.href = '/my-account';
+          window.location.href = '/dashboard';
         }
       } else {
         if (role === 'guest') {
@@ -90,7 +90,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
             sessionStorage.setItem('just_registered', 'true');
           }
           onClose();
-          window.location.href = '/my-account';
+          window.location.href = '/dashboard';
         }
       }
     } catch (err) {

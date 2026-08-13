@@ -28,7 +28,7 @@ export default function LoginPage() {
       }
       await signIn.social({
         provider: 'google',
-        callbackURL: '/my-account',
+        callbackURL: '/dashboard',
       });
     } catch (err) {
       const msg = err.message || 'Google Sign-In ব্যর্থ হয়েছে';
@@ -57,7 +57,7 @@ export default function LoginPage() {
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('just_logged_in', 'true');
         }
-        window.location.href = '/my-account';
+        window.location.href = '/dashboard';
       }
     } catch (err) {
       const msg = err.message || 'একটি সমস্যা দেখা দিয়েছে';

@@ -31,7 +31,7 @@ export default function RegisterPage() {
       }
       await signIn.social({
         provider: 'google',
-        callbackURL: '/my-account',
+        callbackURL: '/dashboard',
       });
     } catch (err) {
       const msg = err.message || 'Google Sign-In ব্যর্থ হয়েছে';
@@ -79,7 +79,7 @@ export default function RegisterPage() {
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('just_registered', 'true');
         }
-        window.location.href = '/my-account';
+        window.location.href = '/dashboard';
       }
     } catch (err) {
       const msg = err.message || 'একটি সমস্যা দেখা দিয়েছে';
