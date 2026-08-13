@@ -5,33 +5,33 @@ import { BookOpen, RefreshCw, ShieldCheck, Headphones, Zap, DollarSign } from 'l
 const features = [
   {
     icon: BookOpen,
-    title: 'বাংলা ডকুমেন্টেশন',
-    desc: 'সহজ ও বিস্তারিত বাংলায় প্রোডাক্ট এর রিভিউ এবং গাইডলাইন।',
+    title: 'Comprehensive Docs',
+    desc: 'Easy and detailed step-by-step guides and product reviews.',
   },
   {
     icon: Headphones,
-    title: 'প্রায়োরিটি সাপোর্ট',
-    desc: 'যেকোনো সমস্যায় যেকোনো সময় ২৪/৭ দ্রুত রেসপন্স ও সাপোর্ট।',
+    title: 'Priority Support',
+    desc: '24/7 fast support response to resolve any queries.',
   },
   {
     icon: RefreshCw,
-    title: 'নিয়মিত আপডেট',
-    desc: 'সকল প্লাগইন ও থিমের নিয়মিত ফাইল ও ভার্সন আপডেট আপডেট।',
+    title: 'Regular Updates',
+    desc: 'Immediate and constant updates for plugins and themes.',
   },
   {
     icon: Zap,
-    title: 'সহজ ডাউনলোড',
-    desc: 'কোনো ঝামেলা ছাড়া সুন্দর ও ফার্স্ট ১-ক্লিক ডাউনলোড প্রসেস।',
+    title: 'One-Click Downloads',
+    desc: 'Smooth and instant direct download links.',
   },
   {
     icon: ShieldCheck,
-    title: 'সিকিউর & সেফ',
-    desc: 'মালওয়্যার ১০০% স্ক্যানকৃত এনক্রিপ্টেড এবং ১০০% ভাইরাস মুক্ত।',
+    title: 'Safe & Clean',
+    desc: '100% virus-free, secure, and malware-scanned.',
   },
   {
     icon: DollarSign,
-    title: 'সাশ্রয়ী মূল্য',
-    desc: 'একমাত্র একটি সাশ্রয়ী সাবস্ক্রিপশনে সব প্রোডাক্টের এক্সেস।',
+    title: 'Affordable Price',
+    desc: 'Get access to all premium products under a single budget subscription.',
   },
 ];
 
@@ -46,8 +46,8 @@ export default function Features() {
           <div className="lg:col-span-7 space-y-8">
             <div>
               <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
-                কেন Developers Club <br />
-                <span className="text-blue-600">আপনার সেরা পছন্দ?</span>
+                Why Developers Club <br />
+                <span className="text-blue-600">is Your Best Choice?</span>
               </h2>
             </div>
 
@@ -82,7 +82,7 @@ export default function Features() {
 
               <h3 className="text-2xl font-bold mb-2">100% Guaranteed Safe</h3>
               <p className="text-xs text-blue-100 max-w-xs leading-relaxed">
-                সকল ফাইল অরিজিনাল ক্লিন জিপ ফাইল, যা কোনো প্রকার ক্ষতিকারক কোড বা ভাইরাস ছাড়া প্রদান করা হয়।
+                All files are original clean zip files, provided without any malicious code or virus.
               </p>
             </div>
           </div>

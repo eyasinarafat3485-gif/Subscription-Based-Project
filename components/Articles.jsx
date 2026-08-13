@@ -5,31 +5,31 @@ import { ArrowRight, Calendar } from 'lucide-react';
 
 const articles = [
   {
-    title: 'Elementor Pro ইনস্টল এবং অ্যাক্টিভেট করার নিয়ম',
-    category: 'গাইড',
+    title: 'How to install and activate Elementor Pro',
+    category: 'Guide',
     categoryBg: 'bg-blue-600',
-    date: '০৪ মে, ২০২৪',
+    date: 'May 4, 2024',
     thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&auto=format&fit=crop&q=80',
   },
   {
-    title: 'WooCommerce স্টোরের স্পিড অপটিমাইজেশন',
-    category: 'টিউটোরিয়াল',
+    title: 'WooCommerce store speed optimization tutorial',
+    category: 'Tutorial',
     categoryBg: 'bg-indigo-600',
-    date: '০১ মে, ২০২৪',
+    date: 'May 1, 2024',
     thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&auto=format&fit=crop&q=80',
   },
   {
-    title: 'Rank Math SEO সেটআপ সম্পূর্ণ গাইড',
-    category: 'টিপস',
+    title: 'Rank Math SEO setup complete guide',
+    category: 'Tips',
     categoryBg: 'bg-cyan-600',
-    date: '২৮ এপ্রিল, ২০২৪',
+    date: 'Apr 28, 2024',
     thumbnail: 'https://images.unsplash.com/photo-1572177812156-58036aae439c?w=400&auto=format&fit=crop&q=80',
   },
   {
-    title: 'Flatsome Theme Customization পার্ট ৩',
-    category: 'রিভিউ',
+    title: 'Flatsome Theme customization Part 3',
+    category: 'Review',
     categoryBg: 'bg-sky-600',
-    date: '২৫ এপ্রিল, ২০২৪',
+    date: 'Apr 25, 2024',
     thumbnail: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=400&auto=format&fit=crop&q=80',
   },
 ];
@@ -42,13 +42,13 @@ export default function Articles() {
         {/* Section Header */}
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            সাম্প্রতিক আর্টিকেল
+            Recent Articles
           </h2>
           <Link
             href="#articles"
             className="flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700 transition"
           >
-            <span>সব আর্টিকেল</span>
+            <span>All Articles</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

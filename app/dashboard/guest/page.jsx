@@ -17,18 +17,18 @@ import { toast } from 'react-toastify';
 
 export default function GuestDashboardPage() {
   const stats = [
-    { label: 'একাউন্ট স্ট্যাটাস', value: 'Guest Free Pass', icon: Award, color: 'from-amber-500 to-orange-500', badge: 'ট্রায়াল এক্সেস' },
-    { label: 'আজকের ফ্রী ট্রায়াল ডাউনলোড', value: '২ / ৩ টি বাকি', icon: Download, color: 'from-blue-600 to-indigo-600', badge: 'আজকের লিমিট' },
-    { label: 'গেস্ট কুপন স্ট্যাটাস', value: 'সক্রিয় (Active)', icon: Ticket, color: 'from-emerald-600 to-teal-600', badge: 'ফ্রী ভাউচার' },
+    { label: 'Account Status', value: 'Guest Free Pass', icon: Award, color: 'from-amber-500 to-orange-500', badge: 'Trial Access' },
+    { label: "Today's Free Trial Downloads", value: '2 / 3 remaining', icon: Download, color: 'from-blue-600 to-indigo-600', badge: "Today's Limit" },
+    { label: 'Guest Coupon Status', value: 'Active', icon: Ticket, color: 'from-emerald-600 to-teal-600', badge: 'Free Voucher' },
   ];
 
   const guestDownloads = [
-    { title: 'Elementor Pro Free Trial Pack', category: 'Page Builder', date: 'আজ, ১০:১৫ AM', version: 'v3.24.0' },
-    { title: 'Astra Theme Starter Kit', category: 'GPL Theme', date: 'গতকাল, ৩:২০ PM', version: 'v4.7.1' },
+    { title: 'Elementor Pro Free Trial Pack', category: 'Page Builder', date: 'Today, 10:15 AM', version: 'v3.24.0' },
+    { title: 'Astra Theme Starter Kit', category: 'GPL Theme', date: 'Yesterday, 3:20 PM', version: 'v4.7.1' },
   ];
 
   const handleDownload = (title) => {
-    toast.success(`গেস্ট ফ্রী পাস দিয়ে ${title} জিপ ডাউনলোড শুরু হয়েছে!`);
+    toast.success(`Starting download for ${title} via Guest Free Pass!`);
   };
 
   return (
@@ -42,10 +42,10 @@ export default function GuestDashboardPage() {
               <span>Developers Club Guest Dashboard</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              স্বাগতম, গেস্ট মেম্বার! 🎉
+              Welcome, Guest Member! 🎉
             </h1>
             <p className="text-blue-100 text-xs sm:text-sm mt-1 max-w-xl">
-              আপনি গেস্ট এক্সেসে আছেন। আনলিমিটেড প্লাগইন, থিম ও প্রো ভার্সন ডাউনলোড করতে প্রো মেম্বারশিপে আপগ্রেড করুন।
+              You are on guest access. Upgrade to Pro Membership to download unlimited premium plugins, themes, and versions.
             </p>
           </div>
 
@@ -53,7 +53,7 @@ export default function GuestDashboardPage() {
             href="/#pricing"
             className="px-5 py-3 rounded-2xl bg-white text-blue-600 hover:bg-slate-100 text-xs font-black shadow-lg flex items-center gap-2 transition-all hover:scale-105 shrink-0"
           >
-            <span>PRO মেম্বারশিপ নিন</span>
+            <span>Get PRO Membership</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -92,15 +92,15 @@ export default function GuestDashboardPage() {
             <Zap className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-amber-900">আনলিমিটেড প্লাগইন এক্সেস চান?</h3>
-            <p className="text-xs text-amber-700">মাত্র ৪99 টাকায় নিয়ে নিন আনলিমিটেড লাইফটাইম ডিরেক্ট ডাউনলোড মেম্বারশিপ</p>
+            <h3 className="text-sm font-bold text-amber-900">Want unlimited plugin access?</h3>
+            <p className="text-xs text-amber-700">Get lifetime unlimited direct download membership for only ৳499.</p>
           </div>
         </div>
         <Link
           href="/#pricing"
           className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition shadow-sm shrink-0"
         >
-          আপগ্রেড করুন
+          Upgrade Now
         </Link>
       </div>
 
@@ -108,14 +108,14 @@ export default function GuestDashboardPage() {
       <div className="rounded-2xl bg-white border border-slate-200 p-6 space-y-4 shadow-xs">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-slate-900">গেস্ট ফ্রী ডাউনলোড কালেকশন</h3>
-            <p className="text-xs text-slate-500">আপনার গেস্ট পাস দিয়ে ডাউনলোড করা আইটেম সমূহের তালিকা</p>
+            <h3 className="text-base font-bold text-slate-900">Guest Free Download Collection</h3>
+            <p className="text-xs text-slate-500">The list of items downloaded using your guest pass.</p>
           </div>
           <Link
             href="/dashboard/guest/my-collections"
             className="text-xs font-bold text-blue-600 hover:text-blue-700 transition"
           >
-            সব দেখুন →
+            See all →
           </Link>
         </div>
 
@@ -123,11 +123,11 @@ export default function GuestDashboardPage() {
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-slate-200 text-slate-400 uppercase tracking-wider text-[10px]">
-                <th className="pb-3 font-bold">আইটেম এর নাম</th>
-                <th className="pb-3 font-bold">ক্যাটাগরি</th>
-                <th className="pb-3 font-bold">ভার্সন</th>
-                <th className="pb-3 font-bold">তারিখ</th>
-                <th className="pb-3 font-bold text-right">একশন</th>
+                <th className="pb-3 font-bold">ITEM NAME</th>
+                <th className="pb-3 font-bold">CATEGORY</th>
+                <th className="pb-3 font-bold">VERSION</th>
+                <th className="pb-3 font-bold">DATE</th>
+                <th className="pb-3 font-bold text-right">ACTION</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -148,8 +148,9 @@ export default function GuestDashboardPage() {
                     <button
                       onClick={() => handleDownload(item.title)}
                       className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white font-bold text-xs transition ml-auto cursor-pointer"
+                      suppressHydrationWarning
                     >
-                      ডাউনলোড
+                      Download
                     </button>
                   </td>
                 </tr>

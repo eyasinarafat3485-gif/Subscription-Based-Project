@@ -30,7 +30,7 @@ export default function Footer() {
             </a>
 
             <p className="text-xs text-slate-400 leading-relaxed">
-              বাংলাদেশের সেরা প্রিমিয়াম WordPress প্লাগইন, থিম এবং ডেভেলপমেন্ট রিসোর্স হাব।
+              Premium WordPress plugins, themes and development resource hub.
             </p>
 
             <div className="flex items-center gap-3 pt-2">
@@ -84,56 +84,56 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Column 2: প্রোডাক্ট */}
+          {/* Column 2: Products */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white">প্রোডাক্ট</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white">Products</h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li><a href="/#plugins" className="hover:text-blue-400 transition">প্লাগইন</a></li>
-              <li><a href="/#themes" className="hover:text-blue-400 transition">থিম</a></li>
-              <li><a href="/#templates" className="hover:text-blue-400 transition">টেমপ্লেট</a></li>
-              <li><a href="/#resources" className="hover:text-blue-400 transition">রিসোর্স</a></li>
-              <li><a href="/#tools" className="hover:text-blue-400 transition">টুলস</a></li>
+              <li><a href="/#plugins" className="hover:text-blue-400 transition">Plugins</a></li>
+              <li><a href="/#themes" className="hover:text-blue-400 transition">Themes</a></li>
+              <li><a href="/#templates" className="hover:text-blue-400 transition">Templates</a></li>
+              <li><a href="/#resources" className="hover:text-blue-400 transition">Resources</a></li>
+              <li><a href="/#tools" className="hover:text-blue-400 transition">Tools</a></li>
             </ul>
           </div>
 
-          {/* Column 3: সাপোর্ট */}
+          {/* Column 3: Support */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white">সাপোর্ট</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white">Support</h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li><a href="/#docs" className="hover:text-blue-400 transition">ডকুমেন্টেশন</a></li>
-              <li><a href="/contact" className="hover:text-blue-400 transition">যোগাযোগ ও সাপোর্ট</a></li>
-              <li><a href="#articles" className="hover:text-blue-400 transition">ব্লগ</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition">প্রাইভেসি পলিসি</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition">রিফান্ড পলিসি</a></li>
+              <li><a href="/#docs" className="hover:text-blue-400 transition">Documentation</a></li>
+              <li><a href="/contact" className="hover:text-blue-400 transition">Contact & Support</a></li>
+              <li><a href="#articles" className="hover:text-blue-400 transition">Blog</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition">Privacy Policy</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition">Refund Policy</a></li>
             </ul>
           </div>
 
-          {/* Column 4: আমাদের সম্পর্কে */}
+          {/* Column 4: About Us */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white">আমাদের সম্পর্কে</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white">About Us</h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li><a href="#" className="hover:text-blue-400 transition">আমাদের টিম</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition">ফেসবুক গ্রুপ</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition">প্রিমিয়াম সাপোর্ট</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition">কুপন এন্ড ডিসকাউন্ট</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition">Our Team</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition">Facebook Group</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition">Premium Support</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition">Coupons & Discounts</a></li>
             </ul>
           </div>
 
-          {/* Column 5: নিউজলেটার */}
+          {/* Column 5: Newsletter */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white">নিউজলেটার</h4>
-            <p className="text-xs text-slate-400">নতুন আপডেট এবং অফারের তথ্য পেতে সাবস্ক্রাইব করুন।</p>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white">Newsletter</h4>
+            <p className="text-xs text-slate-400">Subscribe to get the latest updates and offers.</p>
             <form onSubmit={(e) => e.preventDefault()} className="space-y-2">
               <input
                 type="email"
-                placeholder="আপনার ইমেইল এড্রেস..."
+                placeholder="Your email address..."
                 className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
               <button
                 type="submit"
                 className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition"
               >
-                সাবস্ক্রাইব করুন
+                Subscribe
               </button>
             </form>
           </div>

@@ -13,46 +13,84 @@ export default function DashboardLayout({ children }) {
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const [authorized, setAuthorized] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isPending) return;
 
-    const userRole = session?.user?.role || 'user';
+    // 1. Check if user is logged in
+    if (!session?.user) {
+      toast.error('Please login first to access the dashboard!');
+      router.replace('/login');
+      return;
+    }
 
-    // Protection for Admin Routes
-    if (pathname.startsWith('/dashboard/admin') && userRole !== 'admin') {
-      toast.error('এডমিন ড্যাশবোর্ডে প্রবেশের অনুমতি নেই!');
-      if (userRole === 'guest') {
-        router.replace('/dashboard/guest');
-      } else {
-        router.replace('/dashboard/user');
+    const fetchRoleAndValidate = async () => {
+      let userRole = session?.user?.role;
+
+      // Fallback: try fetching role from API if not set in session
+      if (!userRole) {
+        try {
+          const res = await fetch('/api/user/profile');
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.user?.role) {
+              userRole = data.user.role;
+            }
+          }
+        } catch (err) { }
       }
-      return;
-    }
 
-    // Protection for User Routes (if admin accesses user route, send to admin)
-    if (pathname.startsWith('/dashboard/user') && userRole === 'admin') {
-      router.replace('/dashboard/admin');
-      return;
-    }
+      userRole = userRole || 'user';
 
-    // Protection for Guest Routes (if admin accesses guest route, send to admin)
-    if (pathname.startsWith('/dashboard/guest') && userRole === 'admin') {
-      router.replace('/dashboard/admin');
-      return;
-    }
+      // 2. Protection for Guest Role (Guest can ONLY access /dashboard/guest)
+      if (userRole === 'guest') {
+        if (pathname.startsWith('/dashboard/admin')) {
+          toast.error('Access denied! You do not have permission to access the admin dashboard.');
+          router.replace('/dashboard/guest');
+          return;
+        }
+        if (pathname.startsWith('/dashboard/user')) {
+          toast.error('Guest account is not permitted to access the user dashboard.');
+          router.replace('/dashboard/guest');
+          return;
+        }
+      }
 
-    setAuthorized(true);
+      // 3. Protection for PRO User Role (User can ONLY access /dashboard/user)
+      if (userRole === 'user') {
+        if (pathname.startsWith('/dashboard/admin')) {
+          toast.error('Access denied! You do not have permission to access the admin dashboard.');
+          router.replace('/dashboard/user');
+          return;
+        }
+        if (pathname.startsWith('/dashboard/guest')) {
+          toast.error('Pro members are not permitted to access the guest dashboard.');
+          router.replace('/dashboard/user');
+          return;
+        }
+      }
+
+      // 4. Protection for Admin Role (Admin can ONLY access /dashboard/admin)
+      if (userRole === 'admin') {
+        if (pathname.startsWith('/dashboard/user') || pathname.startsWith('/dashboard/guest')) {
+          toast.info('Redirecting to the admin panel...');
+          router.replace('/dashboard/admin');
+          return;
+        }
+      }
+
+      setAuthorized(true);
+    };
+
+    fetchRoleAndValidate();
   }, [pathname, session, isPending, router]);
 
-  if (isPending || !authorized) {
-    return (
-      <div className="fixed inset-0 h-screen w-screen bg-slate-50 flex flex-col items-center justify-center gap-3 text-slate-600 font-sans z-50">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-        <p className="text-sm font-bold">নিরাপত্তা ও সিকিউরিটি রোল যাচাই করা হচ্ছে...</p>
-      </div>
-    );
-  }
+  const isLoading = !mounted || isPending || !authorized;
 
   return (
     <div className="fixed inset-0 h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 flex font-sans z-50">
@@ -60,15 +98,23 @@ export default function DashboardLayout({ children }) {
       <DashboardSidebar />
 
       {/* Main Right Area: Top Header + Scrollable Content */}
-      <div className="flex-1 h-full flex flex-col min-w-0 overflow-hidden bg-slate-50">
+      <div className="flex-1 h-full flex flex-col min-w-0 overflow-hidden bg-slate-50 relative">
         {/* Professional Top Dashboard Header */}
         <DashboardHeader />
 
         {/* Scrollable Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative">
           <div className="max-w-7xl mx-auto space-y-6">
             {children}
           </div>
+
+          {/* Smooth Non-Destructive Loading Overlay */}
+          {isLoading && (
+            <div className="absolute inset-0 bg-slate-50/90 backdrop-blur-xs flex flex-col items-center justify-center gap-3 text-slate-600 z-40 transition-opacity duration-200">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+              <p className="text-sm font-bold">Verifying security role permissions...</p>
+            </div>
+          )}
         </main>
       </div>
     </div>

@@ -22,7 +22,7 @@ export async function GET(req) {
     });
 
     if (!session || session.user.role !== 'admin') {
-      return NextResponse.json({ error: 'অননুমোদিত অ্যাক্সেস।' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized access.' }, { status: 401 });
     }
 
     await connectToDatabase();
@@ -38,7 +38,7 @@ export async function GET(req) {
     return NextResponse.json({ coupons });
   } catch (error) {
     console.error('Error fetching coupons:', error);
-    return NextResponse.json({ error: 'সার্ভার ত্রুটি।' }, { status: 500 });
+    return NextResponse.json({ error: 'Server error.' }, { status: 500 });
   }
 }
 
@@ -49,7 +49,7 @@ export async function POST(req) {
     });
 
     if (!session || session.user.role !== 'admin') {
-      return NextResponse.json({ error: 'অননুমোদিত অ্যাক্সেস।' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized access.' }, { status: 401 });
     }
 
     await connectToDatabase();
@@ -83,6 +83,6 @@ export async function POST(req) {
     return NextResponse.json({ success: true, coupon: newCoupon });
   } catch (error) {
     console.error('Error generating coupon:', error);
-    return NextResponse.json({ error: 'সার্ভার ত্রুটি।' }, { status: 500 });
+    return NextResponse.json({ error: 'Server error.' }, { status: 500 });
   }
 }

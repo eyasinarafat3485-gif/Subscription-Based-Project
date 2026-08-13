@@ -29,7 +29,7 @@ export default function SearchBar({ onSearch }) {
           {/* Header Title inside Box */}
           <div className="mb-5 text-left">
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-              আপনার প্রয়োজনীয় রিসোর্স খুঁজে নিন
+              Find Your Required Resource
             </h2>
           </div>
 
@@ -55,12 +55,12 @@ export default function SearchBar({ onSearch }) {
                 onChange={(e) => setCategory(e.target.value)}
                 className="w-full appearance-none px-4 py-3.5 bg-white text-slate-800 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10 cursor-pointer"
               >
-                <option value="all">সব ক্যাটাগরি</option>
-                <option value="plugin">প্লাগইন (Plugins)</option>
-                <option value="theme">থিম (Themes)</option>
-                <option value="template">টেমপ্লেট (Templates)</option>
-                <option value="resource">রিসোর্স (Resources)</option>
-                <option value="documentation">ডকুমেন্টেশন (Docs)</option>
+                <option value="all">All Categories</option>
+                <option value="plugin">Plugins</option>
+                <option value="theme">Themes</option>
+                <option value="template">Templates</option>
+                <option value="resource">Resources</option>
+                <option value="documentation">Documentation (Docs)</option>
               </select>
               <ChevronDown className="w-4 h-4 text-slate-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
@@ -70,13 +70,13 @@ export default function SearchBar({ onSearch }) {
               type="submit"
               className="py-3.5 px-8 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl transition shadow-md shadow-blue-600/30 flex items-center justify-center gap-2"
             >
-              <span>খুঁজুন</span>
+              <span>Search</span>
             </button>
           </form>
 
           {/* Popular Tag Pills */}
           <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-300">
-            <span className="font-semibold text-slate-400">জনপ্রিয়:</span>
+            <span className="font-semibold text-slate-400">Popular:</span>
             {['Elementor Pro', 'WP Rocket', 'Rank Math', 'WooCommerce', 'Astra', 'Flatsome'].map((tag) => (
               <button
                 key={tag}

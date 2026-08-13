@@ -8,8 +8,8 @@ export default function GuestMyCollectionsPage() {
   const [search, setSearch] = useState('');
 
   const collections = [
-    { title: 'Elementor Pro Free Trial Pack', category: 'Page Builder', version: 'v3.24.0', added: '১০ আগস্ট, ২০২৬' },
-    { title: 'Astra Theme Starter Kit', category: 'GPL Theme', version: 'v4.7.1', added: '০৮ আগস্ট, ২০২৬' },
+    { title: 'Elementor Pro Free Trial Pack', category: 'Page Builder', version: 'v3.24.0', added: '10 August, 2026' },
+    { title: 'Astra Theme Starter Kit', category: 'GPL Theme', version: 'v4.7.1', added: '08 August, 2026' },
   ];
 
   const filtered = collections.filter(item =>
@@ -18,21 +18,21 @@ export default function GuestMyCollectionsPage() {
   );
 
   const handleDownload = (title) => {
-    toast.success(`গেস্ট ট্রায়াল দিয়ে ${title} ফাইল জিপ ডাউনলোড শুরু হয়েছে!`);
+    toast.success(`Starting download for ${title} via Guest Trial!...`);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">মাই কালেকশন (Guest Collections)</h1>
-          <p className="text-slate-500 text-xs mt-1">গেস্ট ফ্রী ট্রায়াল দিয়ে আপনার ডাউনলোড করা প্লাগইন ও থিম তালিকা</p>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">My Collections</h1>
+          <p className="text-slate-500 text-xs mt-1">The list of plugins and themes you downloaded using your guest free trial.</p>
         </div>
 
         <div className="relative w-full sm:w-64">
           <input
             type="text"
-            placeholder="কালেকশন খুঁজুন..."
+            placeholder="Search collections..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 pl-9 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition shadow-xs"
@@ -57,13 +57,13 @@ export default function GuestMyCollectionsPage() {
             </div>
 
             <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[11px] text-slate-400">ডাউনলোড: {item.added}</span>
+              <span className="text-[11px] text-slate-400">Downloaded: {item.added}</span>
               <button
                 onClick={() => handleDownload(item.title)}
                 className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>ডাউনলোড</span>
+                <span suppressHydrationWarning>Download</span>
               </button>
             </div>
           </div>

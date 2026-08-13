@@ -25,7 +25,7 @@ export default function DashboardIndexPage() {
   return (
     <div className="h-full w-full flex flex-col items-center justify-center min-h-[60vh] gap-3 text-slate-500">
       <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-      <p className="text-sm font-semibold">আপনার একাউন্ট রোল চেক করে ড্যাশবোর্ডে রিডাইরেক্ট করা হচ্ছে...</p>
+      <p className="text-sm font-semibold">Verifying your account role and redirecting to the dashboard...</p>
     </div>
   );
 }

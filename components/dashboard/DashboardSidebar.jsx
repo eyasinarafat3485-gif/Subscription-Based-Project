@@ -79,18 +79,18 @@ export default function DashboardSidebar() {
   // Admin Links
   const adminNavItems = [
     {
-      title: 'ড্যাশবোর্ড ওভারভিউ',
+      title: 'Dashboard Overview',
       href: '/dashboard/admin',
       icon: LayoutDashboard,
       exact: true,
     },
     {
-      title: 'মাই প্রোফাইল',
+      title: 'My Profile',
       href: '/dashboard/admin/my-profile',
       icon: User,
     },
     {
-      title: 'মাই কালেকশন',
+      title: 'My Collection',
       href: '/dashboard/admin/my-collections',
       icon: FolderHeart,
     },
@@ -100,17 +100,17 @@ export default function DashboardSidebar() {
       icon: PlusCircle,
     },
     {
-      title: 'গেস্ট কুপন',
+      title: 'Guest Coupon',
       href: '/dashboard/admin/get-cupon',
       icon: Ticket,
     },
     {
-      title: 'অল ইউজার্স',
+      title: 'All Users',
       href: '/dashboard/admin/all-users',
       icon: Users,
     },
     {
-      title: 'পাবলিক কালেকশন',
+      title: 'Public Collection',
       href: '/dashboard/admin/public-collections',
       icon: Globe,
     },
@@ -119,18 +119,18 @@ export default function DashboardSidebar() {
   // User Links
   const userNavItems = [
     {
-      title: 'ড্যাশবোর্ড ওভারভিউ',
+      title: 'Dashboard Overview',
       href: '/dashboard/user',
       icon: LayoutDashboard,
       exact: true,
     },
     {
-      title: 'মাই প্রোফাইল',
+      title: 'My Profile',
       href: '/dashboard/user/my-profile',
       icon: User,
     },
     {
-      title: 'মাই কালেকশন',
+      title: 'My Collection',
       href: '/dashboard/user/my-collections',
       icon: FolderHeart,
     },
@@ -139,18 +139,18 @@ export default function DashboardSidebar() {
   // Guest Links
   const guestNavItems = [
     {
-      title: 'গেস্ট ড্যাশবোর্ড',
+      title: 'Guest Dashboard',
       href: '/dashboard/guest',
       icon: LayoutDashboard,
       exact: true,
     },
     {
-      title: 'মাই প্রোফাইল',
+      title: 'My Profile',
       href: '/dashboard/guest/my-profile',
       icon: User,
     },
     {
-      title: 'মাই কালেকশন',
+      title: 'My Collection',
       href: '/dashboard/guest/my-collections',
       icon: FolderHeart,
     },
@@ -166,10 +166,10 @@ export default function DashboardSidebar() {
       if (signOut) {
         await signOut();
       }
-      toast.success('লগআউট সফল হয়েছে');
+      toast.success('Logout successful');
       router.push('/login');
     } catch (err) {
-      toast.success('লগআউট করা হয়েছে');
+      toast.success('Logged out');
       router.push('/');
     }
   };
@@ -195,7 +195,7 @@ export default function DashboardSidebar() {
           className="p-2.5 bg-white text-slate-800 rounded-xl border border-slate-200 shadow-md flex items-center gap-2 hover:bg-slate-50 transition cursor-pointer"
         >
           {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          <span className="text-xs font-bold">মেনু</span>
+          <span suppressHydrationWarning className="text-xs font-bold">Menu</span>
         </button>
       </div>
 
@@ -229,7 +229,7 @@ export default function DashboardSidebar() {
                     ? 'ADMIN DASHBOARD'
                     : activeRole === 'guest'
                       ? 'GUEST DASHBOARD'
-                      : 'MEMBER DASHBOARD'}
+                      : 'USER DASHBOARD'}
                 </span>
               </div>
             </Link>
@@ -264,7 +264,7 @@ export default function DashboardSidebar() {
                       : 'bg-blue-100 text-blue-700 border-blue-200'
                     }`}
                 >
-                  {activeRole === 'admin' ? 'Admin' : activeRole === 'guest' ? 'Guest Pass' : 'Pro Member'}
+                  {activeRole ? activeRole.toUpperCase() : 'USER'}
                 </span>
               </div>
             </div>
@@ -274,10 +274,10 @@ export default function DashboardSidebar() {
           <nav className="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-310px)]">
             <div className="px-3 py-1.5 text-[11px] font-bold tracking-wider text-slate-400 uppercase">
               {activeRole === 'admin'
-                ? 'এডমিন নেভিগেশন'
+                ? 'Admin Navigation'
                 : activeRole === 'guest'
-                  ? 'গেস্ট নেভিগেশন'
-                  : 'ইউজার নেভিগেশন'}
+                  ? 'Guest Navigation'
+                  : 'User Navigation'}
             </div>
 
             {currentNavItems.map((item) => {
@@ -326,7 +326,7 @@ export default function DashboardSidebar() {
           >
             <div className="flex items-center gap-2.5">
               <Home className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
-              <span>হোমে ফিরে যান</span>
+              <span>Go to Home</span>
             </div>
             <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
           </Link>
@@ -338,7 +338,7 @@ export default function DashboardSidebar() {
           >
             <div className="flex items-center gap-2.5">
               <LogOut className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-              <span>লগআউট</span>
+              <span>Logout</span>
             </div>
             <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-extrabold">Exit</span>
           </button>

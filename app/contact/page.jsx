@@ -4,8 +4,8 @@ import ContactContent from '@/components/ContactContent';
 
 export const metadata = {
   title: 'Contact',
-  description: 'আমাদের সাথে সরাসরি যোগাযোগ করুন। যেকোনো তথ্য, অভিযোগ বা টেকনিক্যাল সাপোর্টের জন্য মেসেজ পাঠান বা সরাসরি কল করুন।',
-  keywords: ['contact', 'developers club support', 'bengal-it contact', 'যোগাযোগ', 'কাস্টমার সাপোর্ট'],
+  description: 'Contact us directly. Send a message or call us for any queries, complaints, or technical support.',
+  keywords: ['contact', 'developers club support', 'bengal-it contact', 'customer support'],
 };
 
 export default function ContactPage() {

@@ -21,20 +21,20 @@ export default function AdminMyCollectionsPage() {
   );
 
   const handleDownload = (title) => {
-    toast.info(`${title} জিপ ফাইল ডাউনলোড শুরু হচ্ছে...`);
+    toast.info(`Starting download for ${title}...`);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">মাই কালেকশন (Admin Collection)</h1>
-          <p className="text-slate-500 text-xs mt-1">আপনার সংরক্ষিত এবং ম্যানেজ করা ওয়ার্ডপ্রেস প্লাগইন ও থিম আর্কাইভ</p>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">My Collections</h1>
+          <p className="text-slate-500 text-xs mt-1">Your saved and managed WordPress plugins and themes archive.</p>
         </div>
         <div className="relative w-full sm:w-64">
           <input
             type="text"
-            placeholder="কালেকশন খুঁজুন..."
+            placeholder="Search collections..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 pl-9 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition shadow-xs"
@@ -61,14 +61,14 @@ export default function AdminMyCollectionsPage() {
             <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
               <span className="text-[11px] text-slate-500 flex items-center gap-1">
                 <Download className="w-3.5 h-3.5 text-slate-400" />
-                {item.downloads} ডাউনলোড
+                {item.downloads} downloads
               </span>
               <button
                 onClick={() => handleDownload(item.title)}
                 className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>ডাউনলোড</span>
+                <span suppressHydrationWarning>Download</span>
               </button>
             </div>
           </div>

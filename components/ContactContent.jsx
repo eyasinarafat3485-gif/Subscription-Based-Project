@@ -46,10 +46,10 @@ export default function ContactContent() {
         {/* Contact Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
-            যোগাযোগ করুন
+            Contact Us
           </h1>
           <p className="text-slate-500 text-sm md:text-base">
-            যেকোনো তথ্য, অভিযোগ বা টেকনিক্যাল সাপোর্টের জন্য নিচে দেওয়া মাধ্যমগুলোতে আমাদের সাথে যোগাযোগ করুন।
+            For any queries, complaints, or technical support, please contact us through the channels below.
           </p>
 
           {/* Social Icons with brand colors on hover */}
@@ -97,7 +97,6 @@ export default function ContactContent() {
 
         {/* Contact Layout Grid (2 Columns) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch mb-20 max-w-5xl mx-auto">
-
           {/* Left Card: Call Support */}
           <div className="bg-white border border-blue-300 rounded-lg p-8 md:p-12 flex flex-col justify-center items-center text-center shadow-xs hover:shadow-md transition-shadow">
             <div className="relative mb-6">
@@ -111,10 +110,10 @@ export default function ContactContent() {
             </div>
 
             <h2 className="text-2xl font-extrabold text-slate-800 mb-1">
-              সরাসরি কল করুন
+              Call Us Directly
             </h2>
             <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-8">
-              ২৪/৭ কাস্টমার সাপোর্ট
+              24/7 Customer Support
             </p>
 
             <a
@@ -140,15 +139,15 @@ export default function ContactContent() {
                 <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center text-green-500 mb-4 animate-bounce">
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-800 mb-2">মেসেজটি সফলভাবে পাঠানো হয়েছে!</h3>
+                <h3 className="text-lg font-bold text-slate-800 mb-2">Message sent successfully!</h3>
                 <p className="text-xs text-slate-500 max-w-xs">
-                  আপনার মেসেজের জন্য ধন্যবাদ। আমাদের টিম খুব দ্রুত আপনার সাথে যোগাযোগ করবে।
+                  Thank you for your message. Our team will contact you shortly.
                 </p>
                 <button
                   onClick={() => setStatus('idle')}
                   className="mt-6 text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
                 >
-                  আরেকটি মেসেজ পাঠান
+                  Send another message
                 </button>
               </div>
             ) : (
@@ -157,7 +156,7 @@ export default function ContactContent() {
                 {status === 'error' && (
                   <div className="p-3.5 bg-red-50 border border-red-100 text-red-600 rounded-xl text-xs flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>অনুগ্রহ করে নাম, ইমেল এবং বার্তার ক্ষেত্রগুলো পূরণ করুন।</span>
+                    <span>Please fill in the name, email, and message fields.</span>
                   </div>
                 )}
 
@@ -171,7 +170,7 @@ export default function ContactContent() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="আপনার নাম লিখুন"
+                    placeholder="Enter your name"
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-400 text-slate-800 bg-slate-50/30 text-sm"
                     required
                   />
@@ -187,7 +186,7 @@ export default function ContactContent() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="আপনার ইমেইল এড্রেস লিখুন"
+                    placeholder="Enter your email address"
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-400 text-slate-800 bg-slate-50/30 text-sm"
                     required
                   />
@@ -203,7 +202,7 @@ export default function ContactContent() {
                     name="whatsapp"
                     value={formData.whatsapp}
                     onChange={handleChange}
-                    placeholder="আপনার হোয়াটসঅ্যাপ নম্বর (ঐচ্ছিক)"
+                    placeholder="Your WhatsApp number (optional)"
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-400 text-slate-800 bg-slate-50/30 text-sm"
                   />
                 </div>
@@ -218,7 +217,7 @@ export default function ContactContent() {
                     rows="4"
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="আপনার বার্তাটি এখানে লিখুন..."
+                    placeholder="Write your message here..."
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-400 text-slate-800 bg-slate-50/30 text-sm resize-none"
                     required
                   ></textarea>
@@ -232,7 +231,7 @@ export default function ContactContent() {
                   {status === 'submitting' ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      <span>মেসেজ পাঠানো হচ্ছে...</span>
+                      <span>Sending message...</span>
                     </>
                   ) : (
                     <>

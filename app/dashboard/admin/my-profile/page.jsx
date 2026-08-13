@@ -15,6 +15,11 @@ export default function AdminMyProfilePage() {
     image: '',
     bio: 'WordPress Senior Developer & Developers Club Platform Admin.',
   });
+  const [initialData, setInitialData] = useState({
+    name: '',
+    image: '',
+    bio: 'WordPress Senior Developer & Developers Club Platform Admin.',
+  });
 
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -34,20 +39,36 @@ export default function AdminMyProfilePage() {
         if (res.ok && isSubscribed) {
           const data = await res.json();
           if (data?.user) {
+            const fetchedName = data.user.name || session?.user?.name || '';
+            const fetchedImage = data.user.image || session?.user?.image || '';
+            const fetchedBio = data.user.bio || 'WordPress Senior Developer & Developers Club Platform Admin.';
             setFormData({
-              name: data.user.name || session?.user?.name || '',
+              name: fetchedName,
               email: data.user.email || session?.user?.email || '',
-              image: data.user.image || session?.user?.image || '',
-              bio: data.user.bio || 'WordPress Senior Developer & Developers Club Platform Admin.',
+              image: fetchedImage,
+              bio: fetchedBio,
+            });
+            setInitialData({
+              name: fetchedName,
+              image: fetchedImage,
+              bio: fetchedBio,
             });
           }
         } else if (session?.user && isSubscribed) {
+          const fetchedName = session.user.name || '';
+          const fetchedImage = session.user.image || '';
+          const fetchedBio = 'WordPress Senior Developer & Developers Club Platform Admin.';
           setFormData((prev) => ({
             ...prev,
-            name: session.user.name || '',
+            name: fetchedName,
             email: session.user.email || '',
-            image: session.user.image || '',
+            image: fetchedImage,
           }));
+          setInitialData({
+            name: fetchedName,
+            image: fetchedImage,
+            bio: fetchedBio,
+          });
         }
       } catch (err) {
         console.error(err);
@@ -66,20 +87,26 @@ export default function AdminMyProfilePage() {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        toast.error('ছবি ফাইল সাইজ সর্বোচ্চ 2MB হতে হবে!');
+        toast.error('Image file size must be under 2MB!');
         return;
       }
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData((prev) => ({ ...prev, image: reader.result }));
-        toast.info('নতুন প্রোফাইল ছবি প্রিভিউ হচ্ছে, সেভ করুন বাটন প্রেস করুন');
+        toast.info('Previewing new profile picture, click the Save Changes button to confirm');
       };
       reader.readAsDataURL(file);
     }
   };
 
+  const isChanged =
+    formData.name !== initialData.name ||
+    formData.image !== initialData.image ||
+    formData.bio !== initialData.bio;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isChanged) return;
     try {
       setLoading(true);
       const res = await fetch('/api/user/profile', {
@@ -96,15 +123,20 @@ export default function AdminMyProfilePage() {
 
       if (res.ok && data.success) {
         setSaved(true);
-        toast.success(data.message || 'প্রোফাইল ডাটাবেজে সেভ হয়েছে!');
+        setInitialData({
+          name: formData.name,
+          image: formData.image,
+          bio: formData.bio,
+        });
+        toast.success(data.message || 'Profile updated successfully!');
         localStorage.setItem('user_profile', JSON.stringify(data.user));
         window.dispatchEvent(new Event('profileUpdated'));
         setTimeout(() => setSaved(false), 3000);
       } else {
-        toast.error(data.error || 'প্রোফাইল আপডেট করতে ব্যর্থ হয়েছে');
+        toast.error(data.error || 'Failed to update profile');
       }
     } catch (err) {
-      toast.error('সার্ভার কানেকশন এরর!');
+      toast.error('Server connection error!');
     } finally {
       setLoading(false);
     }
@@ -115,17 +147,17 @@ export default function AdminMyProfilePage() {
   return (
     <div className="space-y-6 max-w-4xl relative">
       <div>
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight">মাই প্রোফাইল (Admin Profile)</h1>
-        <p className="text-slate-500 text-xs mt-1">আপনার এডমিন একাউন্ট তথ্য ও প্রোফাইল ছবি সেভ করুন</p>
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight">My Profile</h1>
+        <p className="text-slate-500 text-xs mt-1">Manage and save your admin account details and profile picture.</p>
       </div>
 
       <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-6 relative min-h-[350px]">
-        {isPageLoading ? (
+        {isPageLoading && (
           <div className="absolute inset-0 bg-white/90 backdrop-blur-xs flex flex-col items-center justify-center gap-3 text-slate-500 z-20 rounded-2xl">
             <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-            <p className="text-sm font-semibold">প্রোফাইল লোড হচ্ছে...</p>
+            <p className="text-sm font-semibold">Loading profile...</p>
           </div>
-        ) : null}
+        )}
 
         {/* User Avatar & Header Info */}
         <div className="flex items-center gap-5 pb-6 border-b border-slate-100">
@@ -157,7 +189,7 @@ export default function AdminMyProfilePage() {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               className="absolute -bottom-2 -right-2 p-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md border-2 border-white transition-transform hover:scale-110 cursor-pointer"
-              title="নতুন ছবি আপলোড করুন"
+              title="Upload new image"
             >
               <Camera className="w-4 h-4" />
             </button>
@@ -177,7 +209,7 @@ export default function AdminMyProfilePage() {
               className="mt-2 text-xs font-bold text-blue-600 hover:underline flex items-center gap-1 cursor-pointer"
             >
               <Camera className="w-3.5 h-3.5" />
-              <span>প্রোফাইল ছবি পরিবর্তন করুন</span>
+              <span>Change profile picture</span>
             </button>
           </div>
         </div>
@@ -186,7 +218,7 @@ export default function AdminMyProfilePage() {
         <form onSubmit={handleSubmit} className="space-y-5 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-slate-700 font-bold mb-1.5">নাম</label>
+              <label className="block text-slate-700 font-bold mb-1.5">Name</label>
               <div className="relative">
                 <input
                   type="text"
@@ -201,10 +233,10 @@ export default function AdminMyProfilePage() {
 
             <div>
               <label className="block text-slate-700 font-bold mb-1.5 flex items-center justify-between">
-                <span>ইমেইল এড্রেস</span>
+                <span>Email Address</span>
                 <span className="text-[10px] text-slate-400 font-normal flex items-center gap-1">
                   <Lock className="w-3 h-3 text-slate-400" />
-                  রিড-অনলি (পরিবর্তনযোগ্য নয়)
+                  Read-only (Non-editable)
                 </span>
               </label>
               <div className="relative">
@@ -221,7 +253,7 @@ export default function AdminMyProfilePage() {
           </div>
 
           <div>
-            <label className="block text-slate-700 font-bold mb-1.5">প্রোফাইল ছবি ইউআরএল (ঐচ্ছিক)</label>
+            <label className="block text-slate-700 font-bold mb-1.5">Profile Image URL (Optional)</label>
             <input
               type="text"
               placeholder="https://example.com/avatar.jpg"
@@ -232,7 +264,7 @@ export default function AdminMyProfilePage() {
           </div>
 
           <div>
-            <label className="block text-slate-700 font-bold mb-1.5">বায়ো / ডেসক্রিপশন</label>
+            <label className="block text-slate-700 font-bold mb-1.5">Bio / Description</label>
             <textarea
               rows={3}
               value={formData.bio}
@@ -244,8 +276,8 @@ export default function AdminMyProfilePage() {
           <div className="pt-2 flex items-center gap-3">
             <button
               type="submit"
-              disabled={loading}
-              className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center gap-2 shadow-md transition cursor-pointer disabled:opacity-50"
+              disabled={loading || !isChanged}
+              className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center gap-2 shadow-md transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -254,7 +286,7 @@ export default function AdminMyProfilePage() {
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              <span>{loading ? 'ডাটাবেজে সেভ হচ্ছে...' : saved ? 'ডাটাবেজে সেভ হয়েছে' : 'সেভ করুন (Save Changes)'}</span>
+              <span>{loading ? 'Saving...' : saved ? 'Saved' : 'Save Changes'}</span>
             </button>
           </div>
         </form>

@@ -39,24 +39,24 @@ export default function Hero() {
                   ease: 'easeInOut',
                 }}
               >
-                🇧🇩
+                🚀
               </motion.span>
-              <span className="relative z-10">বাংলাদেশের WordPress ডেভেলপারদের জন্য</span>
+              <span className="relative z-10">For WordPress Developers</span>
             </div>
 
             {/* Main Headline (Always Strictly 2 Balanced Lines in Bangla & English) */}
             <h1 className="text-3xl sm:text-4xl lg:text-[45px] font-black text-slate-900 leading-[1.2] tracking-tight">
               <span className="block whitespace-nowrap">
-                বাংলাদেশের <span className="text-blue-600">WordPress</span>
+                WordPress <span className="text-blue-600">Developer</span>
               </span>
               <span className="block text-blue-600 mt-1">
-                Developer <span className="text-slate-900">Platform</span>
+                Platform <span className="text-slate-900">Hub</span>
               </span>
             </h1>
 
             {/* Subtitle */}
             <p className="text-base sm:text-lg text-slate-600 font-medium max-w-xl leading-relaxed">
-              প্রিমিয়াম প্লাগইন, থিম, টেমপ্লেট, রিসোর্স এবং বাংলা ডকুমেন্টেশন — সবকিছু এক জায়গায়।
+              Premium plugins, themes, templates, resources and documentation — all in one place.
             </p>
 
             {/* CTA Action Buttons */}
@@ -65,14 +65,14 @@ export default function Hero() {
                 href="#plugins"
                 className="py-3.5 px-7 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/25 transition-all hover:shadow-blue-600/40 flex items-center gap-2"
               >
-                <span>অল প্রোডাক্ট দেখুন</span>
+                <span>View All Products</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="#pricing"
                 className="py-3.5 px-7 bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm rounded-xl border border-slate-200 transition shadow-xs"
               >
-                প্রাইসিং দেখুন
+                View Pricing
               </Link>
             </div>
 
@@ -84,7 +84,7 @@ export default function Hero() {
                 </div>
                 <div>
                   <p className="text-base font-black text-slate-900 leading-none">5000+</p>
-                  <p className="text-[11px] font-medium text-slate-500 mt-1">প্রিমিয়াম মেম্বারস</p>
+                  <p className="text-[11px] font-medium text-slate-500 mt-1">Premium Members</p>
                 </div>
               </div>
 
@@ -94,7 +94,7 @@ export default function Hero() {
                 </div>
                 <div>
                   <p className="text-base font-black text-slate-900 leading-none">50K+</p>
-                  <p className="text-[11px] font-medium text-slate-500 mt-1">কাস্টম ডাউনলোডস</p>
+                  <p className="text-[11px] font-medium text-slate-500 mt-1">Total Downloads</p>
                 </div>
               </div>
 
@@ -104,7 +104,7 @@ export default function Hero() {
                 </div>
                 <div>
                   <p className="text-base font-black text-slate-900 leading-none">99.9%</p>
-                  <p className="text-[11px] font-medium text-slate-500 mt-1">আপটাইম & সেফ</p>
+                  <p className="text-[11px] font-medium text-slate-500 mt-1">Secure & Clean</p>
                 </div>
               </div>
 
@@ -114,7 +114,7 @@ export default function Hero() {
                 </div>
                 <div>
                   <p className="text-base font-black text-slate-900 leading-none">24/7</p>
-                  <p className="text-[11px] font-medium text-slate-500 mt-1">সাপোর্ট সার্ভিস</p>
+                  <p className="text-[11px] font-medium text-slate-500 mt-1">Support Service</p>
                 </div>
               </div>
             </div>

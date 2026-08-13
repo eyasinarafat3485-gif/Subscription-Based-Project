@@ -24,7 +24,7 @@ export default function DashboardHeader() {
             localStorage.setItem('user_profile', JSON.stringify(data.user));
           }
         }
-      } catch (err) {}
+      } catch (err) { }
     };
 
     loadProfile();
@@ -52,15 +52,15 @@ export default function DashboardHeader() {
       <div className="flex items-center gap-4">
         <div className="hidden md:flex flex-col">
           <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
-            <span>স্বাগতম, {userName.split(' ')[0]}</span>
+            <span suppressHydrationWarning>Welcome, {userName.split(' ')[0]}</span>
             <span className="text-base">👋</span>
           </h2>
           <p className="text-[11px] font-medium text-slate-500">
             {userRole === 'admin'
-              ? 'Developers Club সিস্টেম এডমিন প্যানেল'
+              ? 'Developers Club System Admin Panel'
               : userRole === 'guest'
-              ? 'গেস্ট ফ্রী ট্রায়াল মেম্বারশিপ'
-              : 'প্রো মেম্বারশিপ ড্যাশবোর্ড'}
+                ? 'Guest Free Trial Membership'
+                : 'Pro Membership Dashboard'}
           </p>
         </div>
 
@@ -68,7 +68,7 @@ export default function DashboardHeader() {
         <div className="relative hidden lg:block w-72">
           <input
             type="text"
-            placeholder="প্লাগইন, থিম বা ফাইল অনুসন্ধান..."
+            placeholder="Search plugins, themes or files..."
             className="w-full bg-slate-100/80 border border-slate-200/80 rounded-xl px-3.5 py-1.5 pl-9 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-blue-500 transition shadow-xs font-medium"
           />
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2" />
@@ -87,22 +87,21 @@ export default function DashboardHeader() {
             <UserCheck className="w-3.5 h-3.5 text-blue-600" />
           )}
           <span
-            className={`text-[10px] font-black uppercase tracking-wider ${
-              userRole === 'admin'
+            className={`text-[10px] font-black uppercase tracking-wider ${userRole === 'admin'
                 ? 'text-purple-700'
                 : userRole === 'guest'
-                ? 'text-amber-700'
-                : 'text-blue-700'
-            }`}
+                  ? 'text-amber-700'
+                  : 'text-blue-700'
+              }`}
           >
-            {userRole === 'admin' ? 'ADMIN' : userRole === 'guest' ? 'GUEST PASS' : 'PRO MEMBER'}
+            {userRole ? userRole.toUpperCase() : 'USER'}
           </span>
         </div>
 
         {/* Notifications Icon Button */}
         <button
           className="relative p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
-          title="নোটিফিকেশন"
+          title="Notifications"
         >
           <Bell className="w-4 h-4" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
@@ -116,8 +115,8 @@ export default function DashboardHeader() {
             userRole === 'admin'
               ? '/dashboard/admin/my-profile'
               : userRole === 'guest'
-              ? '/dashboard/guest/my-profile'
-              : '/dashboard/user/my-profile'
+                ? '/dashboard/guest/my-profile'
+                : '/dashboard/user/my-profile'
           }
           className="flex items-center gap-3 p-1.5 pr-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all group"
         >

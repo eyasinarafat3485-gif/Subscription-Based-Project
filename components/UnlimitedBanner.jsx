@@ -16,10 +16,10 @@ export default function UnlimitedBanner() {
             </div>
             <div>
               <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white mb-1">
-                একটি সদস্যপদ, সবকিছু আনলিমিটেড!
+                One Membership, Everything Unlimited!
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 font-medium">
-                একবার মেম্বারশিপ নিন এবং 5000+ প্রোডাক্টে আনলিমিটেড অ্যাক্সেস করুন
+                Get a membership once and access 5000+ products with no limits
               </p>
             </div>
           </div>
@@ -29,7 +29,7 @@ export default function UnlimitedBanner() {
             href="#pricing"
             className="py-3.5 px-7 bg-white hover:bg-slate-100 text-blue-900 font-bold text-sm rounded-xl transition shadow-md shrink-0 flex items-center gap-2"
           >
-            <span>মেম্বারশিপ প্ল্যান দেখুন</span>
+            <span>View Membership Plans</span>
             <ArrowRight className="w-4 h-4 text-blue-600" />
           </Link>
 

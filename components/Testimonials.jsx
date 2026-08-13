@@ -5,20 +5,20 @@ import { Star, ArrowRight } from 'lucide-react';
 
 const testimonials = [
   {
-    quote: '"বাংলা ডকুমেন্টেশন এবং সাপোর্টের জন্য Developers Club সেরা! ফ্রন্টএন্ডের জন্য ক্লায়েন্ট প্রজেক্ট করা এখন অনেক সহজ।"',
-    name: 'রাফিক হোসেন',
+    quote: '"Developers Club is the best for developer resources and support! Doing client projects is so much easier now."',
+    name: 'Rafiq Hossain',
     role: 'Web Developer',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
   },
   {
-    quote: '"একটি সাবস্ক্রিপশনে এত প্রিমিয়াম প্লাগইন পাওয়া সত্যিই অবিশ্বাস্য! নিয়মিত ফাইল আপডেট অসাধারণ।"',
-    name: 'মেহেদী হাসান',
+    quote: '"Getting so many premium plugins in one subscription is unbelievable! Regular file updates are awesome."',
+    name: 'Mehedi Hasan',
     role: 'Digital Marketer',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
   },
   {
-    quote: '"বাংলায় সাপোর্ট এবং ২৪/৭ রেসপন্স অনেক হেল্পফুল। নতুন ক্লায়েন্ট কাজ পাওয়া মাত্রই প্রয়োজন শেষ।"',
-    name: 'ফারিহা ইসলাম',
+    quote: '"Excellent developer support and rapid response. Saved me a lot of time on client delivery."',
+    name: 'Fariha Islam',
     role: 'WordPress Developer',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
   },
@@ -32,13 +32,13 @@ export default function Testimonials() {
         {/* Section Header */}
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            আমাদের সদস্যরা যা বলছেন
+            What Our Members Say
           </h2>
           <Link
             href="#reviews"
             className="flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700 transition"
           >
-            <span>সব রিভিউ</span>
+            <span>All Reviews</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

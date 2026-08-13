@@ -9,17 +9,17 @@ export default function AdminPublicCollectionsPage() {
     { title: 'Top 10 Essential WooCommerce Plugins 2026', itemsCount: 10, views: '3.2k', rating: '4.9', status: 'Public Featured' },
     { title: 'Elementor Pro Agency Toolkit Bundle', itemsCount: 8, views: '5.1k', rating: '5.0', status: 'Public Featured' },
     { title: 'WordPress Speed & Security Master Pack', itemsCount: 6, views: '2.8k', rating: '4.8', status: 'Public' },
-    { title: 'Bangla Newspaper & Portal Theme Bundle', itemsCount: 5, views: '1.9k', rating: '4.7', status: 'Public' },
+    { title: 'Newspaper & Portal Theme Bundle', itemsCount: 5, views: '1.9k', rating: '4.7', status: 'Public' },
   ]);
 
   const handleCreateNew = () => {
-    const title = prompt('পাবলিক কালেকশনের নাম লিখুন:');
+    const title = prompt('Enter the name of the public collection:');
     if (title) {
       setCollections([
         { title, itemsCount: 1, views: '0', rating: '5.0', status: 'Public' },
         ...collections
       ]);
-      toast.success(`"${title}" পাবলিক কালেকশনে যোগ করা হয়েছে!`);
+      toast.success(`"${title}" has been added to public collections!`);
     }
   };
 
@@ -27,8 +27,8 @@ export default function AdminPublicCollectionsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">পাবলিক কালেকশন (Public Collections)</h1>
-          <p className="text-slate-500 text-xs mt-1">কমিউনিটি ও ভিজিটরদের জন্য পাবলিশ করা সেরা ওয়ার্ডপ্রেস রিসোর্স বান্ডেল সমূহ</p>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Public Collections</h1>
+          <p className="text-slate-500 text-xs mt-1">Best WordPress resource bundles published for the community and visitors.</p>
         </div>
 
         <button
@@ -36,7 +36,7 @@ export default function AdminPublicCollectionsPage() {
           className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-2 shadow-md transition cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>নতুন বান্ডেল কালেকশন তৈরি করুন</span>
+          <span>Create New Bundle Collection</span>
         </button>
       </div>
 
@@ -62,20 +62,20 @@ export default function AdminPublicCollectionsPage() {
               <div className="flex items-center gap-4 text-xs text-slate-500 pt-1">
                 <span className="flex items-center gap-1">
                   <Layers className="w-3.5 h-3.5 text-blue-600" />
-                  {item.itemsCount} টি প্লাগইন/থিম
+                  {item.itemsCount} Plugins/Themes
                 </span>
                 <span>•</span>
-                <span>{item.views} বার দেখা হয়েছে</span>
+                <span>{item.views} Views</span>
               </div>
             </div>
 
             <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
               <span className="text-[11px] text-slate-400">Developers Club Curated</span>
               <button
-                onClick={() => toast.info(`"${item.title}" প্রিভিউ মোড ওপেন হচ্ছে...`)}
+                onClick={() => toast.info(`Opening preview for "${item.title}"...`)}
                 className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
               >
-                <span>ভিউ বান্ডেল</span>
+                <span>View Bundle</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </button>
             </div>

@@ -15,20 +15,20 @@ import { toast } from 'react-toastify';
 
 export default function UserDashboardPage() {
   const stats = [
-    { label: 'মেম্বারশিপ স্ট্যাটাস', value: 'PRO Member', icon: ShieldCheck, color: 'from-blue-600 to-indigo-600' },
-    { label: 'আজকের ডাউনলোড লিমিট', value: '৮ / ১০ টি বাকি', icon: Download, color: 'from-emerald-600 to-teal-600' },
-    { label: 'মাই কালেকশন সংখ্যা', value: '১২ টি প্লাগইন', icon: FolderHeart, color: 'from-purple-600 to-pink-600' },
+    { label: 'Membership Status', value: 'PRO Member', icon: ShieldCheck, color: 'from-blue-600 to-indigo-600' },
+    { label: "Today's Download Limit", value: '8 / 10 remaining', icon: Download, color: 'from-emerald-600 to-teal-600' },
+    { label: 'My Collections', value: '12 Plugins', icon: FolderHeart, color: 'from-purple-600 to-pink-600' },
   ];
 
   const recentDownloads = [
-    { title: 'Elementor Pro v3.24 (Original Zip)', category: 'Page Builder', date: 'আজ, ১:১৫ PM', version: 'v3.24.0' },
-    { title: 'WP Rocket Premium v3.16.2', category: 'Cache & Speed', date: 'গতকাল, ৪:৩০ PM', version: 'v3.16.2' },
-    { title: 'Astra Pro Addon Package', category: 'GPL Theme', date: '১০ আগস্ট, ২০২৬', version: 'v4.7.1' },
-    { title: 'Yoast SEO Premium + WooCommerce', category: 'SEO Plugin', date: '০৫ আগস্ট, ২০২৬', version: 'v22.8' },
+    { title: 'Elementor Pro v3.24 (Original Zip)', category: 'Page Builder', date: 'Today, 1:15 PM', version: 'v3.24.0' },
+    { title: 'WP Rocket Premium v3.16.2', category: 'Cache & Speed', date: 'Yesterday, 4:30 PM', version: 'v3.16.2' },
+    { title: 'Astra Pro Addon Package', category: 'GPL Theme', date: '10 August, 2026', version: 'v4.7.1' },
+    { title: 'Yoast SEO Premium + WooCommerce', category: 'SEO Plugin', date: '05 August, 2026', version: 'v22.8' },
   ];
 
   const handleReDownload = (title) => {
-    toast.success(`${title} ফাইল রি-ডাউনলোড শুরু হয়েছে!`);
+    toast.success(`Re-downloading ${title} file!`);
   };
 
   return (
@@ -42,10 +42,10 @@ export default function UserDashboardPage() {
               <span>Developers Club Member Dashboard</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              স্বাগতম, ডেভেলপার ক্লাব মেম্বার! 👋
+              Welcome, Developer Club Member! 👋
             </h1>
             <p className="text-blue-100 text-xs sm:text-sm mt-1 max-w-xl">
-              আপনার সাবস্ক্রিপশন স্ট্যাটাস, সংরক্ষিত প্রডাক্ট কালেকশন ও আনলিমিটেড প্লাগইন ডাউনলোড সহজে ব্রাউজ করুন।
+              Easily browse your subscription status, saved product collections, and download unlimited plugins.
             </p>
           </div>
 
@@ -54,7 +54,7 @@ export default function UserDashboardPage() {
             className="px-5 py-3 rounded-2xl bg-white text-blue-600 hover:bg-slate-100 text-xs font-bold shadow-md flex items-center gap-2 transition-all hover:scale-105 shrink-0"
           >
             <FolderHeart className="w-4 h-4" />
-            <span>মাই কালেকশন দেখুন</span>
+            <span>View My Collections</span>
           </Link>
         </div>
       </div>
@@ -88,15 +88,15 @@ export default function UserDashboardPage() {
           <div>
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <PackageCheck className="w-5 h-5 text-blue-600" />
-              <span>সাম্প্রতিক ডাউনলোড করা প্লাগইন ও থিম</span>
+              <span>Recently Downloaded Plugins & Themes</span>
             </h3>
-            <p className="text-xs text-slate-500">আপনার একাউন্ট থেকে সর্বশেষ ডাউনলোড কৃত ফাইল সমূহ</p>
+            <p className="text-xs text-slate-500">The latest files downloaded from your account.</p>
           </div>
           <Link
             href="/dashboard/user/my-collections"
             className="text-xs font-bold text-blue-600 hover:text-blue-700 transition"
           >
-            সব কালেকশন →
+            See all collections →
           </Link>
         </div>
 
@@ -104,11 +104,11 @@ export default function UserDashboardPage() {
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-slate-200 text-slate-400 uppercase tracking-wider text-[10px]">
-                <th className="pb-3 font-bold">আইটেম এর নাম</th>
-                <th className="pb-3 font-bold">ক্যাটাগরি</th>
-                <th className="pb-3 font-bold">ভার্সন</th>
-                <th className="pb-3 font-bold">ডাউনলোড সময়</th>
-                <th className="pb-3 font-bold text-right">ডাউনলোড</th>
+                <th className="pb-3 font-bold">ITEM NAME</th>
+                <th className="pb-3 font-bold">CATEGORY</th>
+                <th className="pb-3 font-bold">VERSION</th>
+                <th className="pb-3 font-bold">DOWNLOAD DATE</th>
+                <th className="pb-3 font-bold text-right">DOWNLOAD</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -131,7 +131,7 @@ export default function UserDashboardPage() {
                       className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white font-bold transition flex items-center gap-1.5 ml-auto cursor-pointer"
                     >
                       <Download className="w-3.5 h-3.5" />
-                      <span>ডাউনলোড</span>
+                      <span suppressHydrationWarning>Download</span>
                     </button>
                   </td>
                 </tr>

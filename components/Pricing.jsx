@@ -9,42 +9,42 @@ import { useSession } from '@/lib/auth-client';
 const plans = [
   {
     id: 'monthly',
-    name: 'মাসিক প্ল্যান',
+    name: 'Monthly Plan',
     price: '৳ 799',
-    period: '/ মাস',
+    period: '/ month',
     isPopular: false,
     features: [
-      'আনলিমিটেড ডাউনলোড',
-      'নিয়মিত আপডেট',
-      'বাংলা ডকুমেন্টেশন',
-      'স্ট্যান্ডার্ড সাপোর্ট',
+      'Unlimited Downloads',
+      'Regular Updates',
+      'English Documentation',
+      'Standard Support',
     ],
   },
   {
     id: 'yearly',
-    name: 'বার্ষিক প্ল্যান',
+    name: 'Yearly Plan',
     price: '৳ 5,999',
-    period: '/ বছর',
+    period: '/ year',
     isPopular: true,
-    badgeText: 'মোস্ট পপুলার',
+    badgeText: 'Most Popular',
     features: [
-      'আনলিমিটেড ডাউনলোড',
-      'নিয়মিত আপডেট',
-      'বাংলা ডকুমেন্টেশন',
-      'স্ট্যান্ডার্ড সাপোর্ট',
+      'Unlimited Downloads',
+      'Regular Updates',
+      'English Documentation',
+      'Standard Support',
     ],
   },
   {
     id: 'lifetime',
-    name: 'লাইফটাইম প্ল্যান',
+    name: 'Lifetime Plan',
     price: '৳ 19,999',
-    period: '/ এককালীন',
+    period: '/ one-time',
     isPopular: false,
     features: [
-      'লাইফটাইম অ্যাক্সেস',
-      'সব আপডেট ফ্রি',
-      'প্রায়োরিটি সাপোর্ট',
-      'ডেডিকেটেড সাপোর্ট',
+      'Lifetime Access',
+      'All Updates Free',
+      'Priority Support',
+      'Dedicated Support',
     ],
   },
 ];
@@ -63,7 +63,7 @@ export default function Pricing({ onSelectPlan }) {
     if (onSelectPlan) {
       onSelectPlan(plan);
     } else {
-      alert(`${plan.name} নির্বাচন করা হয়েছে। পেমেন্ট গেটওয়েতে পাঠাচ্ছি...`);
+      alert(`${plan.name} selected. Redirecting to payment gateway...`);
     }
   };
 
@@ -75,14 +75,14 @@ export default function Pricing({ onSelectPlan }) {
         <div className="flex items-center justify-between mb-12">
           <div>
             <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-              সহজ ও সাশ্রয়ী মূল্য
+              Simple & Affordable Pricing
             </h2>
           </div>
           <Link
             href="#pricing"
             className="flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700 transition"
           >
-            <span>সব প্ল্যান</span>
+            <span>All Plans</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -139,7 +139,7 @@ export default function Pricing({ onSelectPlan }) {
                     : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-200'
                 }`}
               >
-                এখনই শুরু করুন
+                Get Started Now
               </button>
             </div>
           ))}

@@ -9,7 +9,7 @@ export async function POST(req) {
 
     if (!coupon || !email) {
       return NextResponse.json(
-        { error: 'কুপন কোড এবং ইমেইল প্রদান করুন।' },
+        { error: 'Please provide both coupon code and email.' },
         { status: 400 }
       );
     }
@@ -27,14 +27,14 @@ export async function POST(req) {
 
     if (!couponDoc) {
       return NextResponse.json(
-        { error: 'ভ্যালিড VIP কুপন কোড প্রদান করুন!' },
+        { error: 'Please provide a valid VIP coupon code!' },
         { status: 400 }
       );
     }
 
     if (couponDoc.isUsed) {
       return NextResponse.json(
-        { error: 'এই কুপন কোডটি ইতিমধ্যে ব্যবহার করা হয়েছে!' },
+        { error: 'This coupon code has already been used!' },
         { status: 400 }
       );
     }
@@ -42,7 +42,7 @@ export async function POST(req) {
     // Check expiration date if it exists
     if (couponDoc.expiresAt && new Date(couponDoc.expiresAt) < new Date()) {
       return NextResponse.json(
-        { error: 'এই কুপন কোডটির মেয়াদ শেষ হয়ে গেছে!' },
+        { error: 'This coupon code has expired!' },
         { status: 400 }
       );
     }
@@ -63,7 +63,7 @@ export async function POST(req) {
   } catch (error) {
     console.error('Coupon validation error:', error);
     return NextResponse.json(
-      { error: 'সার্ভার ত্রুটি দেখা দিয়েছে।' },
+      { error: 'Server error occurred.' },
       { status: 500 }
     );
   }

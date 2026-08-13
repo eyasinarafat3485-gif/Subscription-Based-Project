@@ -9,7 +9,7 @@ import Footer from '@/components/Footer';
 export default function NotFound() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      document.title = "404 Page Not Found | Developers Club - বাংলাদেশের WordPress Developer Platform";
+      document.title = "404 Page Not Found | Developers Club - Bangladesh's WordPress Developer Platform";
     }
   }, []);
 
@@ -44,7 +44,7 @@ export default function NotFound() {
 
           {/* Subtitle / Description */}
           <p className="text-slate-500 text-sm md:text-base leading-relaxed mb-10 px-2">
-            দুঃখিত! আপনি যে পেজ বা প্রোডাক্টটি খুঁজছেন তা সম্ভবত পরিবর্তন করা হয়েছে, ডিলিট করা হয়েছে অথবা বর্তমানে উপলব্ধ নেই। অনুগ্রহ করে নিচে দেওয়া বাটনে ক্লিক করে সঠিক পেজে ফিরে যান।
+            Sorry! The page or product you are looking for has probably been moved, deleted, or is temporarily unavailable. Please click one of the buttons below to return to the website.
           </p>
 
           {/* Action CTAs */}
@@ -54,7 +54,7 @@ export default function NotFound() {
               className="w-full sm:w-auto py-3.5 px-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-sm rounded-2xl shadow-lg shadow-blue-600/20 hover:shadow-xl hover:shadow-blue-600/30 transition-all flex items-center justify-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>হোম পেজে ফিরে যান</span>
+              <span>Return to Home Page</span>
             </Link>
 
             <Link
@@ -62,7 +62,7 @@ export default function NotFound() {
               className="w-full sm:w-auto py-3.5 px-8 bg-white hover:bg-slate-50 text-slate-700 font-extrabold text-sm rounded-2xl border border-slate-200 shadow-sm transition flex items-center justify-center gap-2"
             >
               <Compass className="w-4 h-4 text-blue-600" />
-              <span>অল প্রোডাক্ট দেখুন</span>
+              <span>View All Products</span>
               <ArrowRight className="w-4 h-4 text-slate-400" />
             </Link>
           </div>

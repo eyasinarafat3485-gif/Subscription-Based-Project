@@ -29,7 +29,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
         callbackURL: '/dashboard',
       });
     } catch (err) {
-      const msg = err.message || 'Google Sign-In ব্যর্থ হয়েছে';
+      const msg = err.message || 'Google Sign-In failed';
       setError(msg);
       toast.error(msg);
     } finally {
@@ -49,7 +49,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           password,
         });
         if (res?.error) {
-          const msg = res.error.message || 'লগইন করতে ব্যর্থ হয়েছে';
+          const msg = res.error.message || 'Login failed';
           setError(msg);
           toast.error(msg);
         } else {
@@ -68,7 +68,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           });
           const verifyData = await verifyRes.json();
           if (!verifyRes.ok || verifyData.error) {
-            const msg = verifyData.error || 'কুপন কোড ভেরিফিকেশন ব্যর্থ হয়েছে!';
+            const msg = verifyData.error || 'Coupon verification failed!';
             setError(msg);
             toast.error(msg);
             setLoading(false);
@@ -82,7 +82,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           role,
         });
         if (res?.error) {
-          const msg = res.error.message || 'সাইনআপ করতে ব্যর্থ হয়েছে';
+          const msg = res.error.message || 'Signup failed';
           setError(msg);
           toast.error(msg);
         } else {
@@ -94,7 +94,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
         }
       }
     } catch (err) {
-      const msg = err.message || 'একটি সমস্যা দেখা দিয়েছে';
+      const msg = err.message || 'Something went wrong';
       setError(msg);
       toast.error(msg);
     } finally {
@@ -117,10 +117,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
             <ShieldCheck className="w-7 h-7 text-white" />
           </div>
           <h2 className="text-2xl font-bold">
-            {mode === 'login' ? 'Developers Club-এ লগইন' : 'নতুন অ্যাকাউন্ট তৈরি করুন'}
+            {mode === 'login' ? 'Login to Developers Club' : 'Create New Account'}
           </h2>
           <p className="text-xs text-blue-100 mt-1">
-            বাংলাদেশের বিশ্বস্ত WordPress ডেভেলপার প্ল্যাটফর্ম
+            Bangladesh's Trusted WordPress Developer Platform
           </p>
         </div>
 
@@ -156,13 +156,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                 d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.25 2.7 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
               />
             </svg>
-            Google দিয়ে লগইন করুন
+            Login with Google
           </button>
 
           <div className="relative my-4 text-center">
             <hr className="border-slate-200" />
             <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs text-slate-400">
-              অথবা ইমেইল দিয়ে
+              or with Email
             </span>
           </div>
 
@@ -170,7 +170,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
             {mode === 'signup' && (
               <>
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">আপনার নাম</label>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Your Name</label>
                   <div className="relative">
                     <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                     <input
@@ -178,7 +178,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="যেমন: মোঃ সাকিব হোসেন"
+                      placeholder="e.g. Sakib Hossain"
                       className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white text-slate-800"
                     />
                   </div>
@@ -186,7 +186,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
 
                 {/* Account Role Dropdown */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">অ্যাকাউন্ট টাইপ (Role)</label>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Account Type (Role)</label>
                   <div className="relative">
                     <select
                       value={role}
@@ -196,8 +196,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                       }}
                       className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white text-slate-800 appearance-none cursor-pointer"
                     >
-                      <option value="user">User (ইউজার)</option>
-                      <option value="guest">Guest (গেস্ট)</option>
+                      <option value="user">User</option>
+                      <option value="guest">Guest</option>
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
                       <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -210,7 +210,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                 {/* Coupon Code Input for Guest */}
                 {role === 'guest' && (
                   <div className="animate-fade-in">
-                    <label className="block text-xs font-medium text-slate-700 mb-1">কুপন কোড (Coupon Code)</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Coupon Code</label>
                     <div className="relative">
                       <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                       <input
@@ -218,12 +218,12 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                         required
                         value={coupon}
                         onChange={(e) => setCoupon(e.target.value)}
-                        placeholder="যেমন: VIP2026"
+                        placeholder="e.g. VIP2026"
                         className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 focus:border-blue-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white text-slate-800"
                       />
                     </div>
                     <p className="text-[10px] text-slate-500 mt-1 pl-1">
-                      * গেস্ট অ্যাকাউন্টের জন্য অবশ্যই সঠিক কুপন কোড প্রদান করুন।
+                      * Please provide a valid coupon code for Guest registration.
                     </p>
                   </div>
                 )}
@@ -231,7 +231,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
             )}
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">ইমেইল এড্রেস</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Email Address</label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                 <input
@@ -246,7 +246,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">পাসওয়ার্ড</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Password</label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                 <input
@@ -265,7 +265,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
               disabled={loading}
               className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-lg shadow-blue-500/25 transition disabled:opacity-50"
             >
-              {loading ? 'প্রসেসিং হচ্ছে...' : mode === 'login' ? 'লগইন করুন' : 'সাইন আপ করুন'}
+              {loading ? 'Processing...' : mode === 'login' ? 'Login' : 'Sign Up'}
             </button>
           </form>
 
@@ -273,22 +273,22 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           <div className="mt-6 text-center text-xs text-slate-600">
             {mode === 'login' ? (
               <p>
-                নতুন মেম্বার?{' '}
+                New member?{' '}
                 <button
                   onClick={() => setMode('signup')}
                   className="text-blue-600 font-semibold hover:underline"
                 >
-                  অ্যাকাউন্ট তৈরি করুন
+                  Create an Account
                 </button>
               </p>
             ) : (
               <p>
-                ইতিমধ্যে অ্যাকাউন্ট আছে?{' '}
+                Already have an account?{' '}
                 <button
                   onClick={() => setMode('login')}
                   className="text-blue-600 font-semibold hover:underline"
                 >
-                  লগইন করুন
+                  Login
                 </button>
               </p>
             )}

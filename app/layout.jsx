@@ -5,16 +5,16 @@ import FloatingContact from '@/components/FloatingContact';
 
 export const metadata = {
   title: {
-    default: 'Developers Club - বাংলাদেশের WordPress Developer Platform',
-    template: '%s | Developers Club - বাংলাদেশের WordPress Developer Platform',
+    default: 'Developers Club - WordPress Developer Platform',
+    template: '%s | Developers Club - WordPress Developer Platform',
   },
-  description: 'প্রিমিয়াম প্লাগইন, থিম, টেমপ্লেট, রিসোর্স এবং বাংলা ডকুমেন্টেশন - সবকিছু এক জায়গায়।',
-  keywords: ['wordpress', 'plugins', 'gpl themes', 'bangladesh developers', 'elementor pro', 'wp rocket'],
+  description: 'Premium plugins, themes, templates, resources, and documentation - all in one place.',
+  keywords: ['wordpress', 'plugins', 'gpl themes', 'developers club', 'elementor pro', 'wp rocket'],
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="bn" className="scroll-smooth" suppressHydrationWarning>
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

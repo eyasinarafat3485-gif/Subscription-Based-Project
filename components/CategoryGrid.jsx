@@ -5,44 +5,44 @@ import { ArrowRight, Puzzle, Palette, Layout, FolderKanban, PlaySquare, Wrench, 
 
 const categories = [
   {
-    name: 'প্লাগইন',
-    count: '1200+ আইটেম',
+    name: 'Plugins',
+    count: '1200+ Items',
     icon: Puzzle,
     slug: 'plugin',
   },
   {
-    name: 'থিম',
-    count: '800+ আইটেম',
+    name: 'Themes',
+    count: '800+ Items',
     icon: Palette,
     slug: 'theme',
   },
   {
-    name: 'টেমপ্লেট',
-    count: '500+ আইটেম',
+    name: 'Templates',
+    count: '500+ Items',
     icon: Layout,
     slug: 'template',
   },
   {
-    name: 'রিসোর্স',
-    count: '1500+ আইটেম',
+    name: 'Resources',
+    count: '1500+ Items',
     icon: FolderKanban,
     slug: 'resource',
   },
   {
-    name: 'ভিডিও',
-    count: '100+ আইটেম',
+    name: 'Videos',
+    count: '100+ Items',
     icon: PlaySquare,
     slug: 'video',
   },
   {
-    name: 'টুলস',
-    count: '150+ আইটেম',
+    name: 'Tools',
+    count: '150+ Items',
     icon: Wrench,
     slug: 'tool',
   },
   {
-    name: 'ডকুমেন্টেশন',
-    count: 'সব বাংলায় স্পষ্ট',
+    name: 'Documentation',
+    count: 'Clear Step Guides',
     icon: BookOpen,
     slug: 'documentation',
   },
@@ -56,13 +56,13 @@ export default function CategoryGrid({ onCategorySelect }) {
         {/* Section Title Bar */}
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-            ক্যাটাগরি অনুযায়ী ব্রাউজ করুন
+            Browse by Category
           </h2>
           <Link
             href="#plugins"
             className="flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700 transition"
           >
-            <span>সব দেখুন</span>
+            <span>View All</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

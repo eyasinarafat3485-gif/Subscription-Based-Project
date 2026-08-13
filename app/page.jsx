@@ -18,7 +18,7 @@ export default function Home() {
   };
 
   const handleDownload = (plugin) => {
-    alert(`${plugin.title} এর জিপ ডাউনলোড রিকোয়েস্ট তৈরি হচ্ছে...`);
+    alert(`Generating ZIP download request for ${plugin.title}...`);
   };
 
   return (

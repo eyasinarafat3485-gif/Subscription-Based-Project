@@ -74,7 +74,7 @@ export async function PUT(req) {
 
     return NextResponse.json({
       success: true,
-      message: 'প্রোফাইল সফলভাবে ডাটাবেজে সেভ হয়েছে!',
+      message: 'Profile updated successfully!',
       user: {
         name: updatedUser.name,
         email: updatedUser.email,

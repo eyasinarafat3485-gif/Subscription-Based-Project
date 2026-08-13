@@ -35,39 +35,39 @@ export default function AdminGetCouponPage() {
     };
 
     setCoupons([newEntry, ...coupons]);
-    toast.success(`নতুন কুপন কোড ${codeToAdd} সফলভাবে তৈরি হয়েছে!`);
+    toast.success(`New coupon code ${codeToAdd} successfully created!`);
     setNewCode('');
   };
 
   const handleCopy = (code) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
-    toast.success(`কুপন কোড ${code} কপি করা হয়েছে!`);
+    toast.success(`Coupon code ${code} copied!`);
     setTimeout(() => setCopiedCode(''), 2000);
   };
 
   const handleDelete = (code) => {
     setCoupons(coupons.filter(c => c.code !== code));
-    toast.error(`কুপন ${code} মুছে ফেলা হয়েছে`);
+    toast.error(`Coupon ${code} deleted`);
   };
 
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight">গেস্ট কুপন ম্যানেজমেন্ট (Get Coupon)</h1>
-        <p className="text-slate-500 text-xs mt-1">গেস্ট মেম্বার ও নতুন ইউজারদের জন্য ডিসকাউন্ট ও এক্সেস কুপন কোড তৈরি করুন</p>
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Guest Coupon Management</h1>
+        <p className="text-slate-500 text-xs mt-1">Generate discount and access coupon codes for guest members and new users.</p>
       </div>
 
       {/* Generate Coupon Form */}
       <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
         <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-500" />
-          <span>নতুন কুপন জেনারেট করুন</span>
+          <span>Generate New Coupon</span>
         </h2>
 
         <form onSubmit={handleCreateCoupon} className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
           <div>
-            <label className="block text-slate-700 font-bold mb-1">কুপন কোড</label>
+            <label className="block text-slate-700 font-bold mb-1">Coupon Code</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -80,7 +80,7 @@ export default function AdminGetCouponPage() {
                 type="button"
                 onClick={generateRandomCode}
                 className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
-                title="অটোমেটিক জেনারেট করুন"
+                title="Generate Automatically"
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
@@ -88,7 +88,7 @@ export default function AdminGetCouponPage() {
           </div>
 
           <div>
-            <label className="block text-slate-700 font-bold mb-1">ডিসকাউন্ট (%)</label>
+            <label className="block text-slate-700 font-bold mb-1">Discount (%)</label>
             <select
               value={newDiscount}
               onChange={(e) => setNewDiscount(e.target.value)}
@@ -107,7 +107,7 @@ export default function AdminGetCouponPage() {
               className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center justify-center gap-2 shadow-md transition cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>কুপন তৈরি করুন</span>
+              <span>Create Coupon</span>
             </button>
           </div>
         </form>
@@ -115,7 +115,7 @@ export default function AdminGetCouponPage() {
 
       {/* Existing Coupons */}
       <div className="rounded-2xl bg-white border border-slate-200 p-6 space-y-4 shadow-xs">
-        <h3 className="text-sm font-bold text-slate-900">সক্রিয় কুপন কোডের তালিকা</h3>
+        <h3 className="text-sm font-bold text-slate-900">Active Coupon Codes List</h3>
 
         <div className="space-y-3">
           {coupons.map((coupon, idx) => (
@@ -133,7 +133,7 @@ export default function AdminGetCouponPage() {
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500">
-                  ব্যবহার: <span className="text-slate-800 font-bold">{coupon.used}/{coupon.maxUses}</span> • মেয়ার শেষ: {coupon.expiry}
+                  Uses: <span className="text-slate-800 font-bold">{coupon.used}/{coupon.maxUses}</span> • Expiry: {coupon.expiry}
                 </p>
               </div>
 
@@ -147,12 +147,12 @@ export default function AdminGetCouponPage() {
                   ) : (
                     <Copy className="w-3.5 h-3.5" />
                   )}
-                  <span>{copiedCode === coupon.code ? 'কপি হয়েছে' : 'কোড কপি'}</span>
+                  <span>{copiedCode === coupon.code ? 'Copied' : 'Copy Code'}</span>
                 </button>
                 <button
                   onClick={() => handleDelete(coupon.code)}
                   className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition cursor-pointer"
-                  title="মুছে ফেলুন"
+                  title="Delete"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
