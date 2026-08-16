@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 
 export default function Hero() {
   return (
-    <section className="relative pt-8 pb-14 overflow-hidden bg-white">
+    <section className="relative pt-8 pb-14 overflow-hidden bg-slate-50/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
 
@@ -126,7 +126,7 @@ export default function Hero() {
               <img
                 src="/hero-showcase.png"
                 alt="WordPress Themes and Plugins Royal Blue Showcase"
-                className="w-full h-auto object-contain hover:scale-[1.02] transition-transform duration-300"
+                className="w-full h-auto object-contain hover:scale-[1.02] transition-transform duration-300 mix-blend-multiply"
               />
             </div>
           </div>

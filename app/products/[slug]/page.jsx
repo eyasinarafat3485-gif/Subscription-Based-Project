@@ -20,7 +20,8 @@ import {
   Sparkles,
   Lock,
   Eye,
-  Gift
+  Gift,
+  X
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useSession } from '@/lib/auth-client';
@@ -50,6 +51,14 @@ export default function ProductDetailsPage({ params }) {
   const [saveInfo, setSaveInfo] = useState(false);
   const [submittingReview, setSubmittingReview] = useState(false);
 
+  // Update Request States
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [updateVersion, setUpdateVersion] = useState('');
+  const [updateWhatsapp, setUpdateWhatsapp] = useState('');
+  const [updateEmail, setUpdateEmail] = useState('');
+  const [updateMessage, setUpdateMessage] = useState('');
+  const [submittingUpdate, setSubmittingUpdate] = useState(false);
+
   const { data: session } = useSession();
 
   // Synchronize name and email from logged-in user's session
@@ -57,8 +66,16 @@ export default function ProductDetailsPage({ params }) {
     if (session?.user) {
       setNameInput(session.user.name || '');
       setEmailInput(session.user.email || '');
+      setUpdateEmail(session.user.email || '');
     }
   }, [session]);
+
+  // Set default update message when product loads
+  useEffect(() => {
+    if (product) {
+      setUpdateMessage(`Hi! Please update on - ${product.title}`);
+    }
+  }, [product]);
 
   // Deterministic BDT date and time formatter to avoid hydration mismatches
   const formatBDTDateTime = (dateStr) => {
@@ -159,6 +176,61 @@ export default function ProductDetailsPage({ params }) {
       toast.error('Failed to submit review.');
     } finally {
       setSubmittingReview(false);
+    }
+  };
+
+  const handleUpdateSubmit = async (e) => {
+    e.preventDefault();
+    if (!updateVersion.trim() || !updateEmail.trim()) {
+      toast.error('Please fill in required fields!');
+      return;
+    }
+    try {
+      setSubmittingUpdate(true);
+      const res = await fetch(`/api/products/${slug}/update-request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          requestedVersion: updateVersion,
+          whatsapp: updateWhatsapp,
+          email: updateEmail,
+          message: updateMessage,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success('Update request submitted successfully!');
+
+        // Dynamic WhatsApp Click-to-Chat Notification
+        const whatsappMsg = `Hi, I have requested an update for *${product?.title || 'this product'}*.\n` +
+                            `Requested Version: *${updateVersion}*\n` +
+                            `Email: ${updateEmail}\n` +
+                            `WhatsApp: ${updateWhatsapp || 'N/A'}\n` +
+                            `Message: ${updateMessage || 'N/A'}`;
+        
+        const whatsappUrl = `https://api.whatsapp.com/send?phone=8801793679254&text=${encodeURIComponent(whatsappMsg)}`;
+        window.open(whatsappUrl, '_blank');
+
+        // Dynamic Mailto Trigger to info@bengal-it.com
+        const mailSubject = `[Update Request] ${product?.title || 'Product'} - Version ${updateVersion}`;
+        const mailBody = `Hi,\n\nI have requested an update for ${product?.title || 'this product'}.\nRequested Version: ${updateVersion}\nEmail: ${updateEmail}\nWhatsApp: ${updateWhatsapp || 'N/A'}\nMessage: ${updateMessage || 'N/A'}`;
+        const mailtoUrl = `mailto:info@bengal-it.com?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`;
+        window.location.href = mailtoUrl;
+
+        setUpdateVersion('');
+        setUpdateWhatsapp('');
+        setUpdateMessage(product ? `Hi! Please update on - ${product.title}` : '');
+        setIsUpdateModalOpen(false);
+      } else {
+        toast.error(data.error || 'Failed to submit update request.');
+      }
+    } catch (err) {
+      console.error('Update request error:', err);
+      toast.error('Failed to submit update request.');
+    } finally {
+      setSubmittingUpdate(false);
     }
   };
 
@@ -386,7 +458,7 @@ export default function ProductDetailsPage({ params }) {
                 <span>View Demo</span>
               </a>
               <button
-                onClick={() => toast.info('We have received your update request. Our team will verify and upload the latest version soon!')}
+                onClick={() => setIsUpdateModalOpen(true)}
                 className="flex-1 py-2 px-3 rounded-xl hover:bg-white transition flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900 border border-transparent hover:border-slate-200 cursor-pointer"
               >
                 <RefreshCw className="w-3.5 h-3.5 text-indigo-600" />
@@ -593,15 +665,93 @@ export default function ProductDetailsPage({ params }) {
           {/* Tab Panels */}
           <div className="p-6 sm:p-8">
             {activeTab === 'description' ? (
-              <div className="space-y-4 text-slate-600 text-xs sm:text-sm leading-relaxed">
-                <h4 className="text-base font-black text-slate-900 mb-2">
-                  Description
-                </h4>
-                {product.description ? (
-                  <p className="whitespace-pre-line font-medium">{product.description}</p>
-                ) : (
-                  <p className="font-medium">No description provided for this product.</p>
-                )}
+              <div className="space-y-8 text-slate-700 text-xs sm:text-sm leading-relaxed font-medium">
+                {/* Description Heading & Intro */}
+                <div className="space-y-3">
+                  <h3 className="text-lg font-black text-slate-900 tracking-tight">
+                    Description
+                  </h3>
+                  <h4 className="text-sm sm:text-base font-bold text-slate-800">
+                    {product.title} – Build Professional WordPress Websites Without Coding
+                  </h4>
+
+                  {/* Main Product Description Text or HTML */}
+                  {product.description && !/[\u0980-\u09FF]/.test(product.description) ? (
+                    typeof product.description === 'string' && (product.description.includes('<') && product.description.includes('>')) ? (
+                      <div 
+                        className="prose prose-slate max-w-none text-slate-700 text-xs sm:text-sm font-medium leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: product.description }}
+                      />
+                    ) : (
+                      <p className="whitespace-pre-line text-slate-600 font-medium">
+                        {product.description}
+                      </p>
+                    )
+                  ) : (
+                    <p className="text-slate-600 font-medium leading-relaxed">
+                      Take complete control of your WordPress site with <strong className="text-slate-900">{product.title}</strong>. Easily build high-converting landing pages, automated product comparison tables, dynamic bestseller lists, and professional web layouts without writing a single line of code. Designed to optimize site performance, enhance user experience, and drive seamless growth.
+                    </p>
+                  )}
+                </div>
+
+                {/* Key Features Section */}
+                <div className="space-y-3 pt-2">
+                  <h4 className="text-sm font-bold text-slate-900">
+                    Key Features
+                  </h4>
+                  <ul className="list-disc list-inside space-y-1.5 text-slate-600 font-medium pl-1">
+                    {(product.features && product.features.length > 0 ? product.features : [
+                      'Drag & Drop Visual Website Builder',
+                      '100+ Premium Widgets & Blocks',
+                      'Theme Builder (Header, Footer, Single, Archive)',
+                      'WooCommerce Builder Integration',
+                      'Popup & Form Builder with Marketing Tools',
+                      'Dynamic Content & Custom CSS Support',
+                      'Responsive Editing for Desktop, Tablet & Mobile',
+                      'Professional Pre-built Templates',
+                      'Fast, Lightweight & User-Friendly Interface',
+                      'Regular Feature Updates & Version Compatibility'
+                    ]).map((feat, idx) => (
+                      <li key={idx} className="marker:text-slate-400">
+                        <span>{feat}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Why Buy from Developers Club Section */}
+                <div className="space-y-3 pt-2">
+                  <h4 className="text-sm font-bold text-slate-900">
+                    Why Buy from Developers Club?
+                  </h4>
+                  <ul className="list-disc list-inside space-y-1.5 text-slate-600 font-medium pl-1">
+                    <li className="marker:text-slate-400"><span>1 Year FREE Access & Updates</span></li>
+                    <li className="marker:text-slate-400"><span>24/7 Priority Customer Support</span></li>
+                    <li className="marker:text-slate-400"><span>100% Clean & Malware-Free Files</span></li>
+                    <li className="marker:text-slate-400"><span>Unlimited Website Usage</span></li>
+                    <li className="marker:text-slate-400"><span>Instant Digital Download</span></li>
+                    <li className="marker:text-slate-400"><span>Secure & Fast Delivery</span></li>
+                    <li className="marker:text-slate-400"><span>Affordable GPL License</span></li>
+                  </ul>
+                </div>
+
+                {/* Package Includes Section */}
+                <div className="space-y-3 pt-2">
+                  <h4 className="text-sm font-bold text-slate-900">
+                    Package Includes
+                  </h4>
+                  <ul className="list-disc list-inside space-y-1.5 text-slate-600 font-medium pl-1">
+                    <li className="marker:text-slate-400"><span>Latest {product.title} Plugin / Theme File</span></li>
+                    <li className="marker:text-slate-400"><span>Future Updates for 1 Year</span></li>
+                    <li className="marker:text-slate-400"><span>Installation & Setup Guide</span></li>
+                    <li className="marker:text-slate-400"><span>Dedicated Customer Support</span></li>
+                  </ul>
+                </div>
+
+                {/* GPL Disclaimer Note */}
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] sm:text-xs text-slate-500 font-medium leading-normal mt-6">
+                  <strong className="text-slate-800 font-bold">Note:</strong> This product is distributed under the GNU General Public License (GPL). You can use it on unlimited personal or client websites according to the GPL license terms. Product features may vary depending on the installed version and WordPress environment.
+                </div>
               </div>
             ) : (
               <div className="space-y-8">
@@ -642,8 +792,8 @@ export default function ProductDetailsPage({ params }) {
                             <div className="space-y-1">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="text-xs font-bold text-slate-800">{rev.name}</span>
-                                <span className="text-[9px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
-                                  Verified Owner
+                                <span className="text-[9px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                                  Verified {rev.userRole || 'Owner'}
                                 </span>
                               </div>
                               
@@ -824,6 +974,120 @@ export default function ProductDetailsPage({ params }) {
         )}
 
       </main>
+
+      {/* Update Request Modal Overlay */}
+      {isUpdateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 relative border border-slate-100 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            {/* Close button */}
+            <button
+              onClick={() => setIsUpdateModalOpen(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="flex flex-col items-center text-center mt-2 space-y-3">
+              <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-2xs border border-indigo-100">
+                <RefreshCw className="w-6 h-6 animate-spin-slow" />
+              </div>
+
+              <div className="space-y-1">
+                <h3 className="text-lg font-black text-slate-800 tracking-tight">
+                  {product.title} - Update Request
+                </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  Request the latest version & get notified when ready
+                </p>
+              </div>
+
+              {/* Status Badge */}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-[10px] font-bold text-indigo-700">
+                <CheckCircle2 className="w-3 h-3 text-indigo-600" />
+                Usually updated within 1-12 hours
+              </span>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleUpdateSubmit} className="mt-6 space-y-4">
+              {/* Latest Version input */}
+              <div className="space-y-1.5">
+                <input
+                  type="text"
+                  required
+                  value={updateVersion}
+                  onChange={(e) => setUpdateVersion(e.target.value)}
+                  placeholder="Latest version e.g 4.0.1"
+                  className="w-full rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 px-4 py-2.5 text-xs text-slate-800 font-medium focus:outline-none transition bg-slate-50/50"
+                />
+              </div>
+
+              {/* WhatsApp Input */}
+              <div className="space-y-1.5">
+                <input
+                  type="text"
+                  value={updateWhatsapp}
+                  onChange={(e) => setUpdateWhatsapp(e.target.value)}
+                  placeholder="Your whatsapp number"
+                  className="w-full rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 px-4 py-2.5 text-xs text-slate-800 font-medium focus:outline-none transition bg-slate-50/50"
+                />
+              </div>
+
+              {/* Email Input */}
+              <div className="space-y-1.5">
+                <input
+                  type="email"
+                  required
+                  readOnly
+                  value={updateEmail}
+                  onChange={(e) => setUpdateEmail(e.target.value)}
+                  placeholder="Your email address"
+                  className="w-full rounded-xl border border-slate-300 bg-slate-100/90 px-4 py-2.5 text-xs text-slate-500 cursor-not-allowed font-semibold focus:outline-none transition"
+                />
+              </div>
+
+              {/* Message TextArea */}
+              <div className="space-y-1.5">
+                <textarea
+                  rows={3}
+                  value={updateMessage}
+                  onChange={(e) => setUpdateMessage(e.target.value)}
+                  placeholder={`e.g. Hi! Please update on - ${product.title}`}
+                  className="w-full rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 px-4 py-2.5 text-xs text-slate-800 font-medium focus:outline-none transition bg-slate-50/50 resize-none"
+                />
+              </div>
+
+              {/* Submit button */}
+              <button
+                type="submit"
+                disabled={submittingUpdate}
+                className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {submittingUpdate ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Sending Request...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Send Request</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Footer lock note */}
+            <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col items-center text-center space-y-2">
+              <div className="text-[10px] text-slate-400 font-medium flex items-center justify-center gap-1">
+                <Lock className="w-3.5 h-3.5 text-slate-400" />
+                <span>Your information is used only for update notification.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

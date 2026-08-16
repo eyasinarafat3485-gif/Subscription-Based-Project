@@ -96,7 +96,7 @@ export default function ContactContent() {
         </div>
 
         {/* Contact Layout Grid (2 Columns) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch mb-20 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch max-w-5xl mx-auto">
           {/* Left Card: Call Support */}
           <div className="bg-white border border-blue-300 rounded-lg p-8 md:p-12 flex flex-col justify-center items-center text-center shadow-xs hover:shadow-md transition-shadow">
             <div className="relative mb-6">
@@ -244,66 +244,6 @@ export default function ContactContent() {
             )}
           </div>
         </div>
-
-        {/* Bottom Features Showcase Banner */}
-        <div className="bg-white border border-slate-100 rounded-3xl p-8 md:p-10 shadow-xs max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-
-            {/* Feature 1 */}
-            <div className="flex flex-col items-center text-center p-2 group">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-4 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                <Download className="w-6 h-6" />
-              </div>
-              <h4 className="text-sm font-extrabold text-slate-800 mb-1">
-                Instant Download Access
-              </h4>
-              <p className="text-slate-400 text-[11px] leading-relaxed">
-                Access immediately after ordering!
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="flex flex-col items-center text-center p-2 group">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-4 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                <RefreshCw className="w-6 h-6" />
-              </div>
-              <h4 className="text-sm font-extrabold text-slate-800 mb-1">
-                Regular Updates
-              </h4>
-              <p className="text-slate-400 text-[11px] leading-relaxed">
-                Get new official updates!
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="flex flex-col items-center text-center p-2 group">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-4 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                <Infinity className="w-6 h-6" />
-              </div>
-              <h4 className="text-sm font-extrabold text-slate-800 mb-1">
-                Unlimited Domain Use
-              </h4>
-              <p className="text-slate-400 text-[11px] leading-relaxed">
-                You can use it as you wish.
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="flex flex-col items-center text-center p-2 group">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-4 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                <Headphones className="w-6 h-6" />
-              </div>
-              <h4 className="text-sm font-extrabold text-slate-800 mb-1">
-                24/7 Customer Support
-              </h4>
-              <p className="text-slate-400 text-[11px] leading-relaxed">
-                +880 1793-679254
-              </p>
-            </div>
-
-          </div>
-        </div>
-
       </div>
     </div>
   );

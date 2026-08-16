@@ -32,7 +32,7 @@ export async function GET(req, { params }) {
     const reviews = await Review.find({ productSlug: product.slug })
       .sort({ createdAt: -1 });
 
-    // Fetch user images dynamically from the 'user' collection
+    // Fetch user images & roles dynamically from the 'user' collection
     const reviewsWithAvatars = await Promise.all(
       reviews.map(async (review) => {
         const reviewObj = review.toObject();
@@ -40,8 +40,13 @@ export async function GET(req, { params }) {
           const user = await db.collection('user').findOne({ 
             email: reviewObj.email.toLowerCase() 
           });
-          if (user && user.image) {
-            reviewObj.userImage = user.image;
+          if (user) {
+            if (user.image) {
+              reviewObj.userImage = user.image;
+            }
+            if (user.role) {
+              reviewObj.userRole = user.role;
+            }
           }
         }
         return reviewObj;
@@ -100,10 +105,11 @@ export async function POST(req, { params }) {
     const totalRating = allReviews.reduce((sum, r) => sum + r.rating, 0);
     const averageRating = Number((totalRating / reviewsCount).toFixed(1));
 
-    // Update Product document
-    product.rating = averageRating;
-    product.reviewsCount = reviewsCount;
-    await product.save();
+    // Update Product document stats directly
+    await Product.updateOne(
+      { _id: product._id },
+      { $set: { rating: averageRating, reviewsCount: reviewsCount } }
+    );
 
     return NextResponse.json({
       success: true,

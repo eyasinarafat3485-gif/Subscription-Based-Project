@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import SearchBar from '@/components/SearchBar';
@@ -21,23 +20,6 @@ export default function Home() {
   const handleDownload = (plugin) => {
     alert(`Generating ZIP download request for ${plugin.title}...`);
   };
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.location.hash) {
-      const id = window.location.hash.substring(1);
-      const scrollToElement = () => {
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      };
-
-      // Perform multi-stage scrolling to correct for layout shifts (e.g. loading images, grids)
-      setTimeout(scrollToElement, 100);
-      setTimeout(scrollToElement, 600);
-      setTimeout(scrollToElement, 1200);
-    }
-  }, []);
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white">
