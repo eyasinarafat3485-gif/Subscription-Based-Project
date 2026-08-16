@@ -9,7 +9,6 @@ const categories = [
   { id: 'All', label: 'All' },
   { id: 'Themes', label: 'Themes' },
   { id: 'Plugins', label: 'Plugins' },
-  { id: 'eCommerce Theme', label: 'eCommerce Theme' },
   { id: 'SEO', label: 'SEO' },
   { id: 'Page Builders', label: 'Page Builders' },
   { id: 'Offer', label: 'Offer!' },
@@ -19,39 +18,71 @@ export default function PluginGrid({ onDownloadClick }) {
   const [activeCategory, setActiveCategory] = useState('All');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
   const [selectedDemo, setSelectedDemo] = useState(null);
+  const [failedImages, setFailedImages] = useState({});
 
-  const fetchProducts = async (cat = 'All') => {
+  const LIMIT = 15; // 3 rows * 5 columns = 15 products per batch
+
+  const handleImageError = (id) => {
+    setFailedImages((prev) => ({ ...prev, [id]: true }));
+  };
+
+  const fetchProducts = async (cat = 'All', pageNum = 1, isAppend = false) => {
     try {
-      setLoading(true);
-      const url = cat === 'All' ? '/api/products' : `/api/products?category=${encodeURIComponent(cat)}`;
+      if (isAppend) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
+
+      const url = `/api/products?page=${pageNum}&limit=${LIMIT}${cat !== 'All' ? `&category=${encodeURIComponent(cat)}` : ''}`;
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
-        if (data.products && data.products.length > 0) {
-          setProducts(data.products);
-        } else {
+        let fetchedProducts = data.products || [];
+
+        if (fetchedProducts.length === 0 && pageNum === 1) {
           // Trigger automatic seeding if database collection is empty
           const seedRes = await fetch('/api/products/seed');
           if (seedRes.ok) {
             const reFetch = await fetch(url);
             if (reFetch.ok) {
               const reData = await reFetch.json();
-              setProducts(reData.products || []);
+              fetchedProducts = reData.products || [];
             }
           }
         }
+
+        if (isAppend) {
+          setProducts((prev) => [...prev, ...fetchedProducts]);
+        } else {
+          setProducts(fetchedProducts);
+        }
+
+        setPage(pageNum);
+        const totalPages = data.totalPages || 1;
+        setHasMore(pageNum < totalPages || fetchedProducts.length === LIMIT);
       }
     } catch (err) {
       console.error('Fetch products error:', err);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    fetchProducts(activeCategory);
+    fetchProducts(activeCategory, 1, false);
   }, [activeCategory]);
+
+  const handleViewMore = () => {
+    if (!loadingMore && hasMore) {
+      fetchProducts(activeCategory, page + 1, true);
+    }
+  };
 
   return (
     <section id="plugins" className="py-12 bg-slate-50/50">
@@ -97,7 +128,7 @@ export default function PluginGrid({ onDownloadClick }) {
           })}
         </div>
 
-        {/* Product Cards Grid (5 Column Responsive) */}
+        {/* Product Cards Grid (5 Column Responsive - 3 Rows = 15 Items initially) */}
         {loading ? (
           <div className="py-16 flex flex-col items-center justify-center gap-3 text-slate-500">
             <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
@@ -108,36 +139,46 @@ export default function PluginGrid({ onDownloadClick }) {
             No products found! Add new products from the admin dashboard.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
-            {products.map((item) => {
-              const isExpired = item.offerEndsAt ? new Date(item.offerEndsAt).getTime() <= Date.now() : false;
-              const isOfferActive = item.isOffer && !isExpired;
-              const hasDiscount = item.regularPrice && Number(item.regularPrice) > Number(item.price);
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+              {products.map((item) => {
+                const isExpired = item.offerEndsAt ? new Date(item.offerEndsAt).getTime() <= Date.now() : false;
+                const isOfferActive = item.isOffer && !isExpired;
+                const hasDiscount = item.regularPrice && Number(item.regularPrice) > Number(item.price);
 
-              return (
-                <div
-                  key={item._id || item.slug}
-                  className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:-translate-y-1"
-                >
-                  <div>
-                    {/* Image Container with Badges - Height বাড়িয়ে aspect-square & object-contain করা হয়েছে */}
-                    <div className="relative aspect-square w-full bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center p-3">
-                      {item.image ? (
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          /* object-contain ব্যবহারে পুরো ছবি না কেটে স্পষ্ট দেখাবে */
-                          className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-3xl rounded-md">
-                          {item.title.charAt(0)}
-                        </div>
-                      )}
+                return (
+                  <div
+                    key={item._id || item.slug}
+                    className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:-translate-y-1"
+                  >
+                    <div>
+                      {/* Image Container with Badges - Dynamic Ambient Blur & Standardized Aspect Ratio */}
+                      <div className="relative aspect-square w-full bg-slate-100/70 overflow-hidden border-b border-slate-100 flex items-center justify-center p-3">
+                        {item.image && !failedImages[item._id || item.slug] ? (
+                          <>
+                            {/* Ambient Color Backdrop for Non-Square Photos */}
+                            <img
+                              src={item.image}
+                              alt=""
+                              aria-hidden="true"
+                              className="absolute inset-0 w-full h-full object-cover blur-xl opacity-35 scale-125 pointer-events-none select-none"
+                            />
+                            {/* Crisp Foreground Product Graphic */}
+                            <img
+                              src={item.image}
+                              alt={item.title}
+                              onError={() => handleImageError(item._id || item.slug)}
+                              className="relative z-10 max-w-full max-h-full object-contain filter drop-shadow-xs transition-transform duration-500 group-hover:scale-105"
+                            />
+                          </>
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white font-black text-3xl shadow-inner">
+                            {item.title ? item.title.charAt(0).toUpperCase() : 'P'}
+                          </div>
+                        )}
 
-                      {/* Category Badge */}
-                      <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-md text-[9px] font-extrabold border z-10 ${
-                        isOfferActive || (item.category || '').toLowerCase().includes('offer') || (item.category || '').toLowerCase().includes('bundle')
+                        {/* Category Badge */}
+                        <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-md text-[9px] font-extrabold border z-10 ${isOfferActive || (item.category || '').toLowerCase().includes('offer') || (item.category || '').toLowerCase().includes('bundle')
                           ? 'bg-red-600 text-white border-red-700 font-black uppercase tracking-wider shadow-xs'
                           : (item.category || '').toLowerCase().includes('theme')
                             ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
@@ -147,52 +188,76 @@ export default function PluginGrid({ onDownloadClick }) {
                               (item.category || '').toLowerCase().includes('cache')
                               ? 'bg-purple-50 text-purple-700 border-purple-200'
                               : (item.category || '').toLowerCase().includes('seo')
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
                                 : (item.category || '').toLowerCase().includes('builder') ||
                                   (item.category || '').toLowerCase().includes('page builder')
                                   ? 'bg-cyan-50 text-cyan-700 border-cyan-200'
                                   : 'bg-slate-100 text-slate-700 border-slate-200'
-                      }`}>
-                        {isOfferActive ? 'Mega Offer' : item.category}
-                      </span>
-                    </div>
-
-                    {/* Body Content */}
-                    <div className="p-2 space-y-2 text-center">
-                      <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 min-h-[38px] group-hover:text-blue-600 transition-colors">
-                        {item.title}
-                      </h3>
-                      <p className="text-[12px] text-slate-400 font-mono">
-                        {item.version || 'Latest Version'}
-                      </p>
-
-                      {/* Price Display */}
-                      <div className="flex items-center justify-center gap-2 pt-1">
-                        {hasDiscount && (
-                          <span className="text-sm text-slate-500 line-through font-semibold">
-                            {item.regularPrice}৳
-                          </span>
-                        )}
-                        <span className="text-base font-black text-blue-600 tracking-tight">
-                          {item.price}৳
+                          }`}>
+                          {isOfferActive ? 'Mega Offer' : item.category}
                         </span>
                       </div>
+
+                      {/* Body Content */}
+                      <div className="p-2 space-y-2 text-center">
+                        <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 min-h-[38px] group-hover:text-blue-600 transition-colors">
+                          {item.title}
+                        </h3>
+                        <p className="text-[12px] text-slate-400 font-mono">
+                          {item.version || 'Latest Version'}
+                        </p>
+
+                        {/* Price Display */}
+                        <div className="flex items-center justify-center gap-2 pt-1">
+                          {hasDiscount && (
+                            <span className="text-sm text-slate-500 line-through font-semibold">
+                              {item.regularPrice}৳
+                            </span>
+                          )}
+                          <span className="text-base font-black text-blue-600 tracking-tight">
+                            {item.price}৳
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer Action Button */}
+                    <div className="p-3 pt-0">
+                      <Link
+                        href={`/products/${item.slug}`}
+                        className="w-full py-2 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5"
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5" />
+                        <span>Buy Now</span>
+                      </Link>
                     </div>
                   </div>
+                );
+              })}
+            </div>
 
-                  {/* Footer Action Button */}
-                  <div className="p-3 pt-0">
-                    <Link
-                      href={`/products/${item.slug}`}
-                      className="w-full py-2 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5"
-                    >
-                      <ShoppingBag className="w-3.5 h-3.5" />
-                      <span>Buy Now</span>
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
+            {/* View More Button (Matches User Screenshot Style) */}
+            {hasMore && (
+              <div className="pt-2">
+                <button
+                  onClick={handleViewMore}
+                  disabled={loadingMore}
+                  className="w-full py-3.5 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-2xl text-indigo-600 hover:text-indigo-700 font-bold text-sm shadow-xs transition flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+                >
+                  {loadingMore ? (
+                    <>
+                      <Loader2 className="w-4.5 h-4.5 animate-spin text-indigo-600" />
+                      <span>Loading products...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>View More</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         )}
 

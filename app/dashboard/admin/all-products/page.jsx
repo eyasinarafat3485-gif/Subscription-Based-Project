@@ -345,7 +345,6 @@ export default function AdminAllProductsPage() {
             <option value="Themes">Themes</option>
             <option value="Page Builders">Page Builders</option>
             <option value="SEO">SEO</option>
-            <option value="eCommerce Theme">eCommerce Themes</option>
           </select>
         </div>
       </div>
@@ -413,7 +412,7 @@ export default function AdminAllProductsPage() {
                             : (item.category || '').toLowerCase().includes('plugin')
                               ? 'bg-purple-50 text-purple-700 border-purple-200'
                               : (item.category || '').toLowerCase().includes('seo')
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
                                 : (item.category || '').toLowerCase().includes('builder')
                                   ? 'bg-cyan-50 text-cyan-700 border-cyan-200'
                                   : 'bg-slate-100 text-slate-700 border-slate-200'
@@ -566,7 +565,6 @@ export default function AdminAllProductsPage() {
                   >
                     <option value="Plugin">Plugin</option>
                     <option value="Theme">Theme</option>
-                    <option value="eCommerce Theme">eCommerce Theme</option>
                     <option value="Page Builder">Page Builder</option>
                     <option value="SEO">SEO</option>
                     <option value="Offer">Offer</option>

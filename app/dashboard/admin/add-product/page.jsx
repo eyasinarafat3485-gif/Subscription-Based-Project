@@ -152,7 +152,6 @@ export default function AdminAddProductPage() {
               >
                 <option value="Plugins">WordPress Plugins (Plugins)</option>
                 <option value="Themes">GPL Themes (Themes)</option>
-                <option value="eCommerce Theme">eCommerce Theme</option>
                 <option value="SEO">SEO Plugins</option>
                 <option value="Page Builders">Page Builders</option>
                 <option value="Offer">Mega Offer / Bundle (Offer!)</option>

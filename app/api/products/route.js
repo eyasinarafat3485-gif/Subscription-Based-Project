@@ -36,7 +36,7 @@ export async function GET(req) {
       } else if (category === 'Plugins' || category === 'plugin') {
         query.category = { $in: ['Plugin', 'plugin', 'Page Builder', 'SEO'] };
       } else if (category === 'Themes' || category === 'theme') {
-        query.category = { $in: ['Theme', 'theme', 'eCommerce Theme', 'GPL Theme'] };
+        query.category = { $in: ['Theme', 'theme', 'GPL Theme'] };
       } else {
         query.category = new RegExp(category, 'i');
       }

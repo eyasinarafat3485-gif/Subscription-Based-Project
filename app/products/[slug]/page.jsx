@@ -376,37 +376,30 @@ export default function ProductDetailsPage({ params }) {
 
           {/* Left Column: Product Image Box (2nd screenshot style) */}
           <div className="lg:col-span-6 bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm relative">
-            <div className="relative aspect-square w-full bg-slate-50/50 rounded-2xl border border-slate-100 flex items-center justify-center p-4 overflow-hidden group">
+            <div className="relative aspect-square w-full bg-slate-100/70 rounded-2xl border border-slate-100 flex items-center justify-center p-4 overflow-hidden group">
               {product.image && !imageError ? (
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  onError={() => setImageError(true)}
-                  className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
-                />
+                <>
+                  {/* Ambient Color Backdrop for Non-Square Photos */}
+                  <img
+                    src={product.image}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 w-full h-full object-cover blur-xl opacity-35 scale-125 pointer-events-none select-none"
+                  />
+                  {/* Crisp Foreground Product Graphic */}
+                  <img
+                    src={product.image}
+                    alt={product.title}
+                    onError={() => setImageError(true)}
+                    className="relative z-10 max-w-full max-h-full object-contain filter drop-shadow-sm transition-transform duration-500 group-hover:scale-105"
+                  />
+                </>
               ) : (
-                <div className="w-full h-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-4xl rounded-xl">
+                <div className="w-full h-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white font-black text-4xl rounded-xl shadow-inner">
                   {product.title?.charAt(0)}
                 </div>
               )}
               
-              {/* Top-Right Magnifying Glass Search Icon */}
-              <div className="absolute top-4 right-4 w-9 h-9 bg-white rounded-full border border-slate-200 shadow-sm flex items-center justify-center text-slate-500 hover:text-slate-900 transition hover:scale-105">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2.5}
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.637 10.637z"
-                  />
-                </svg>
-              </div>
             </div>
           </div>
 

@@ -110,7 +110,7 @@ const initialProducts = [
   {
     title: 'WoodMart Theme',
     slug: 'woodmart-theme',
-    category: 'eCommerce Theme',
+    category: 'Themes',
     version: 'v8.5.7',
     price: 299,
     regularPrice: 598,
@@ -161,7 +161,7 @@ const initialProducts = [
   {
     title: 'Martfury Theme',
     slug: 'martfury-theme',
-    category: 'eCommerce Theme',
+    category: 'Themes',
     version: 'v3.4.3',
     price: 299,
     regularPrice: 598,
