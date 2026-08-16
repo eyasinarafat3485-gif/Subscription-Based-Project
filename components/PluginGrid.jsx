@@ -141,7 +141,22 @@ export default function PluginGrid({ onDownloadClick }) {
                           Mega Offer
                         </span>
                       ) : (
-                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-xs text-white text-[9px] font-bold z-10">
+                        <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-md text-[9px] font-bold border z-10 ${
+                          (item.category || '').toLowerCase().includes('ecommerce theme')
+                            ? 'bg-[#ECFEFF] text-[#0E7490] border-[#A5F3FC]'
+                            : (item.category || '').toLowerCase().includes('theme')
+                            ? 'bg-[#EDE9FE] text-[#5B21B6] border-[#C4B5FD]'
+                            : (item.category || '').toLowerCase().includes('plugin') || 
+                              (item.category || '').toLowerCase().includes('performance') ||
+                              (item.category || '').toLowerCase().includes('speed') ||
+                              (item.category || '').toLowerCase().includes('cache')
+                            ? 'bg-[#F5F3FF] text-[#6D28D9] border-[#DDD6FE]'
+                            : (item.category || '').toLowerCase().includes('seo')
+                            ? 'bg-[#ECFDF5] text-[#047857] border-[#A7F3D0]'
+                            : (item.category || '').toLowerCase().includes('builder')
+                            ? 'bg-[#EFF6FF] text-[#1D4ED8] border-[#BFDBFE]'
+                            : 'bg-slate-100 text-slate-700 border-slate-200'
+                        }`}>
                           {item.category}
                         </span>
                       )}
