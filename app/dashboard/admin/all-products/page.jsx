@@ -65,7 +65,8 @@ export default function AdminAllProductsPage() {
     try {
       setLoading(true);
       const res = await fetch(
-        `/api/products?page=${page}&limit=8&search=${encodeURIComponent(search)}&category=${categoryFilter}`
+        `/api/products?page=${page}&limit=10&search=${encodeURIComponent(search)}&category=${categoryFilter}`,
+        { cache: 'no-store' }
       );
       if (res.ok) {
         const data = await res.json();
@@ -404,15 +405,27 @@ export default function AdminAllProductsPage() {
                       </div>
                     </td>
                     <td className="p-4">
-                      <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 text-[10px] font-bold border border-blue-100">
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                        (item.category || '').toLowerCase().includes('offer') || (item.category || '').toLowerCase().includes('bundle')
+                          ? 'bg-red-600 text-white border-red-700 font-extrabold uppercase'
+                          : (item.category || '').toLowerCase().includes('theme')
+                            ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                            : (item.category || '').toLowerCase().includes('plugin')
+                              ? 'bg-purple-50 text-purple-700 border-purple-200'
+                              : (item.category || '').toLowerCase().includes('seo')
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : (item.category || '').toLowerCase().includes('builder')
+                                  ? 'bg-cyan-50 text-cyan-700 border-cyan-200'
+                                  : 'bg-slate-100 text-slate-700 border-slate-200'
+                      }`}>
                         {item.category || 'Plugin'}
                       </span>
                     </td>
                     <td className="p-4 font-mono text-slate-600">{item.version || 'v1.0.0'}</td>
                     <td className="p-4">
                       <div className="flex flex-col">
-                        <span className="font-bold text-slate-900">৳{item.price}</span>
-                        {item.regularPrice > item.price && (
+                        <span className="font-bold text-slate-900">৳{item.price ?? item.salePrice ?? 0}</span>
+                        {((item.regularPrice || 0) > (item.price ?? item.salePrice ?? 0)) && (
                           <span className="text-[10px] text-slate-400 line-through">৳{item.regularPrice}</span>
                         )}
                       </div>
@@ -446,7 +459,7 @@ export default function AdminAllProductsPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => openDeleteModal(item._id ? item._id : item.slug, item.title)}
+                          onClick={() => openDeleteModal(item.slug || (item._id ? (typeof item._id === 'object' ? item._id.toString() : String(item._id)) : ''), item.title)}
                           className="p-1.5 rounded-lg bg-red-50 hover:bg-red-600 text-red-600 hover:text-white transition cursor-pointer"
                           title="Delete Product"
                         >

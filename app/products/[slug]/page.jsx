@@ -238,7 +238,7 @@ export default function ProductDetailsPage({ params }) {
     const fetchProductDetails = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/products/${slug}`);
+        const res = await fetch(`/api/products/${slug}`, { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           if (data.product) {

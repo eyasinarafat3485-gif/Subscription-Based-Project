@@ -136,29 +136,25 @@ export default function PluginGrid({ onDownloadClick }) {
                       )}
 
                       {/* Category Badge */}
-                      {isOfferActive ? (
-                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-rose-600 text-white text-[9px] font-black uppercase tracking-wider shadow-sm z-10">
-                          Mega Offer
-                        </span>
-                      ) : (
-                        <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-md text-[9px] font-bold border z-10 ${(item.category || '').toLowerCase().includes('ecommerce theme')
-                            ? 'bg-[#ECFEFF] text-[#0E7490] border-[#A5F3FC]'
-                            : (item.category || '').toLowerCase().includes('theme')
-                              ? 'bg-[#EDE9FE] text-[#5B21B6] border-[#C4B5FD]'
-                              : (item.category || '').toLowerCase().includes('plugin') ||
-                                (item.category || '').toLowerCase().includes('performance') ||
-                                (item.category || '').toLowerCase().includes('speed') ||
-                                (item.category || '').toLowerCase().includes('cache')
-                                ? 'bg-[#F5F3FF] text-[#6D28D9] border-[#DDD6FE]'
-                                : (item.category || '').toLowerCase().includes('seo')
-                                  ? 'bg-[#ECFDF5] text-[#047857] border-[#A7F3D0]'
-                                  : (item.category || '').toLowerCase().includes('builder')
-                                    ? 'bg-[#EFF6FF] text-[#1D4ED8] border-[#BFDBFE]'
-                                    : 'bg-slate-100 text-slate-700 border-slate-200'
-                          }`}>
-                          {item.category}
-                        </span>
-                      )}
+                      <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-md text-[9px] font-extrabold border z-10 ${
+                        isOfferActive || (item.category || '').toLowerCase().includes('offer') || (item.category || '').toLowerCase().includes('bundle')
+                          ? 'bg-red-600 text-white border-red-700 font-black uppercase tracking-wider shadow-xs'
+                          : (item.category || '').toLowerCase().includes('theme')
+                            ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                            : (item.category || '').toLowerCase().includes('plugin') ||
+                              (item.category || '').toLowerCase().includes('performance') ||
+                              (item.category || '').toLowerCase().includes('speed') ||
+                              (item.category || '').toLowerCase().includes('cache')
+                              ? 'bg-purple-50 text-purple-700 border-purple-200'
+                              : (item.category || '').toLowerCase().includes('seo')
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : (item.category || '').toLowerCase().includes('builder') ||
+                                  (item.category || '').toLowerCase().includes('page builder')
+                                  ? 'bg-cyan-50 text-cyan-700 border-cyan-200'
+                                  : 'bg-slate-100 text-slate-700 border-slate-200'
+                      }`}>
+                        {isOfferActive ? 'Mega Offer' : item.category}
+                      </span>
                     </div>
 
                     {/* Body Content */}

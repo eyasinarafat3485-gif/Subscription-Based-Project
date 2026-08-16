@@ -64,31 +64,67 @@ export async function GET(req) {
       const skip = (page - 1) * limit;
 
       const totalProducts = await db.collection('products').countDocuments(query);
-      const products = await db.collection('products')
+      const rawProducts = await db.collection('products')
         .find(query)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .toArray();
 
+      const products = rawProducts.map((p) => {
+        const numPrice = typeof p.price === 'number' ? p.price : (typeof p.salePrice === 'number' ? p.salePrice : (Number(p.price) || Number(p.salePrice) || 299));
+        const numRegularPrice = typeof p.regularPrice === 'number' ? p.regularPrice : (Number(p.regularPrice) || numPrice * 2);
+        return {
+          ...p,
+          price: numPrice,
+          salePrice: numPrice,
+          regularPrice: numRegularPrice,
+        };
+      });
+
       const totalPages = Math.max(1, Math.ceil(totalProducts / limit));
 
-      return NextResponse.json({
-        success: true,
-        products,
-        totalProducts,
-        page,
-        totalPages,
-        limit,
-      });
+      return NextResponse.json(
+        {
+          success: true,
+          products,
+          totalProducts,
+          page,
+          totalPages,
+          limit,
+        },
+        {
+          headers: {
+            'Cache-Control': 'no-store, max-age=0, must-revalidate',
+          },
+        }
+      );
     }
 
-    const products = await db.collection('products')
+    const rawProducts = await db.collection('products')
       .find(query)
       .sort({ createdAt: -1 })
       .toArray();
 
-    return NextResponse.json({ success: true, count: products.length, products });
+    const products = rawProducts.map((p) => {
+      const numPrice = typeof p.price === 'number' ? p.price : (typeof p.salePrice === 'number' ? p.salePrice : (Number(p.price) || Number(p.salePrice) || 299));
+      const numRegularPrice = typeof p.regularPrice === 'number' ? p.regularPrice : (Number(p.regularPrice) || numPrice * 2);
+      return {
+        ...p,
+        price: numPrice,
+        salePrice: numPrice,
+        regularPrice: numRegularPrice,
+      };
+    });
+
+    return NextResponse.json(
+      { success: true, count: products.length, products },
+      {
+        headers: {
+          'Cache-Control': 'no-store, max-age=0, must-revalidate',
+        },
+      }
+    );
   } catch (error) {
     console.error('GET /api/products error:', error);
     return NextResponse.json({ error: error.message || 'Failed to fetch products' }, { status: 500 });
@@ -140,13 +176,17 @@ export async function POST(req) {
       counter++;
     }
 
+    const parsedPrice = isNaN(Number(price)) ? 299 : Number(price);
+    const parsedRegularPrice = isNaN(Number(regularPrice)) ? 598 : Number(regularPrice);
+
     const newProduct = {
       title: title.trim(),
       slug,
       category: category || 'Plugin',
       version: version || 'v1.0.0',
-      price: Number(price) || 299,
-      regularPrice: Number(regularPrice) || 598,
+      price: parsedPrice,
+      salePrice: parsedPrice,
+      regularPrice: parsedRegularPrice,
       image: image || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop',
       downloadUrl: downloadUrl.trim(),
       demoUrl: demoUrl ? demoUrl.trim() : '',
