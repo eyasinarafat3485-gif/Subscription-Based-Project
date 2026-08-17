@@ -21,6 +21,7 @@ import {
   Lock,
   Eye,
   Gift,
+  ShoppingBag,
   X
 } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -43,6 +44,7 @@ export default function ProductDetailsPage({ params }) {
   });
 
   const [reviews, setReviews] = useState([]);
+  const [relatedProducts, setRelatedProducts] = useState([]);
   const [activeTab, setActiveTab] = useState('description');
   const [ratingInput, setRatingInput] = useState(5);
   const [commentInput, setCommentInput] = useState('');
@@ -257,6 +259,30 @@ export default function ProductDetailsPage({ params }) {
       fetchProductDetails();
     }
   }, [slug]);
+
+  // Fetch 10 Related Products from the same category
+  useEffect(() => {
+    if (!product) return;
+    const fetchRelated = async () => {
+      try {
+        const cat = product.category || 'Plugins';
+        const res = await fetch(`/api/products?limit=15${cat ? `&category=${encodeURIComponent(cat)}` : ''}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.products) {
+            const filtered = data.products
+              .filter((p) => p.slug !== slug && p._id !== product._id)
+              .slice(0, 10);
+            setRelatedProducts(filtered);
+          }
+        }
+      } catch (err) {
+        console.error('Fetch related products error:', err);
+      }
+    };
+
+    fetchRelated();
+  }, [product, slug]);
 
   // Real-time Countdown Timer & Automatic Offer Expiry Check
   useEffect(() => {
@@ -537,13 +563,13 @@ export default function ProductDetailsPage({ params }) {
 
             {/* Buy Now / Download Primary Action Button */}
             <div className="space-y-3 pt-2">
-              <button
-                onClick={handleDownloadAction}
-                className="w-full py-4 px-6 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer"
+              <Link
+                href={`/checkout?product=${slug}`}
+                className="w-full py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm shadow-lg shadow-indigo-500/25 transition-all hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Download className="w-5 h-5" />
+                <ShoppingBag className="w-5 h-5" />
                 <span>Buy Now ৳{currentPrice} (Download)</span>
-              </button>
+              </Link>
 
               {/* Secure Payment Gateway Logos & Guarantee Badge */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-[11px] text-slate-500 pt-2 border-t border-slate-100 font-medium">
@@ -941,6 +967,114 @@ export default function ProductDetailsPage({ params }) {
             )}
           </div>
         </div>
+
+        {/* Related Products Section (Matching User Reference Image - 2 Rows x 5 Columns = 10 Products) */}
+        <section className="mt-12 space-y-6">
+          {/* Section Header with Left Indigo Accent Indicator */}
+          <div className="flex items-center gap-2.5 border-b border-slate-200/80 pb-3">
+            <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
+            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
+              Related Products
+            </h3>
+          </div>
+
+          {/* 5 Column Grid (10 Related Cards matching Home page product card style) */}
+          {relatedProducts && relatedProducts.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 items-stretch">
+              {relatedProducts.map((relItem) => {
+                const relPrice = relItem.price || 299;
+                const relRegPrice = relItem.regularPrice || 899;
+                const hasDiscount = relRegPrice > relPrice;
+
+                return (
+                  <div
+                    key={relItem._id ? relItem._id.toString() : relItem.slug}
+                    className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:-translate-y-1"
+                  >
+                    <div>
+                      {/* Image Container with Ambient Backdrop & Category Badge */}
+                      <div className="relative aspect-square w-full bg-slate-100/70 overflow-hidden border-b border-slate-100 flex items-center justify-center p-3">
+                        {relItem.image ? (
+                          <>
+                            {/* Ambient Color Backdrop for Non-Square Graphics */}
+                            <img
+                              src={relItem.image}
+                              alt=""
+                              aria-hidden="true"
+                              className="absolute inset-0 w-full h-full object-cover blur-xl opacity-35 scale-125 pointer-events-none select-none"
+                            />
+                            {/* Foreground Graphic */}
+                            <img
+                              src={relItem.image}
+                              alt={relItem.title}
+                              className="relative z-10 max-w-full max-h-full object-contain filter drop-shadow-xs transition-transform duration-500 group-hover:scale-105"
+                            />
+                          </>
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white font-black text-3xl shadow-inner">
+                            {relItem.title ? relItem.title.charAt(0).toUpperCase() : 'P'}
+                          </div>
+                        )}
+
+                        {/* Category Badge */}
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[9px] font-extrabold border z-10 bg-indigo-50 text-indigo-700 border-indigo-200">
+                          {relItem.category || 'Plugin'}
+                        </span>
+                      </div>
+
+                      {/* Body Content */}
+                      <div className="p-3 space-y-2 text-center">
+                        <Link href={`/products/${relItem.slug}`} className="block">
+                          <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 min-h-[38px] group-hover:text-indigo-600 transition-colors">
+                            {relItem.title}
+                          </h3>
+                        </Link>
+                        <p className="text-[12px] text-slate-400 font-mono">
+                          {relItem.version || 'Latest Version'}
+                        </p>
+
+                        {/* Price Display */}
+                        <div className="flex items-center justify-center gap-2 pt-1">
+                          {hasDiscount && (
+                            <span className="text-sm text-slate-400 line-through font-semibold">
+                              {relRegPrice}৳
+                            </span>
+                          )}
+                          <span className="text-base font-black text-indigo-600 tracking-tight">
+                            {relPrice}৳
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer Action Buttons (Details & Buy Now) */}
+                    <div className="p-3 pt-0 grid grid-cols-2 gap-2">
+                      <Link
+                        href={`/products/${relItem.slug}`}
+                        className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs border border-slate-200/90 shadow-2xs transition flex items-center justify-center gap-1.5"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-slate-600" />
+                        <span>Details</span>
+                      </Link>
+
+                      <Link
+                        href={`/checkout?product=${relItem.slug}`}
+                        className="py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs shadow-indigo-500/20 transition flex items-center justify-center gap-1.5"
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5" />
+                        <span>Buy Now</span>
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200/60 text-xs text-slate-500 font-medium">
+              Loading related products...
+            </div>
+          )}
+        </section>
 
         {/* Bundle Items List ("Included in this Bundle") */}
         {product.bundleItems && product.bundleItems.length > 0 && (

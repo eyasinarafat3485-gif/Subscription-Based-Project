@@ -19,8 +19,6 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get('category');
-    const subcategory = searchParams.get('subcategory');
-    const sort = searchParams.get('sort');
     const offer = searchParams.get('offer');
     const popular = searchParams.get('popular');
     const search = searchParams.get('search');
@@ -30,83 +28,54 @@ export async function GET(req) {
     const mongooseConn = await connectToDatabase();
     const db = mongooseConn.connection.db;
 
-    const andConditions = [];
+    const query = {};
 
     if (category && category !== 'All' && category !== 'all') {
-      const catLower = category.toLowerCase().trim();
-      if (catLower === 'offer' || catLower === 'offers') {
-        andConditions.push({ $or: [{ isOffer: true }, { category: /offer|bundle/i }] });
-      } else if (catLower === 'plugins' || catLower === 'plugin' || catLower === 'wordpress-plugins') {
-        andConditions.push({ category: { $in: ['Plugin', 'plugin', 'Plugins', 'plugins', 'wordpress-plugins', 'WordPress Plugins'] }, isOffer: { $ne: true } });
-      } else if (catLower === 'themes' || catLower === 'theme' || catLower === 'wordpress-themes') {
-        andConditions.push({ category: { $in: ['Theme', 'theme', 'Themes', 'themes', 'GPL Theme', 'wordpress-themes', 'WordPress Themes'] }, isOffer: { $ne: true } });
-      } else if (catLower === 'seo' || catLower === 'seo-plugins') {
-        andConditions.push({ category: { $in: ['SEO', 'seo', 'SEO Plugins', 'SEO Plugin', 'seo-plugins'] }, isOffer: { $ne: true } });
-      } else if (catLower === 'page-builders' || catLower === 'page builders' || catLower === 'builder') {
-        andConditions.push({ category: { $in: ['Page Builders', 'Page Builder', 'page builder', 'builder', 'page-builders'] }, isOffer: { $ne: true } });
-      } else if (catLower === 'woocommerce' || catLower === 'woocommerce-plugins') {
-        andConditions.push({ category: { $in: ['WooCommerce', 'woocommerce', 'woocommerce-plugins', 'WooCommerce Plugins', 'WooCommerce Plugin'] }, isOffer: { $ne: true } });
+      if (category === 'Offer' || category === 'offer') {
+        query.$or = [{ isOffer: true }, { category: /offer|bundle/i }];
+      } else if (category === 'Plugins' || category === 'plugin') {
+        query.category = { $in: ['Plugin', 'plugin', 'Plugins', 'plugins'] };
+        query.isOffer = { $ne: true };
+      } else if (category === 'Themes' || category === 'theme') {
+        query.category = { $in: ['Theme', 'theme', 'Themes', 'themes', 'GPL Theme'] };
+        query.isOffer = { $ne: true };
+      } else if (category === 'SEO' || category === 'seo') {
+        query.category = { $in: ['SEO', 'seo', 'SEO Plugins', 'SEO Plugin'] };
+        query.isOffer = { $ne: true };
+      } else if (category === 'Page Builders' || category === 'page builder' || category === 'builder') {
+        query.category = { $in: ['Page Builders', 'Page Builder', 'page builder', 'builder'] };
+        query.isOffer = { $ne: true };
       } else {
-        const cleanCat = category.replace(/-/g, '[\\s\\-]?');
-        andConditions.push({ category: new RegExp(`^${cleanCat}$`, 'i'), isOffer: { $ne: true } });
+        query.category = new RegExp(`^${category.trim()}$`, 'i');
+        query.isOffer = { $ne: true };
       }
     }
 
-    if (subcategory && subcategory !== 'All' && subcategory !== 'all') {
-      const cleanSub = subcategory.replace(/-/g, '[\\s\\-]?');
-      const subReg = new RegExp(cleanSub, 'i');
-      andConditions.push({
-        $or: [
-          { subcategory: subReg },
-          { category: subReg },
-          { tags: subReg },
-          { title: subReg },
-          { description: subReg }
-        ]
-      });
-    }
-
     if (offer === 'true') {
-      andConditions.push({ isOffer: true });
+      query.isOffer = true;
     }
 
     if (popular === 'true') {
-      andConditions.push({ isPopular: true });
+      query.isPopular = true;
     }
 
     if (search) {
-      const searchReg = new RegExp(search, 'i');
-      andConditions.push({
-        $or: [
-          { title: searchReg },
-          { description: searchReg },
-          { category: searchReg },
-          { subcategory: searchReg },
-          { tags: searchReg }
-        ]
-      });
-    }
-
-    const query = andConditions.length > 0 ? { $and: andConditions } : {};
-
-    let sortOption = { createdAt: -1, _id: -1 };
-    if (sort === 'price-asc') {
-      sortOption = { price: 1, createdAt: -1 };
-    } else if (sort === 'price-desc') {
-      sortOption = { price: -1, createdAt: -1 };
-    } else if (sort === 'popular') {
-      sortOption = { isPopular: -1, downloadCount: -1, rating: -1, createdAt: -1 };
+      query.$or = [
+        { title: new RegExp(search, 'i') },
+        { description: new RegExp(search, 'i') },
+        { category: new RegExp(search, 'i') },
+      ];
     }
 
     if (pageParam && limitParam) {
       const page = parseInt(pageParam, 10) || 1;
-      const limit = parseInt(limitParam, 10) || 15;
+      const limit = parseInt(limitParam, 10) || 8;
       const skip = (page - 1) * limit;
 
       const totalProducts = await db.collection('products').countDocuments(query);
       const rawProducts = await db.collection('products')
         .find(query)
-        .sort(sortOption)
+        .sort({ createdAt: -1, _id: -1 })
         .skip(skip)
         .limit(limit)
         .toArray();
@@ -143,7 +112,7 @@ export async function GET(req) {
 
     const rawProducts = await db.collection('products')
       .find(query)
-      .sort(sortOption)
+      .sort({ createdAt: -1, _id: -1 })
       .toArray();
 
     const products = rawProducts.map((p) => {

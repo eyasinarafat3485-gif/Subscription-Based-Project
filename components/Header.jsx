@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ShoppingBag, LogOut } from 'lucide-react';
 import { useSession, signOut } from '@/lib/auth-client';
 
 export default function Header() {
   const { data: session } = useSession();
+  const pathname = usePathname();
   const [cartCount, setCartCount] = useState(0);
   const [profileData, setProfileData] = useState(null);
 
@@ -47,13 +49,30 @@ export default function Header() {
   const userImage = profileData?.image || session?.user?.image;
   const userInitial = userName.charAt(0).toUpperCase();
 
+  const navItems = [
+    { href: '/', label: 'Home' },
+    { href: '/product-category/wordpress-plugins', label: 'Plugins' },
+    { href: '/product-category/wordpress-themes', label: 'Themes' },
+    { href: '/product-category/landing-pages', label: 'Landing Page' },
+    { href: '/resources', label: 'Resources' },
+    { href: '/membership', label: 'Membership' },
+    { href: '/contact', label: 'Contact' },
+  ];
+
+  const checkIsActive = (href) => {
+    if (!pathname) return false;
+    if (href === '/') return pathname === '/';
+    if (href.startsWith('/#')) return false;
+    return pathname === href || pathname.startsWith(href);
+  };
+
   return (
     <>
       <header className="sticky top-0 z-40 bg-slate-50/90 backdrop-blur-md border-b border-slate-200/60 shadow-xs transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Brand Logo */}
-            <a href="/" className="flex items-center gap-2.5 group">
+            <Link href="/" className="flex items-center gap-2.5 group">
               <img
                 src="/icon.png"
                 alt="Developers Club"
@@ -61,37 +80,31 @@ export default function Header() {
               />
               <div className="flex flex-col" suppressHydrationWarning={true}>
                 <span className="text-xl font-black text-slate-900 leading-tight tracking-tight" suppressHydrationWarning={true}>
-                  Developers <span className="text-blue-600" suppressHydrationWarning={true}>Club</span>
+                  Developers <span className="text-indigo-600" suppressHydrationWarning={true}>Club</span>
                 </span>
                 <span className="text-[9px] font-bold text-slate-400 tracking-widest uppercase -mt-0.5" suppressHydrationWarning={true}>
                   BY BENGAL-IT
                 </span>
               </div>
-            </a>
+            </Link>
 
             {/* Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-700">
-              <Link href="/" className="hover:text-blue-600 transition-colors">
-                Home
-              </Link>
-              <Link href="/product-category/wordpress-plugins" className="hover:text-blue-600 transition-colors">
-                Plugins
-              </Link>
-              <Link href="/product-category/wordpress-themes" className="hover:text-blue-600 transition-colors">
-                Themes
-              </Link>
-              <Link href="/product-category/woocommerce-plugins" className="hover:text-blue-600 transition-colors">
-                WooCommerce
-              </Link>
-              <Link href="/#docs" className="hover:text-blue-600 transition-colors">
-                Documentation
-              </Link>
-              <Link href="/#pricing" className="hover:text-blue-600 transition-colors">
-                Pricing
-              </Link>
-              <Link href="/contact" className="hover:text-blue-600 transition-colors">
-                Contact
-              </Link>
+            <nav className="hidden lg:flex items-center gap-7 text-sm font-medium">
+              {navItems.map((item) => {
+                const isActive = checkIsActive(item.href);
+                return (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className={`transition-colors relative py-1 ${isActive
+                        ? 'text-indigo-600 font-extrabold border-b-2 border-indigo-600'
+                        : 'text-slate-800 hover:text-indigo-600 font-medium'
+                      }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
             </nav>
 
             {/* Right Action Controls */}

@@ -31,6 +31,7 @@ export async function GET(req) {
         image: user.image || null,
         bio: user.bio || '',
         role: user.role || 'user',
+        membership: user.membership || null,
       },
     });
   } catch (error) {

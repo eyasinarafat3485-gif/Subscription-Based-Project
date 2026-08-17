@@ -2,11 +2,10 @@
 
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
-import SearchBar from '@/components/SearchBar';
+// import SearchBar from '@/components/SearchBar';
 import CategoryGrid from '@/components/CategoryGrid';
 import PluginGrid from '@/components/PluginGrid';
 import Features from '@/components/Features';
-import UnlimitedBanner from '@/components/UnlimitedBanner';
 import Pricing from '@/components/Pricing';
 import Testimonials from '@/components/Testimonials';
 import Articles from '@/components/Articles';
@@ -43,7 +42,7 @@ export default function Home() {
         <Features />
 
         {/* 7. Unlimited Membership Callout Banner */}
-        <UnlimitedBanner />
+        {/* <UnlimitedBanner /> */}
 
         {/* 8. Pricing Section (3 Plans) */}
         <Pricing />

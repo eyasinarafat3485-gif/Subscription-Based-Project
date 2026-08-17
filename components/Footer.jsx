@@ -9,7 +9,7 @@ export default function Footer() {
       {/* Top Feature Highlights Banner Bar */}
       <div className="bg-slate-50/50 pt-10 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-100/50 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+          <div className="bg-white rounded-t-3xl rounded-b-none p-6 sm:p-7 border border-slate-100/50 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
 
             {/* Feature 1 */}
             <div className="group flex flex-col items-center cursor-default transition-all duration-300">

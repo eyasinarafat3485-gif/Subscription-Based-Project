@@ -1,153 +1,173 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import { Check, ArrowRight, Sparkles } from 'lucide-react';
-import AuthModal from './AuthModal';
-import { useSession } from '@/lib/auth-client';
+import { Star, Sparkles, Crown, CheckCircle2, ArrowRight } from 'lucide-react';
 
 const plans = [
   {
-    id: 'monthly',
-    name: 'Monthly Plan',
-    price: '৳ 799',
-    period: '/ month',
-    isPopular: false,
-    features: [
-      'Unlimited Downloads',
-      'Regular Updates',
-      'English Documentation',
-      'Standard Support',
-    ],
+    id: 'basic',
+    title: 'Basic',
+    price: '499',
+    regularPrice: '899',
+    discount: '45% OFF',
+    billing: 'Monthly',
+    downloads: '5 Downloads per Day',
+    support: '24/7 Priority Support',
+    icon: Star,
+    iconBg: 'bg-indigo-50 text-indigo-600',
+    badge: 'TOP TRENDING',
+    highlight: false,
   },
   {
-    id: 'yearly',
-    name: 'Yearly Plan',
-    price: '৳ 5,999',
-    period: '/ year',
-    isPopular: true,
-    badgeText: 'Most Popular',
-    features: [
-      'Unlimited Downloads',
-      'Regular Updates',
-      'English Documentation',
-      'Standard Support',
-    ],
+    id: 'standard',
+    title: 'Standard',
+    price: '999',
+    regularPrice: '2199',
+    discount: '55% OFF',
+    billing: 'Yearly',
+    downloads: '10 Downloads per Day',
+    support: '24/7 Priority Support',
+    icon: Sparkles,
+    iconBg: 'bg-indigo-50 text-indigo-600',
+    badge: 'MOST POPULAR',
+    highlight: true,
   },
   {
-    id: 'lifetime',
-    name: 'Lifetime Plan',
-    price: '৳ 19,999',
-    period: '/ one-time',
-    isPopular: false,
-    features: [
-      'Lifetime Access',
-      'All Updates Free',
-      'Priority Support',
-      'Dedicated Support',
-    ],
+    id: 'premium',
+    title: 'Premium',
+    price: '1999',
+    regularPrice: '5199',
+    discount: '62% OFF',
+    billing: 'Lifetime',
+    downloads: '20 Downloads per Day',
+    support: '24/7 Dedicated Support',
+    icon: Crown,
+    iconBg: 'bg-purple-50 text-purple-600',
+    badge: 'BEST VALUE',
+    highlight: false,
   },
 ];
 
-export default function Pricing({ onSelectPlan }) {
-  const { data: session } = useSession();
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState(null);
+const commonFeatures = [
+  'Get Instant Access',
+  'Unlimited Domain Use',
+  'Access All Product',
+  'Installation Tutorial',
+  'Free Regular Update',
+];
 
-  const handleChoosePlan = (plan) => {
-    if (!session?.user) {
-      setSelectedPlan(plan);
-      setIsAuthOpen(true);
-      return;
-    }
-    if (onSelectPlan) {
-      onSelectPlan(plan);
-    } else {
-      alert(`${plan.name} selected. Redirecting to payment gateway...`);
-    }
-  };
-
+export default function Pricing() {
   return (
     <section id="pricing" className="py-16 bg-slate-50/50 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Section Title */}
-        <div className="flex items-center justify-between mb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-              Simple & Affordable Pricing
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Choose Your Membership Plan
             </h2>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
+              Select the perfect plan for your needs. All plans include Access All Product!
+            </p>
           </div>
+
           <Link
-            href="#pricing"
-            className="flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700 transition"
+            href="/membership"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 transition"
           >
-            <span>All Plans</span>
+            <span>View Full Details</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
-        {/* 3 Plans Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          {plans.map((plan) => (
-            <div
-              key={plan.id}
-              className={`relative bg-white rounded-3xl p-8 transition-all flex flex-col justify-between ${
-                plan.isPopular
-                  ? 'border-2 border-blue-600 shadow-2xl shadow-blue-500/15 scale-102 z-10'
-                  : 'border border-slate-200/90 shadow-md hover:shadow-xl'
-              }`}
-            >
-              {/* Popular Badge */}
-              {plan.isPopular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-blue-600 text-white text-xs font-extrabold rounded-full shadow-md flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>{plan.badgeText}</span>
-                </div>
-              )}
-
-              <div>
-                {/* Plan Title & Price */}
-                <h3 className="text-base font-bold text-slate-800 mb-4">{plan.name}</h3>
-                
-                <div className="flex items-baseline gap-1 mb-8">
-                  <span className="text-4xl font-black text-slate-900 tracking-tight">
-                    {plan.price}
-                  </span>
-                  <span className="text-sm font-semibold text-slate-400">{plan.period}</span>
-                </div>
-
-                {/* Features List */}
-                <ul className="space-y-4 mb-8">
-                  {plan.features.map((feat, idx) => (
-                    <li key={idx} className="flex items-center gap-3 text-xs font-semibold text-slate-600">
-                      <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                        <Check className="w-3.5 h-3.5 stroke-[3]" />
-                      </div>
-                      <span>{feat}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Action Button */}
-              <button
-                onClick={() => handleChoosePlan(plan)}
-                className={`w-full py-3.5 px-6 rounded-xl font-bold text-xs transition shadow-xs ${
-                  plan.isPopular
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/30'
-                    : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-200'
-                }`}
+        {/* 3 Cards Grid (Matching User Screenshot) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch pt-4">
+          {plans.map((plan) => {
+            const IconComponent = plan.icon;
+            return (
+              <div
+                key={plan.id}
+                className={`bg-white rounded-3xl p-6 sm:p-8 border transition-all duration-300 flex flex-col justify-between relative group hover:shadow-2xl ${plan.highlight
+                    ? 'border-2 border-indigo-600 shadow-xl scale-102 lg:-translate-y-2 z-10'
+                    : 'border-slate-200 shadow-sm hover:border-slate-300'
+                  }`}
               >
-                Get Started Now
-              </button>
-            </div>
-          ))}
+                {/* Featured Badge */}
+                {plan.badge && (
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-600 text-white rounded-full text-[10px] font-black uppercase tracking-wider shadow-md">
+                    {plan.badge}
+                  </span>
+                )}
+
+                <div>
+                  {/* Icon & Discount Badge Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${plan.iconBg}`}>
+                      <IconComponent className="w-6 h-6" />
+                    </div>
+                    <span className="text-xs font-extrabold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-xl border border-indigo-100">
+                      {plan.discount}
+                    </span>
+                  </div>
+
+                  {/* Title & Pricing */}
+                  <h3 className="text-xl font-black text-slate-900 tracking-tight">
+                    {plan.title}
+                  </h3>
+
+                  <div className="mt-3 pb-6 border-b border-slate-100">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                        ৳ {plan.price}
+                      </span>
+                      <span className="text-xs text-slate-400 font-bold">
+                        /- {plan.billing}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 line-through mt-1 font-semibold">
+                      ৳ {plan.regularPrice}/-
+                    </p>
+                  </div>
+
+                  {/* Features Checkmark List */}
+                  <ul className="mt-6 space-y-3.5 text-xs font-bold text-slate-700">
+                    <li className="flex items-center gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />
+                      <span>{plan.support}</span>
+                    </li>
+                    <li className="flex items-center gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />
+                      <span>{plan.downloads}</span>
+                    </li>
+                    {commonFeatures.map((feat, i) => (
+                      <li key={i} className="flex items-center gap-2.5">
+                        <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />
+                        <span>{feat}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Get Started Button */}
+                <div className="mt-8 pt-4">
+                  <Link
+                    href={`/checkout?plan=${plan.id}`}
+                    className={`w-full py-3.5 px-6 rounded-2xl font-black text-xs sm:text-sm text-white shadow-md transition-all flex items-center justify-center gap-2 ${plan.highlight
+                        ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/25 hover:shadow-indigo-500/40'
+                        : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/20'
+                      }`}
+                  >
+                    <span>Get Started</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
       </div>
-
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} initialMode="signup" />
     </section>
   );
 }
