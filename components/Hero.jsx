@@ -62,10 +62,10 @@ export default function Hero() {
             {/* CTA Action Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <Link
-                href="#plugins"
+                href="/resources"
                 className="py-3.5 px-7 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/25 transition-all hover:shadow-blue-600/40 flex items-center gap-2"
               >
-                <span>View All Products</span>
+                <span>View All Items</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link

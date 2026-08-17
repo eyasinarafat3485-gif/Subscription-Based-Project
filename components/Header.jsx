@@ -53,7 +53,8 @@ export default function Header() {
     { href: '/', label: 'Home' },
     { href: '/product-category/wordpress-plugins', label: 'Plugins' },
     { href: '/product-category/wordpress-themes', label: 'Themes' },
-    { href: '/product-category/landing-pages', label: 'Landing Page' },
+    { href: '/product-category/seo-tools', label: 'SEO Tools' },
+    // { href: '/product-category/landing-pages', label: 'Landing Page' },
     { href: '/resources', label: 'Resources' },
     { href: '/membership', label: 'Membership' },
     { href: '/contact', label: 'Contact' },
@@ -97,8 +98,8 @@ export default function Header() {
                     key={item.label}
                     href={item.href}
                     className={`transition-colors relative py-1 ${isActive
-                        ? 'text-indigo-600 font-extrabold border-b-2 border-indigo-600'
-                        : 'text-slate-800 hover:text-indigo-600 font-medium'
+                      ? 'text-indigo-600 font-extrabold border-b-2 border-indigo-600'
+                      : 'text-slate-800 hover:text-indigo-600 font-medium'
                       }`}
                   >
                     {item.label}

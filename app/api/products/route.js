@@ -31,23 +31,56 @@ export async function GET(req) {
     const query = {};
 
     if (category && category !== 'All' && category !== 'all') {
-      if (category === 'Offer' || category === 'offer') {
+      const lowerCat = category.toLowerCase().trim();
+
+      if (lowerCat === 'offer') {
         query.$or = [{ isOffer: true }, { category: /offer|bundle/i }];
-      } else if (category === 'Plugins' || category === 'plugin') {
+      } else if (lowerCat === 'plugins' || lowerCat === 'plugin') {
         query.category = { $in: ['Plugin', 'plugin', 'Plugins', 'plugins'] };
-        query.isOffer = { $ne: true };
-      } else if (category === 'Themes' || category === 'theme') {
+      } else if (lowerCat === 'themes' || lowerCat === 'theme') {
         query.category = { $in: ['Theme', 'theme', 'Themes', 'themes', 'GPL Theme'] };
-        query.isOffer = { $ne: true };
-      } else if (category === 'SEO' || category === 'seo') {
-        query.category = { $in: ['SEO', 'seo', 'SEO Plugins', 'SEO Plugin'] };
-        query.isOffer = { $ne: true };
-      } else if (category === 'Page Builders' || category === 'page builder' || category === 'builder') {
-        query.category = { $in: ['Page Builders', 'Page Builder', 'page builder', 'builder'] };
-        query.isOffer = { $ne: true };
+      } else if (lowerCat === 'woocommerce') {
+        query.$or = [
+          { category: /woocommerce/i },
+          { title: /woocommerce|shop|cart|checkout/i },
+        ];
+      } else if (lowerCat === 'security') {
+        query.$or = [
+          { category: /security|backup/i },
+          { title: /security|wordfence|updraft|backup|defender|malware/i },
+        ];
+      } else if (lowerCat === 'performance') {
+        query.$or = [
+          { category: /performance|speed|cache/i },
+          { title: /wp rocket|cache|speed|litespeed|perfmatters|rocket/i },
+        ];
+      } else if (lowerCat === 'multipurpose') {
+        query.$or = [
+          { category: /theme/i },
+          { title: /astra|divi|avada|multipurpose|elementor/i },
+        ];
+      } else if (lowerCat === 'blog') {
+        query.$or = [
+          { category: /theme/i },
+          { title: /blog|newspaper|magazine/i },
+        ];
+      } else if (lowerCat === 'business') {
+        query.$or = [
+          { category: /theme|plugin/i },
+          { title: /business|agency|corporate/i },
+        ];
+      } else if (lowerCat === 'seo') {
+        query.$or = [
+          { category: /seo/i },
+          { title: /seo|rank math|yoast|schema|indexer/i },
+        ];
+      } else if (lowerCat.includes('builder') || lowerCat.includes('page')) {
+        query.$or = [
+          { category: /builder/i },
+          { title: /elementor|divi|beaver|builder|addon|kit/i },
+        ];
       } else {
         query.category = new RegExp(`^${category.trim()}$`, 'i');
-        query.isOffer = { $ne: true };
       }
     }
 

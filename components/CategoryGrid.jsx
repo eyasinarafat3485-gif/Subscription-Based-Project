@@ -5,16 +5,28 @@ import { ArrowRight, Puzzle, Palette, Layout, FolderKanban, PlaySquare, Wrench, 
 
 const categories = [
   {
+    name: 'All items',
+    count: '3000+ Items',
+    icon: PlaySquare,
+    slug: 'all',
+  },
+  {
     name: 'Plugins',
-    count: '1200+ Items',
+    count: '1000+ Items',
     icon: Puzzle,
     slug: 'plugin',
   },
   {
     name: 'Themes',
-    count: '800+ Items',
+    count: '600+ Items',
     icon: Palette,
     slug: 'theme',
+  },
+  {
+    name: 'SEO Tools',
+    count: '50+ Items',
+    icon: Wrench,
+    slug: 'tool',
   },
   {
     name: 'Templates',
@@ -24,27 +36,15 @@ const categories = [
   },
   {
     name: 'Resources',
-    count: '1500+ Items',
+    count: '1100+ Items',
     icon: FolderKanban,
     slug: 'resource',
   },
   {
-    name: 'Videos',
-    count: '100+ Items',
-    icon: PlaySquare,
-    slug: 'video',
-  },
-  {
-    name: 'Tools',
-    count: '150+ Items',
-    icon: Wrench,
-    slug: 'tool',
-  },
-  {
-    name: 'Documentation',
-    count: 'Clear Step Guides',
+    name: 'Untitled',
+    count: '3000+ Items',
     icon: BookOpen,
-    slug: 'documentation',
+    slug: 'all-products',
   },
 ];
 
@@ -52,7 +52,7 @@ export default function CategoryGrid({ onCategorySelect }) {
   return (
     <section className="py-10 bg-slate-50/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Section Title Bar */}
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">
