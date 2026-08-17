@@ -31,7 +31,7 @@ export default function Home() {
         <Hero />
 
         {/* 3. Dark Navy Search Bar */}
-        <SearchBar onSearch={handleSearch} />
+        {/* <SearchBar onSearch={handleSearch} /> */}
 
         {/* 4. Category Grid (7 categories) */}
         <CategoryGrid />

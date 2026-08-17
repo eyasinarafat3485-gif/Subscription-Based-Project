@@ -71,30 +71,27 @@ export default function Header() {
 
             {/* Navigation Links */}
             <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-700">
-              <a href="/" className="hover:text-blue-600 transition-colors">
+              <Link href="/" className="hover:text-blue-600 transition-colors">
                 Home
-              </a>
-              <a href="/#plugins" className="hover:text-blue-600 transition-colors">
+              </Link>
+              <Link href="/product-category/wordpress-plugins" className="hover:text-blue-600 transition-colors">
                 Plugins
-              </a>
-              <a href="/#themes" className="hover:text-blue-600 transition-colors">
+              </Link>
+              <Link href="/product-category/wordpress-themes" className="hover:text-blue-600 transition-colors">
                 Themes
-              </a>
-              <a href="/#templates" className="hover:text-blue-600 transition-colors">
-                Templates
-              </a>
-              <a href="/#resources" className="hover:text-blue-600 transition-colors">
-                Resources
-              </a>
-              <a href="/#docs" className="hover:text-blue-600 transition-colors">
+              </Link>
+              <Link href="/product-category/woocommerce-plugins" className="hover:text-blue-600 transition-colors">
+                WooCommerce
+              </Link>
+              <Link href="/#docs" className="hover:text-blue-600 transition-colors">
                 Documentation
-              </a>
-              <a href="/#pricing" className="hover:text-blue-600 transition-colors">
+              </Link>
+              <Link href="/#pricing" className="hover:text-blue-600 transition-colors">
                 Pricing
-              </a>
-              <a href="/contact" className="hover:text-blue-600 transition-colors">
+              </Link>
+              <Link href="/contact" className="hover:text-blue-600 transition-colors">
                 Contact
-              </a>
+              </Link>
             </nav>
 
             {/* Right Action Controls */}

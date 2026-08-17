@@ -24,7 +24,7 @@ export default function PluginGrid({ onDownloadClick }) {
   const [selectedDemo, setSelectedDemo] = useState(null);
   const [failedImages, setFailedImages] = useState({});
 
-  const LIMIT = 15; // 3 rows * 5 columns = 15 products per batch
+  const LIMIT = 20; // 4 rows * 5 columns = 20 products per batch
 
   const handleImageError = (id) => {
     setFailedImages((prev) => ({ ...prev, [id]: true }));
@@ -38,7 +38,8 @@ export default function PluginGrid({ onDownloadClick }) {
         setLoading(true);
       }
 
-      const url = `/api/products?page=${pageNum}&limit=${LIMIT}${cat !== 'All' ? `&category=${encodeURIComponent(cat)}` : ''}`;
+      const limitVal = cat === 'All' ? 10 : 15;
+      const url = `/api/products?page=${pageNum}&limit=${limitVal}${cat !== 'All' ? `&category=${encodeURIComponent(cat)}` : ''}`;
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
@@ -57,14 +58,22 @@ export default function PluginGrid({ onDownloadClick }) {
         }
 
         if (isAppend) {
-          setProducts((prev) => [...prev, ...fetchedProducts]);
+          setProducts((prev) => {
+            const getKey = (p) => (p._id ? p._id.toString() : p.slug);
+            const existingKeys = new Set(prev.map(getKey));
+            const uniqueNew = fetchedProducts.filter((p) => {
+              const k = getKey(p);
+              return k && !existingKeys.has(k);
+            });
+            return [...prev, ...uniqueNew];
+          });
         } else {
           setProducts(fetchedProducts);
         }
 
         setPage(pageNum);
         const totalPages = data.totalPages || 1;
-        setHasMore(pageNum < totalPages || fetchedProducts.length === LIMIT);
+        setHasMore(cat !== 'All' && pageNum < totalPages);
       }
     } catch (err) {
       console.error('Fetch products error:', err);
@@ -141,14 +150,14 @@ export default function PluginGrid({ onDownloadClick }) {
         ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
-              {products.map((item) => {
+              {products.map((item, index) => {
                 const isExpired = item.offerEndsAt ? new Date(item.offerEndsAt).getTime() <= Date.now() : false;
                 const isOfferActive = item.isOffer && !isExpired;
                 const hasDiscount = item.regularPrice && Number(item.regularPrice) > Number(item.price);
 
                 return (
                   <div
-                    key={item._id || item.slug}
+                    key={item._id ? `${item._id.toString()}-${index}` : `${item.slug || 'product'}-${index}`}
                     className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:-translate-y-1"
                   >
                     <div>
@@ -194,7 +203,7 @@ export default function PluginGrid({ onDownloadClick }) {
                                   ? 'bg-cyan-50 text-cyan-700 border-cyan-200'
                                   : 'bg-slate-100 text-slate-700 border-slate-200'
                           }`}>
-                          {isOfferActive ? 'Mega Offer' : item.category}
+                          {isOfferActive ? 'Offer' : item.category}
                         </span>
                       </div>
 
