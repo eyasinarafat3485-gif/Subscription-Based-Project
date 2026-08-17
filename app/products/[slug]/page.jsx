@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import {
@@ -61,7 +62,15 @@ export default function ProductDetailsPage({ params }) {
   const [updateMessage, setUpdateMessage] = useState('');
   const [submittingUpdate, setSubmittingUpdate] = useState(false);
 
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
+  const router = useRouter();
+
+  // Redirect to login ONLY when session is loaded AND user is not authenticated
+  useEffect(() => {
+    if (!isPending && session !== undefined && !session?.user) {
+      router.replace(`/login?redirectTo=${encodeURIComponent(`/products/${slug}`)}`);
+    }
+  }, [session, isPending, slug, router]);
 
   // Synchronize name and email from logged-in user's session
   useEffect(() => {

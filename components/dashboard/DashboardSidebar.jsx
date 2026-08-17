@@ -172,11 +172,13 @@ export default function DashboardSidebar() {
       if (signOut) {
         await signOut();
       }
-      toast.success('Logout successful');
-      router.push('/login');
+      toast.success('Logout Successful!', { autoClose: 2000 });
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 400);
     } catch (err) {
-      toast.success('Logged out');
-      router.push('/');
+      toast.success('Logout Successful!', { autoClose: 2000 });
+      window.location.href = '/login';
     }
   };
 

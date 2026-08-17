@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useSession } from '@/lib/auth-client';
 import { ArrowRight, ShoppingBag, Eye, Tag, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
 import DemoModal from './DemoModal';
 
@@ -23,6 +25,16 @@ export default function PluginGrid({ onDownloadClick }) {
   const [hasMore, setHasMore] = useState(false);
   const [selectedDemo, setSelectedDemo] = useState(null);
   const [failedImages, setFailedImages] = useState({});
+
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  const handleProtectedAction = (e, targetUrl) => {
+    if (!session?.user) {
+      e.preventDefault();
+      router.push(`/login?redirectTo=${encodeURIComponent(targetUrl)}`);
+    }
+  };
 
   const LIMIT = 20; // 4 rows * 5 columns = 20 products per batch
 
@@ -109,7 +121,7 @@ export default function PluginGrid({ onDownloadClick }) {
           </div>
 
           <Link
-            href="/dashboard/user"
+            href="/resources"
             className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 transition"
           >
             <span>View All</span>
@@ -208,49 +220,51 @@ export default function PluginGrid({ onDownloadClick }) {
                       </div>
 
                       {/* Body Content */}
-                    <div className="p-3 space-y-2 text-center">
-                      <Link href={`/products/${item.slug}`} className="block">
-                        <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 min-h-[38px] group-hover:text-indigo-600 transition-colors">
-                          {item.title}
-                        </h3>
-                      </Link>
-                      <p className="text-[12px] text-slate-400 font-mono">
-                        {item.version || 'Latest Version'}
-                      </p>
+                      <div className="p-3 space-y-2 text-center">
+                        <Link href={`/products/${item.slug}`} className="block">
+                          <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 min-h-[38px] group-hover:text-indigo-600 transition-colors">
+                            {item.title}
+                          </h3>
+                        </Link>
+                        <p className="text-[12px] text-slate-400 font-mono">
+                          {item.version || 'Latest Version'}
+                        </p>
 
-                      {/* Price Display */}
-                      <div className="flex items-center justify-center gap-2 pt-1">
-                        {hasDiscount && (
-                          <span className="text-sm text-slate-400 line-through font-semibold">
-                            {item.regularPrice}৳
+                        {/* Price Display */}
+                        <div className="flex items-center justify-center gap-2 pt-1">
+                          {hasDiscount && (
+                            <span className="text-sm text-slate-400 line-through font-semibold">
+                              {item.regularPrice}৳
+                            </span>
+                          )}
+                          <span className="text-base font-black text-indigo-600 tracking-tight">
+                            {item.price}৳
                           </span>
-                        )}
-                        <span className="text-base font-black text-indigo-600 tracking-tight">
-                          {item.price}৳
-                        </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Footer Action Buttons (Details & Buy Now) */}
-                  <div className="p-3 pt-0 grid grid-cols-2 gap-2">
-                    <Link
-                      href={`/products/${item.slug}`}
-                      className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs border border-slate-200/90 shadow-2xs transition flex items-center justify-center gap-1.5"
-                    >
-                      <Eye className="w-3.5 h-3.5 text-slate-600" />
-                      <span>Details</span>
-                    </Link>
+                    {/* Footer Action Buttons (Details & Buy Now) */}
+                    <div className="p-3 pt-0 grid grid-cols-2 gap-2">
+                      <Link
+                        href={`/products/${item.slug}`}
+                        onClick={(e) => handleProtectedAction(e, `/products/${item.slug}`)}
+                        className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs border border-slate-200/90 shadow-2xs transition flex items-center justify-center gap-1.5"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-slate-600" />
+                        <span>Details</span>
+                      </Link>
 
-                    <Link
-                      href={`/checkout?product=${item.slug}`}
-                      className="py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs shadow-indigo-500/20 transition flex items-center justify-center gap-1.5"
-                    >
-                      <ShoppingBag className="w-3.5 h-3.5" />
-                      <span>Buy Now</span>
-                    </Link>
+                      <Link
+                        href={`/checkout?product=${item.slug}`}
+                        onClick={(e) => handleProtectedAction(e, `/checkout?product=${item.slug}`)}
+                        className="py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs shadow-indigo-500/20 transition flex items-center justify-center gap-1.5"
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5" />
+                        <span>Buy Now</span>
+                      </Link>
+                    </div>
                   </div>
-                </div>
                 );
               })}
             </div>

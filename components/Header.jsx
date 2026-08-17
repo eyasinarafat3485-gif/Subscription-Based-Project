@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ShoppingBag, LogOut } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { useSession, signOut } from '@/lib/auth-client';
 
 export default function Header() {
@@ -48,6 +49,20 @@ export default function Header() {
   const userName = profileData?.name || session?.user?.name || 'User';
   const userImage = profileData?.image || session?.user?.image;
   const userInitial = userName.charAt(0).toUpperCase();
+
+  const handleLogout = async () => {
+    try {
+      localStorage.removeItem('user_profile');
+      if (signOut) {
+        await signOut();
+      }
+      toast.success('Logout Successful!', { autoClose: 2000 });
+      window.location.href = '/login';
+    } catch (err) {
+      toast.success('Logout Successful!', { autoClose: 2000 });
+      window.location.href = '/login';
+    }
+  };
 
   const navItems = [
     { href: '/', label: 'Home' },
@@ -144,7 +159,7 @@ export default function Header() {
                     <span suppressHydrationWarning>Dashboard</span>
                   </a>
                   <button
-                    onClick={() => signOut()}
+                    onClick={handleLogout}
                     className="p-2 text-slate-500 hover:text-red-600 rounded-lg hover:bg-red-50 transition cursor-pointer"
                     title="Logout"
                   >

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, use } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/lib/auth-client';
@@ -16,31 +16,17 @@ import {
   Eye,
   Loader2,
   Menu,
-  Sparkles,
   SlidersHorizontal,
   FolderKanban,
   CheckCircle2
 } from 'lucide-react';
 
-const CATEGORY_MAP = {
-  'wordpress-plugins': { title: 'WordPress Plugins', defaultCat: 'Plugins' },
-  'wordpress-themes': { title: 'WordPress Themes', defaultCat: 'Themes' },
-  'seo-tools': { title: 'SEO Tools', defaultCat: 'SEO' },
-  'landing-pages': { title: 'Landing Pages', defaultCat: 'Page Builders' },
-  'resources': { title: 'WordPress Resources', defaultCat: 'Resources' },
-};
-
 const SIDEBAR_CATEGORIES = [
   {
-    name: 'WordPress Plugins',
-    slug: 'Plugins',
+    name: 'WordPress Resources',
+    slug: 'Resources',
     subcategories: [
-      { name: 'All Plugins', slug: 'Plugins' },
-      { name: 'WooCommerce Plugins', slug: 'WooCommerce' },
-      { name: 'Elementor Addons', slug: 'Page Builders' },
-      { name: 'SEO Plugins', slug: 'SEO' },
-      { name: 'Security & Backup', slug: 'Security' },
-      { name: 'Speed & Cache', slug: 'Performance' },
+      { name: 'All Resources', slug: 'Resources' },
     ],
   },
   {
@@ -48,10 +34,29 @@ const SIDEBAR_CATEGORIES = [
     slug: 'Themes',
     subcategories: [
       { name: 'All Themes', slug: 'Themes' },
+      { name: 'Blog Themes', slug: 'Blog' },
+      { name: 'Corporate & Service', slug: 'Business' },
+      { name: 'Directories & Listings', slug: 'Business' },
+      { name: 'Ecommerce Themes', slug: 'WooCommerce' },
+      { name: 'Educational LMS Themes', slug: 'Multipurpose' },
       { name: 'Multipurpose Themes', slug: 'Multipurpose' },
-      { name: 'E-commerce Themes', slug: 'WooCommerce' },
-      { name: 'Blog & Magazine', slug: 'Blog' },
-      { name: 'Business & Agency', slug: 'Business' },
+      { name: 'Portfolio & Creative', slug: 'Multipurpose' },
+      { name: 'Real Estate Themes', slug: 'Business' },
+    ],
+  },
+  {
+    name: 'WordPress Plugins',
+    slug: 'Plugins',
+    subcategories: [
+      { name: 'All Plugins', slug: 'Plugins' },
+      { name: 'E-Commerce Plugins', slug: 'WooCommerce' },
+      { name: 'Form Builders Plugin', slug: 'Plugins' },
+      { name: 'Page Builder Plugins', slug: 'Page Builders' },
+      { name: 'Add-Ons', slug: 'Page Builders' },
+      { name: 'SEO Plugins', slug: 'SEO' },
+      { name: 'Backup & Security', slug: 'Security' },
+      { name: 'Speed & Performance', slug: 'Performance' },
+      { name: 'LMS Plugins', slug: 'Plugins' },
     ],
   },
   {
@@ -63,31 +68,11 @@ const SIDEBAR_CATEGORIES = [
       { name: 'Schema & Indexing', slug: 'SEO' },
     ],
   },
-  {
-    name: 'Landing Pages & Templates',
-    slug: 'Page Builders',
-    subcategories: [
-      { name: 'All Templates', slug: 'Page Builders' },
-      { name: 'Elementor Kits', slug: 'Page Builders' },
-    ],
-  },
-  {
-    name: 'WordPress Resources',
-    slug: 'Resources',
-    subcategories: [
-      { name: 'All Resources', slug: 'Resources' },
-    ],
-  },
 ];
 
-export default function CategoryPage({ params }) {
-  const resolvedParams = use(params);
-  const rawCategorySlug = resolvedParams.category;
-
-  const categoryMeta = CATEGORY_MAP[rawCategorySlug] || {
-    title: rawCategorySlug ? rawCategorySlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'All Products',
-    defaultCat: 'All',
-  };
+export default function ResourcesPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -95,25 +80,26 @@ export default function CategoryPage({ params }) {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [totalProducts, setTotalProducts] = useState(0);
-  const [selectedSubcat, setSelectedSubcat] = useState(categoryMeta.defaultCat);
+  const [selectedSubcat, setSelectedSubcat] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedCats, setExpandedCats] = useState({
-    'Plugins': true,
+    'Resources': true,
     'Themes': true,
+    'Plugins': true,
     'SEO': true,
   });
 
   const BATCH_SIZE = 16;
+
+  const toggleExpand = (catSlug) => {
+    setExpandedCats((prev) => ({ ...prev, [catSlug]: !prev[catSlug] }));
+  };
 
   const handleProtectedAction = (e, targetUrl) => {
     if (!session?.user) {
       e.preventDefault();
       router.push(`/login?redirectTo=${encodeURIComponent(targetUrl)}`);
     }
-  };
-
-  const toggleExpand = (catSlug) => {
-    setExpandedCats((prev) => ({ ...prev, [catSlug]: !prev[catSlug] }));
   };
 
   // Fetch products (15 items batch) based on category/subcategory & search filter
@@ -151,7 +137,7 @@ export default function CategoryPage({ params }) {
         setHasMore(pageNum < (data.totalPages || 1));
       }
     } catch (err) {
-      console.error('Error fetching category products:', err);
+      console.error('Error fetching resources:', err);
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -199,17 +185,17 @@ export default function CategoryPage({ params }) {
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
-          {/* Top Banner Notice Bar (Matching Reference Image 1) */}
+          {/* Top Banner Notice Bar (Matching Reference Screenshot) */}
           <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
             
-            {/* Left: Category Title */}
+            {/* Left: Section Title */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
                 <Menu className="w-5 h-5" />
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  {categoryMeta.title}
+                  WordPress Resources
                 </h1>
                 <p className="text-xs text-slate-500 font-medium">
                   {products.length} Products Available
@@ -217,7 +203,7 @@ export default function CategoryPage({ params }) {
               </div>
             </div>
 
-            {/* Right: Download For FREE Promo Box (Indigo Blue Theme) */}
+            {/* Right: Download For FREE Promo Box (Matching Indigo Theme) */}
             <div className="w-full md:w-auto bg-gradient-to-r from-indigo-50/90 via-purple-50/50 to-blue-50/80 border border-dashed border-indigo-300/90 rounded-xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
               <div className="flex items-center gap-3 text-center sm:text-left">
                 <div className="w-10 h-10 rounded-xl bg-indigo-100/90 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-200">
@@ -235,7 +221,7 @@ export default function CategoryPage({ params }) {
 
               <Link
                 href="/membership"
-                className="px-4 py-2.5 bg-white hover:bg-indigo-50 text-indigo-600 hover:text-indigo-700 font-black text-xs rounded-xl border border-indigo-200 shadow-2xs transition flex items-center gap-1.5 shrink-0 hover:scale-102"
+                className="px-4 py-2.5 bg-white hover:bg-indigo-50 text-indigo-600 hover:text-indigo-700 font-black text-xs rounded-xl border border-indigo-200 shadow-2xs transition flex items-center gap-1.5 shrink-0 hover:scale-102 cursor-pointer"
               >
                 <span>Get Membership</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -244,10 +230,10 @@ export default function CategoryPage({ params }) {
 
           </div>
 
-          {/* Main Content Layout: Compact Left Sidebar Filter + Expanded Right Product Grid */}
+          {/* Main Layout: Left Sidebar + Right Product Grid (Matching Reference Screenshot) */}
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start pt-2">
 
-            {/* Compact Left Sidebar Filter (Fixed Width - Matching Image 2) */}
+            {/* Compact Left Sidebar Filter (Matching Image Layout) */}
             <aside className="w-full lg:w-60 xl:w-64 shrink-0 bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-6">
               
               {/* Search Box */}
@@ -264,7 +250,7 @@ export default function CategoryPage({ params }) {
                 </div>
               </div>
 
-              {/* Browse By Categories Tree List (Matching Image 2) */}
+              {/* Browse By Categories Tree List */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
                   <SlidersHorizontal className="w-4 h-4 text-indigo-600" />
@@ -286,7 +272,7 @@ export default function CategoryPage({ params }) {
                             setSelectedSubcat(catGroup.slug);
                             if (hasSubcats) toggleExpand(catGroup.slug);
                           }}
-                          className={`w-full flex items-center justify-between p-2 rounded-xl text-left font-bold transition ${selectedSubcat === catGroup.slug
+                          className={`w-full flex items-center justify-between p-2 rounded-xl text-left font-bold transition cursor-pointer ${selectedSubcat === catGroup.slug
                               ? 'bg-indigo-50 text-indigo-600 font-extrabold'
                               : 'text-slate-700 hover:bg-slate-50 hover:text-indigo-600'
                             }`}
@@ -308,7 +294,7 @@ export default function CategoryPage({ params }) {
                                 <button
                                   key={sub.name}
                                   onClick={() => setSelectedSubcat(sub.slug)}
-                                  className={`w-full text-left py-1.5 px-2 rounded-lg text-[11px] font-semibold transition flex items-center justify-between ${isSubActive
+                                  className={`w-full text-left py-1.5 px-2 rounded-lg text-[11px] font-semibold transition flex items-center justify-between cursor-pointer ${isSubActive
                                       ? 'text-indigo-600 font-extrabold bg-indigo-50/60'
                                       : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                                     }`}
@@ -328,21 +314,21 @@ export default function CategoryPage({ params }) {
 
             </aside>
 
-            {/* Expanded Right Product Grid */}
+            {/* Right Product Grid */}
             <div className="flex-1 min-w-0 space-y-6">
               
               {loading ? (
                 <div className="py-20 text-center space-y-3 bg-white rounded-2xl border border-slate-200 p-8 shadow-xs">
                   <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mx-auto" />
                   <p className="text-xs font-extrabold text-slate-500">
-                    Loading products...
+                    Loading resources...
                   </p>
                 </div>
               ) : products.length === 0 ? (
                 <div className="py-16 text-center space-y-3 bg-white rounded-2xl border border-slate-200 p-8 shadow-xs">
                   <FolderKanban className="w-10 h-10 text-slate-300 mx-auto" />
                   <h3 className="text-base font-black text-slate-800">
-                    No products found in this category
+                    No resources found in this category
                   </h3>
                   <p className="text-xs text-slate-500">
                     Try selecting a different category from the sidebar or clear your search term.
@@ -352,7 +338,7 @@ export default function CategoryPage({ params }) {
                       setSelectedSubcat('All');
                       setSearchQuery('');
                     }}
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition"
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer"
                   >
                     View All Products
                   </button>
@@ -400,7 +386,11 @@ export default function CategoryPage({ params }) {
 
                             {/* Body Content */}
                             <div className="p-3 space-y-2 text-center">
-                              <Link href={`/products/${item.slug}`} className="block">
+                              <Link
+                                href={`/products/${item.slug}`}
+                                onClick={(e) => handleProtectedAction(e, `/products/${item.slug}`)}
+                                className="block"
+                              >
                                 <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 min-h-[38px] group-hover:text-indigo-600 transition-colors">
                                   {item.title}
                                 </h3>
@@ -423,7 +413,7 @@ export default function CategoryPage({ params }) {
                             </div>
                           </div>
 
-                          {/* Footer Action Buttons (With Single Line Guarantee) */}
+                          {/* Footer Action Buttons */}
                           <div className="p-3 pt-0 grid grid-cols-2 gap-1.5">
                             <Link
                               href={`/products/${item.slug}`}

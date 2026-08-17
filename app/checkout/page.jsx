@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from '@/lib/auth-client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import {
@@ -48,8 +49,18 @@ const PLAN_DETAILS = {
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session, isPending } = useSession();
+
   const planParam = searchParams.get('plan') || 'standard';
   const productParam = searchParams.get('product');
+
+  // Protect checkout page: redirect unauthenticated users to /login with return URL
+  useEffect(() => {
+    if (!isPending && session !== undefined && !session?.user) {
+      const fullPath = window.location.pathname + window.location.search;
+      router.replace(`/login?redirectTo=${encodeURIComponent(fullPath)}`);
+    }
+  }, [session, isPending, router]);
 
   const [selectedProduct, setSelectedProduct] = useState(null);
 

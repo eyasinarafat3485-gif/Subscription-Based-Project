@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 export function proxy(request) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
 
   // Check if route starts with /dashboard
   if (pathname.startsWith('/dashboard')) {
@@ -13,10 +13,10 @@ export function proxy(request) {
       request.cookies.get('session_token') ||
       request.cookies.get('session');
 
-    // If user is not logged in, redirect immediately to /login
+    // If user is not logged in, redirect immediately to /login with return URL
     if (!sessionToken || !sessionToken.value) {
       const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('callbackUrl', pathname);
+      loginUrl.searchParams.set('redirectTo', pathname + search);
       return NextResponse.redirect(loginUrl);
     }
   }

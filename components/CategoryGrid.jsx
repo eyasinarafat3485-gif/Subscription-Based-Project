@@ -8,43 +8,43 @@ const categories = [
     name: 'All items',
     count: '3000+ Items',
     icon: PlaySquare,
-    slug: 'all',
+    href: '/resources',
   },
   {
     name: 'Plugins',
     count: '1000+ Items',
     icon: Puzzle,
-    slug: 'plugin',
+    href: '/product-category/wordpress-plugins',
   },
   {
     name: 'Themes',
     count: '600+ Items',
     icon: Palette,
-    slug: 'theme',
+    href: '/product-category/wordpress-themes',
   },
   {
     name: 'SEO Tools',
     count: '50+ Items',
     icon: Wrench,
-    slug: 'tool',
+    href: '/product-category/seo-tools',
   },
   {
     name: 'Templates',
     count: '500+ Items',
     icon: Layout,
-    slug: 'template',
+    href: '/resources',
   },
   {
     name: 'Resources',
     count: '1100+ Items',
     icon: FolderKanban,
-    slug: 'resource',
+    href: '/resources',
   },
   {
-    name: 'Untitled',
+    name: 'Offers',
     count: '3000+ Items',
     icon: BookOpen,
-    slug: 'all-products',
+    href: '/membership',
   },
 ];
 
@@ -59,7 +59,7 @@ export default function CategoryGrid({ onCategorySelect }) {
             Browse by Category
           </h2>
           <Link
-            href="#plugins"
+            href="/resources"
             className="flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700 transition"
           >
             <span>View All</span>
@@ -72,9 +72,10 @@ export default function CategoryGrid({ onCategorySelect }) {
           {categories.map((cat) => {
             const Icon = cat.icon;
             return (
-              <button
-                key={cat.slug}
-                onClick={() => onCategorySelect && onCategorySelect(cat.slug)}
+              <Link
+                key={cat.name}
+                href={cat.href}
+                onClick={() => onCategorySelect && onCategorySelect(cat.href)}
                 className="flex flex-col items-center justify-center p-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-blue-500/40 hover:-translate-y-1 transition-all group text-center"
               >
                 <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors shadow-xs">
@@ -84,7 +85,7 @@ export default function CategoryGrid({ onCategorySelect }) {
                   {cat.name}
                 </h3>
                 <p className="text-[11px] text-slate-400 font-medium">{cat.count}</p>
-              </button>
+              </Link>
             );
           })}
         </div>
