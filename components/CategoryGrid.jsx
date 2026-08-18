@@ -32,7 +32,7 @@ const categories = [
     name: 'Templates',
     count: '500+ Items',
     icon: Layout,
-    href: '/resources',
+    href: '/templates',
   },
   {
     name: 'Resources',

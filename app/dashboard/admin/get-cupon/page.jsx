@@ -1,42 +1,78 @@
 'use client';
 
-import { useState } from 'react';
-import { Copy, Check, Plus, Sparkles, RefreshCw, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Copy, Check, Plus, Sparkles, RefreshCw, Trash2, Loader2, ShieldCheck, Mail } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 export default function AdminGetCouponPage() {
-  const [coupons, setCoupons] = useState([
-    { code: 'DEVGUEST2026-X89A', discount: '100% OFF (Guest Free Pass)', maxUses: 5, used: 2, expiry: '2026-12-31' },
-    { code: 'WPDEV-VIP50', discount: '50% OFF Pro Membership', maxUses: 20, used: 14, expiry: '2026-09-30' },
-    { code: 'BENGALIT-BONUS', discount: 'Free Theme Access', maxUses: 10, used: 8, expiry: '2026-10-15' },
-  ]);
+  const [coupons, setCoupons] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
   const [copiedCode, setCopiedCode] = useState('');
-  const [newDiscount, setNewDiscount] = useState('100');
-  const [newCode, setNewCode] = useState('');
+  const [targetEmail, setTargetEmail] = useState('');
 
-  const generateRandomCode = () => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let code = 'DEVGUEST-';
-    for (let i = 0; i < 6; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
+  const fetchCoupons = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/coupons');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.coupons) {
+          setCoupons(data.coupons);
+        }
+      }
+    } catch (err) {
+      console.error('Fetch coupons error:', err);
+    } finally {
+      setLoading(false);
     }
-    setNewCode(code);
   };
 
-  const handleCreateCoupon = (e) => {
-    e.preventDefault();
-    const codeToAdd = newCode || `DEVGUEST-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-    const newEntry = {
-      code: codeToAdd,
-      discount: `${newDiscount}% OFF (Special Pass)`,
-      maxUses: 10,
-      used: 0,
-      expiry: '2026-12-31',
-    };
+  useEffect(() => {
+    fetchCoupons();
+  }, []);
 
-    setCoupons([newEntry, ...coupons]);
-    toast.success(`New coupon code ${codeToAdd} successfully created!`);
-    setNewCode('');
+  const handleCreateCoupon = async (e) => {
+    e.preventDefault();
+    try {
+      setCreating(true);
+      if (targetEmail.trim()) {
+        // Send directly to user via guest-requests API
+        const res = await fetch('/api/admin/guest-requests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'send-coupon',
+            userEmail: targetEmail.trim(),
+          }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          toast.success(data.message || `Guest coupon generated and sent to ${targetEmail}!`);
+          setTargetEmail('');
+          fetchCoupons();
+        } else {
+          toast.error(data.error || 'Failed to generate coupon');
+        }
+      } else {
+        // Generate general coupon
+        const res = await fetch('/api/coupons', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          toast.success(`New 1-Time VIP Coupon ${data.coupon.code} created!`);
+          fetchCoupons();
+        } else {
+          toast.error(data.error || 'Failed to create coupon');
+        }
+      }
+    } catch (err) {
+      toast.error('Server error occurred');
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleCopy = (code) => {
@@ -46,120 +82,124 @@ export default function AdminGetCouponPage() {
     setTimeout(() => setCopiedCode(''), 2000);
   };
 
-  const handleDelete = (code) => {
-    setCoupons(coupons.filter(c => c.code !== code));
-    toast.error(`Coupon ${code} deleted`);
-  };
-
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-5xl">
       <div>
         <h1 className="text-2xl font-black text-slate-900 tracking-tight">Guest Coupon Management</h1>
-        <p className="text-slate-500 text-xs mt-1">Generate discount and access coupon codes for guest members and new users.</p>
+        <p className="text-slate-500 text-xs mt-1">Generate and dispatch single-use VIP coupon codes for Guest membership access.</p>
       </div>
 
-      {/* Generate Coupon Form */}
+      {/* Generate Coupon Card */}
       <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
         <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-500" />
-          <span>Generate New Coupon</span>
+          <span>Generate 1-Time Dynamic Guest Coupon</span>
         </h2>
 
-        <form onSubmit={handleCreateCoupon} className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-          <div>
-            <label className="block text-slate-700 font-bold mb-1">Coupon Code</label>
-            <div className="flex gap-2">
+        <form onSubmit={handleCreateCoupon} className="flex flex-col sm:flex-row items-end gap-3 text-xs">
+          <div className="flex-1 w-full">
+            <label className="block text-slate-700 font-bold mb-1">Target User Email (Optional - directly sends invitation email)</label>
+            <div className="relative">
               <input
-                type="text"
-                placeholder="DEVGUEST-XXXX"
-                value={newCode}
-                onChange={(e) => setNewCode(e.target.value.toUpperCase())}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono uppercase focus:outline-none focus:border-blue-500"
+                type="email"
+                placeholder="e.g. user@gmail.com (Leave blank for generic coupon)"
+                value={targetEmail}
+                onChange={(e) => setTargetEmail(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 pl-9 text-slate-900 focus:outline-none focus:border-blue-500"
               />
-              <button
-                type="button"
-                onClick={generateRandomCode}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
-                title="Generate Automatically"
-              >
-                <RefreshCw className="w-4 h-4" />
-              </button>
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
             </div>
           </div>
 
-          <div>
-            <label className="block text-slate-700 font-bold mb-1">Discount (%)</label>
-            <select
-              value={newDiscount}
-              onChange={(e) => setNewDiscount(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-blue-500 font-medium"
-            >
-              <option value="100">100% OFF (Free Guest Pass)</option>
-              <option value="50">50% OFF Discount</option>
-              <option value="30">30% OFF Special</option>
-              <option value="20">20% OFF Regular</option>
-            </select>
-          </div>
-
-          <div className="flex items-end">
-            <button
-              type="submit"
-              className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center justify-center gap-2 shadow-md transition cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create Coupon</span>
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={creating}
+            className="w-full sm:w-auto py-2.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center justify-center gap-2 shadow-md transition cursor-pointer disabled:opacity-50"
+          >
+            {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+            <span>{targetEmail.trim() ? 'Generate & Send via Email' : 'Generate 1-Time Coupon'}</span>
+          </button>
         </form>
       </div>
 
-      {/* Existing Coupons */}
+      {/* Existing Coupons Table / List */}
       <div className="rounded-2xl bg-white border border-slate-200 p-6 space-y-4 shadow-xs">
-        <h3 className="text-sm font-bold text-slate-900">Active Coupon Codes List</h3>
-
-        <div className="space-y-3">
-          {coupons.map((coupon, idx) => (
-            <div
-              key={idx}
-              className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-slate-300 transition"
-            >
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-black text-sm text-blue-600 tracking-wider">
-                    {coupon.code}
-                  </span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
-                    {coupon.discount}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  Uses: <span className="text-slate-800 font-bold">{coupon.used}/{coupon.maxUses}</span> • Expiry: {coupon.expiry}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  onClick={() => handleCopy(coupon.code)}
-                  className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shadow-xs"
-                >
-                  {copiedCode === coupon.code ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5" />
-                  )}
-                  <span>{copiedCode === coupon.code ? 'Copied' : 'Copy Code'}</span>
-                </button>
-                <button
-                  onClick={() => handleDelete(coupon.code)}
-                  className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition cursor-pointer"
-                  title="Delete"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-slate-900">Database Coupon Codes List</h3>
+          <button
+            type="button"
+            onClick={fetchCoupons}
+            className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition"
+            title="Refresh list"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
         </div>
+
+        {loading ? (
+          <div className="py-12 text-center text-slate-400">
+            <Loader2 className="w-6 h-6 animate-spin text-blue-600 mx-auto mb-2" />
+            <p className="text-xs">Loading coupons from MongoDB...</p>
+          </div>
+        ) : coupons.length === 0 ? (
+          <div className="py-8 text-center text-slate-400 text-xs font-medium">
+            No coupons generated yet.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {coupons.map((coupon, idx) => (
+              <div
+                key={idx}
+                className={`p-4 rounded-xl border flex items-center justify-between gap-3 transition ${
+                  coupon.isUsed
+                    ? 'bg-slate-50 border-slate-200 opacity-60'
+                    : 'bg-white border-blue-200 shadow-2xs hover:border-blue-300'
+                }`}
+              >
+                <div className="space-y-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-black text-sm text-blue-600 tracking-wider">
+                      {coupon.code}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
+                        coupon.isUsed
+                          ? 'bg-slate-200 text-slate-600'
+                          : 'bg-emerald-100 text-emerald-700'
+                      }`}
+                    >
+                      {coupon.isUsed ? 'USED' : 'ACTIVE (1-TIME)'}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 truncate">
+                    {coupon.isUsed ? (
+                      <span>Used by: <strong className="text-slate-600">{coupon.usedBy}</strong></span>
+                    ) : coupon.assignedTo ? (
+                      <span>Assigned to: <strong className="text-slate-600">{coupon.assignedTo}</strong></span>
+                    ) : (
+                      <span>Created: {new Date(coupon.createdAt).toLocaleDateString()}</span>
+                    )}
+                  </p>
+                </div>
+
+                {!coupon.isUsed && (
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(coupon.code)}
+                    className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shrink-0"
+                  >
+                    {copiedCode === coupon.code ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                    <span>{copiedCode === coupon.code ? 'Copied' : 'Copy'}</span>
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

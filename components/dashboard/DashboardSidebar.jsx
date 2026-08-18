@@ -20,7 +20,8 @@ import {
   Menu,
   X,
   Sparkles,
-  Award
+  Award,
+  Bell
 } from 'lucide-react';
 import { useSession, signOut } from '@/lib/auth-client';
 import { toast } from 'react-toastify';
@@ -86,6 +87,11 @@ export default function DashboardSidebar() {
       exact: true,
     },
     {
+      title: 'All Notifications',
+      href: '/dashboard/admin/all-notifications',
+      icon: Bell,
+    },
+    {
       title: 'My Profile',
       href: '/dashboard/admin/my-profile',
       icon: User,
@@ -131,6 +137,11 @@ export default function DashboardSidebar() {
       exact: true,
     },
     {
+      title: 'All Notifications',
+      href: '/dashboard/user/all-notifications',
+      icon: Bell,
+    },
+    {
       title: 'My Profile',
       href: '/dashboard/user/my-profile',
       icon: User,
@@ -149,6 +160,11 @@ export default function DashboardSidebar() {
       href: '/dashboard/guest',
       icon: LayoutDashboard,
       exact: true,
+    },
+    {
+      title: 'All Notifications',
+      href: '/dashboard/guest/all-notifications',
+      icon: Bell,
     },
     {
       title: 'My Profile',

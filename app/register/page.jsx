@@ -11,8 +11,6 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user');
-  const [coupon, setCoupon] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -48,27 +46,11 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      if (role === 'guest') {
-        const verifyRes = await fetch('/api/coupons/use', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ coupon: coupon.trim(), email: email.trim() }),
-        });
-        const verifyData = await verifyRes.json();
-        if (!verifyRes.ok || verifyData.error) {
-          const msg = verifyData.error || 'Coupon verification failed!';
-          setError(msg);
-          toast.error(msg);
-          setLoading(false);
-          return;
-        }
-      }
-
       const res = await signUp.email({
         email,
         password,
         name,
-        role,
+        role: 'user',
       });
 
       if (res?.error) {
@@ -168,50 +150,6 @@ export default function RegisterPage() {
                   />
                 </div>
               </div>
-
-              {/* Account Role Dropdown */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Account Type (Role)</label>
-                <div className="relative">
-                  <select
-                    value={role}
-                    onChange={(e) => {
-                      setRole(e.target.value);
-                      setError('');
-                    }}
-                    className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white text-slate-800 appearance-none cursor-pointer"
-                  >
-                    <option value="user">User</option>
-                    <option value="guest">Guest</option>
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              {/* Coupon Code Input for Guest */}
-              {role === 'guest' && (
-                <div className="animate-fade-in">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Coupon Code</label>
-                  <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-                    <input
-                      type="text"
-                      required
-                      value={coupon}
-                      onChange={(e) => setCoupon(e.target.value)}
-                      placeholder="e.g. VIP2026"
-                      className="w-full pl-10 pr-3.5 py-3 bg-slate-50 border border-slate-200 focus:border-blue-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white text-slate-800"
-                    />
-                  </div>
-                  <p className="text-[10px] text-slate-500 mt-1.5 pl-1.5">
-                    * Please provide a valid coupon code for Guest registration.
-                  </p>
-                </div>
-              )}
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email Address</label>

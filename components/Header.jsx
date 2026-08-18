@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, LogOut } from 'lucide-react';
+import { ShoppingCart, LogOut } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useSession, signOut } from '@/lib/auth-client';
 
@@ -130,7 +130,7 @@ export default function Header() {
                 className="relative p-2.5 text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition cursor-pointer"
                 title="Cart"
               >
-                <ShoppingBag className="w-5 h-5" />
+                <ShoppingCart className="w-5 h-5" />
                 {cartCount > 0 && (
                   <span className="absolute top-1 right-1 w-4 h-4 bg-blue-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                     {cartCount}

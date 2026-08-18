@@ -47,15 +47,22 @@ export default function DashboardLayout({ children }) {
 
       userRole = userRole || 'user';
 
-      // 2. Protection for Guest Role (Guest can ONLY access /dashboard/guest)
+      // 2. Protection & Routing for Guest Role (Guest can ONLY access /dashboard/guest)
       if (userRole === 'guest') {
+        const hasCelebrated = sessionStorage.getItem('guest_celebrated');
+        if (!hasCelebrated) {
+          toast.success(`🎉 Congratulations, ${session.user.name || 'User'}! Your Guest Membership is now ACTIVE!`, {
+            autoClose: 5000,
+          });
+          sessionStorage.setItem('guest_celebrated', 'true');
+        }
+
         if (pathname.startsWith('/dashboard/admin')) {
           toast.error('Access denied! You do not have permission to access the admin dashboard.');
           router.replace('/dashboard/guest');
           return;
         }
         if (pathname.startsWith('/dashboard/user')) {
-          toast.error('Guest account is not permitted to access the user dashboard.');
           router.replace('/dashboard/guest');
           return;
         }

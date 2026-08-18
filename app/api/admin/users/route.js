@@ -107,6 +107,8 @@ export async function PATCH(req) {
       return NextResponse.json({ error: 'User identifier is required!' }, { status: 400 });
     }
 
+    const userDoc = await db.collection('user').findOne(filter);
+
     const result = await db.collection('user').updateOne(filter, {
       $set: {
         role: role.toLowerCase(),
@@ -118,9 +120,54 @@ export async function PATCH(req) {
       return NextResponse.json({ error: 'User not found in database!' }, { status: 404 });
     }
 
+    // Sync GuestRequest entry so all role changes from All-Users page appear in All Notifications in serial order
+    if (userDoc?.email) {
+      try {
+        const GuestRequest = (await import('@/models/GuestRequest')).default;
+        const newStatus =
+          role.toLowerCase() === 'guest' || role.toLowerCase() === 'admin'
+            ? 'APPROVED'
+            : 'REJECTED';
+
+        const existingReq = await GuestRequest.findOne({
+          userEmail: userDoc.email.toLowerCase(),
+        }).sort({ createdAt: -1 });
+
+        if (existingReq) {
+          existingReq.status = newStatus;
+          existingReq.isReadByAdmin = true;
+          existingReq.isReadByUser = false;
+          if (newStatus === 'APPROVED') {
+            existingReq.approvedAt = new Date();
+          } else {
+            existingReq.rejectedAt = new Date();
+          }
+          await existingReq.save();
+        } else {
+          await GuestRequest.create({
+            userId: userDoc._id,
+            userName: userDoc.name || 'User',
+            userEmail: userDoc.email.toLowerCase(),
+            userImage: userDoc.image || '',
+            userCreatedAt: userDoc.createdAt || new Date(),
+            status: newStatus,
+            requestedAt: new Date(),
+            approvedAt: newStatus === 'APPROVED' ? new Date() : undefined,
+            rejectedAt: newStatus === 'REJECTED' ? new Date() : undefined,
+            isReadByAdmin: true,
+            isReadByUser: false,
+          });
+        }
+      } catch (e) {
+        console.error('Failed to sync GuestRequest in PATCH:', e);
+      }
+    }
+
+    const displayName = userDoc?.name || 'User';
+
     return NextResponse.json({
       success: true,
-      message: `User role successfully updated to ${role.toUpperCase()}!`,
+      message: `"${displayName}" role successfully updated to ${role.toUpperCase()}!`,
     });
   } catch (error) {
     console.error('PATCH /api/admin/users error:', error);
@@ -155,10 +202,30 @@ export async function DELETE(req) {
       filter = { _id: userId };
     }
 
+    const userDoc = await db.collection('user').findOne(filter);
     const result = await db.collection('user').deleteOne(filter);
 
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: 'User not found!' }, { status: 404 });
+    }
+
+    if (userDoc?.email) {
+      try {
+        const GuestRequest = (await import('@/models/GuestRequest')).default;
+        await GuestRequest.updateMany(
+          { userEmail: userDoc.email.toLowerCase() },
+          {
+            $set: {
+              status: 'DELETED',
+              deletedAt: new Date(),
+              isReadByAdmin: true,
+              isReadByUser: false,
+            },
+          }
+        );
+      } catch (e) {
+        console.error('Failed to sync GuestRequest delete:', e);
+      }
     }
 
     return NextResponse.json({
