@@ -17,6 +17,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { getPaginationRange } from '@/lib/pagination';
 
 export default function AdminAllProductsPage() {
   const [search, setSearch] = useState('');
@@ -490,19 +491,25 @@ export default function AdminAllProductsPage() {
               </button>
 
               <div className="flex items-center gap-1">
-                {[...Array(totalPages)].map((_, idx) => {
-                  const pageNum = idx + 1;
+                {getPaginationRange(currentPage, totalPages).map((item, idx) => {
+                  if (item === '...') {
+                    return (
+                      <span key={`dots-${idx}`} className="px-2 py-1 text-slate-400 font-bold text-xs">
+                        ...
+                      </span>
+                    );
+                  }
                   return (
                     <button
-                      key={pageNum}
-                      onClick={() => handlePageChange(pageNum)}
+                      key={item}
+                      onClick={() => handlePageChange(item)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-                        currentPage === pageNum
+                        currentPage === item
                           ? 'bg-blue-600 text-white shadow-md shadow-blue-500/10'
                           : 'border border-slate-200 hover:bg-slate-50 text-slate-700'
                       }`}
                     >
-                      {pageNum}
+                      {item}
                     </button>
                   );
                 })}

@@ -113,12 +113,12 @@ export async function POST(req) {
       });
     }
 
-    // 1-Hour (3600s) Cooldown Check from last request or rejection/deletion
+    // 1-Hour (3600s) Cooldown Check from last rejection or deletion
     const lastRequest = await GuestRequest.findOne({
       userEmail: user.email.toLowerCase()
     }).sort({ updatedAt: -1, createdAt: -1 });
 
-    if (lastRequest) {
+    if (lastRequest && (lastRequest.status === 'REJECTED' || lastRequest.status === 'DELETED')) {
       const lastTimeMs = new Date(
         lastRequest.rejectedAt ||
         lastRequest.deletedAt ||

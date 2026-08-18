@@ -40,9 +40,9 @@ export default function UserMyProfilePage() {
     setMounted(true);
   }, []);
 
-  // Cooldown countdown timer effect
+  // Cooldown countdown timer effect (runs only after a request is rejected or deleted)
   useEffect(() => {
-    if (guestRequest) {
+    if (guestRequest && (guestRequest.status === 'REJECTED' || guestRequest.status === 'DELETED')) {
       const reqTime = new Date(
         guestRequest.rejectedAt ||
         guestRequest.deletedAt ||
@@ -66,6 +66,8 @@ export default function UserMyProfilePage() {
       calcRemaining();
       const timer = setInterval(calcRemaining, 1000);
       return () => clearInterval(timer);
+    } else {
+      setCooldownSeconds(0);
     }
   }, [guestRequest]);
 

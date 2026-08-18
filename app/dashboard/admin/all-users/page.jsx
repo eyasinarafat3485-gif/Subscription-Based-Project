@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Search, Loader2, Trash2, AlertTriangle, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { getPaginationRange } from '@/lib/pagination';
 
 export default function AdminAllUsersPage() {
   const [search, setSearch] = useState('');
@@ -316,20 +317,26 @@ export default function AdminAllUsersPage() {
                 <ChevronLeft className="w-4 h-4" />
               </button>
 
-              {[...Array(totalPages)].map((_, index) => {
-                const pageNumber = index + 1;
+              {getPaginationRange(currentPage, totalPages).map((item, index) => {
+                if (item === '...') {
+                  return (
+                    <span key={`dots-${index}`} className="px-2 py-1 text-slate-400 font-bold text-xs">
+                      ...
+                    </span>
+                  );
+                }
                 return (
                   <button
-                    key={pageNumber}
+                    key={item}
                     type="button"
-                    onClick={() => handlePageChange(pageNumber)}
-                    className={`px-3 py-2 rounded-xl transition cursor-pointer border ${
-                      currentPage === pageNumber
+                    onClick={() => handlePageChange(item)}
+                    className={`px-3 py-1.5 rounded-xl transition cursor-pointer border ${
+                      currentPage === item
                         ? 'bg-blue-600 border-blue-600 text-white font-extrabold'
                         : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'
                     }`}
                   >
-                    {pageNumber}
+                    {item}
                   </button>
                 );
               })}
