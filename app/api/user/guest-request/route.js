@@ -144,23 +144,41 @@ export async function POST(req) {
       }
     }
 
-    // Create a new Guest Request
-    const newGuestReq = await GuestRequest.create({
-      userId: user._id,
-      userName: user.name || 'User',
+    // Update existing Guest Request or create a new one
+    let guestReq = await GuestRequest.findOne({
       userEmail: user.email.toLowerCase(),
-      userImage: user.image || '',
-      userCreatedAt: user.createdAt || new Date(),
-      status: 'REQUESTED',
-      requestedAt: new Date(),
-      isReadByAdmin: false,
-      isReadByUser: true,
-    });
+    }).sort({ createdAt: -1 });
+
+    if (!guestReq) {
+      guestReq = await GuestRequest.create({
+        userId: user._id,
+        userName: user.name || 'User',
+        userEmail: user.email.toLowerCase(),
+        userImage: user.image || '',
+        userCreatedAt: user.createdAt || new Date(),
+        status: 'REQUESTED',
+        requestedAt: new Date(),
+        isReadByAdmin: false,
+        isReadByUser: true,
+      });
+    } else {
+      guestReq.status = 'REQUESTED';
+      guestReq.requestedAt = new Date();
+      guestReq.couponCode = undefined;
+      guestReq.couponSentAt = undefined;
+      guestReq.submittedAt = undefined;
+      guestReq.approvedAt = undefined;
+      guestReq.rejectedAt = undefined;
+      guestReq.deletedAt = undefined;
+      guestReq.isReadByAdmin = false;
+      guestReq.isReadByUser = true;
+      await guestReq.save();
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Guest membership request submitted to Admin successfully!',
-      request: newGuestReq,
+      request: guestReq,
     });
   } catch (error) {
     console.error('POST /api/user/guest-request error:', error);

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Testimonials from '@/components/Testimonials';
 import {
   Sparkles,
   CheckCircle2,
@@ -298,7 +299,7 @@ export default function MembershipPage() {
           </div>
 
           {/* Limited Offers Banner Box (Matching Reference Image 1) */}
-          <div className="max-w-6xl mx-auto px-4 mb-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
             <div className="bg-gradient-to-r from-indigo-50/80 via-purple-50/50 to-blue-50/80 border border-indigo-200/80 rounded-2xl p-4 sm:p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-center sm:text-left">
                 <h3 className="text-lg font-black text-slate-900 flex items-center justify-center sm:justify-start gap-2">
@@ -341,7 +342,7 @@ export default function MembershipPage() {
           </div>
 
           {/* Membership 3 Cards Grid (Matching Reference Image 1 Layout) */}
-          <div className="max-w-6xl mx-auto px-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
               {plans.map((plan) => {
                 const IconComponent = plan.icon;
@@ -429,7 +430,7 @@ export default function MembershipPage() {
           </div>
 
           {/* Trust Stats Bar (Matching Image 1) */}
-          <div className="max-w-6xl mx-auto px-4 mt-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
@@ -473,96 +474,8 @@ export default function MembershipPage() {
             </div>
           </div>
 
-          {/* Testimonials Section (Matching Image 1 Bottom - DYNAMIC & AUTHENTIC) */}
-          <section className="max-w-6xl mx-auto px-4 mt-20 space-y-8">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                Trusted by Thousands of Happy Customers
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                We're rated {reviewsData.ratingText} on Trustpilot and loved across social media
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-5 items-stretch">
-
-              {/* Dynamic Organic Trustpilot Score Box */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col items-center justify-center text-center space-y-2">
-                <span className="text-sm font-extrabold text-slate-900">{reviewsData.ratingText}</span>
-                
-                {/* Official Trustpilot-style Green Star Boxes */}
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((s) => {
-                    const isFilled = reviewsData.averageRating >= s;
-                    const isHalf = !isFilled && reviewsData.averageRating >= s - 0.5;
-                    return (
-                      <div
-                        key={s}
-                        className={`w-5 h-5 flex items-center justify-center rounded-xs text-white ${isFilled ? 'bg-[#00b67a]' : (isHalf ? 'bg-[#00b67a]/70' : 'bg-slate-200')
-                          }`}
-                      >
-                        <Star className="w-3.5 h-3.5 fill-current" />
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <p className="text-[11px] text-slate-500 font-semibold">
-                  <strong className="text-slate-900">{reviewsData.averageRating}</strong> out of 5 based on <strong className="text-slate-900">{reviewsData.totalReviews}</strong> reviews
-                </p>
-
-                {/* Organic Clickable Trustpilot Badge Link */}
-                <a
-                  href={reviewsData.trustpilotUrl || 'https://www.trustpilot.com/review/qulabi.com'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-[#00b67a] hover:text-[#008f60] font-extrabold text-xs pt-1 transition group"
-                  title="Verify Reviews on Trustpilot"
-                >
-                  <Star className="w-4 h-4 fill-[#00b67a] text-[#00b67a] group-hover:scale-110 transition-transform" />
-                  <span className="underline underline-offset-2">Trustpilot</span>
-                </a>
-              </div>
-
-              {/* Dynamic Review Cards from Database */}
-              {reviewsData.reviews.slice(0, 3).map((item, idx) => {
-                const initials = item.name ? item.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) : 'U';
-                return (
-                  <div
-                    key={item._id ? item._id.toString() : idx}
-                    className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-md transition"
-                  >
-                    <div className="space-y-2">
-                      <Quote className="w-5 h-5 text-indigo-600 opacity-60" />
-                      <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                        "{item.comment}"
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3 border-t border-slate-100 pt-3">
-                      {item.avatar ? (
-                        <img
-                          src={item.avatar}
-                          alt={item.name}
-                          className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-indigo-600 text-white font-black text-xs flex items-center justify-center shrink-0">
-                          {initials}
-                        </div>
-                      )}
-                      <div>
-                        <h4 className="text-xs font-bold text-slate-900">{item.name}</h4>
-                        <div className="flex text-amber-400 text-[10px]">
-                          {'★'.repeat(Math.round(item.rating || 5))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-
-            </div>
-          </section>
+          {/* Testimonials Section (Same to Same as Home Page) */}
+          <Testimonials />
 
         </main>
       </div>

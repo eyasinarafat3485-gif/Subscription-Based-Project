@@ -254,6 +254,7 @@ export default function AllNotificationsView({ userRole = 'user' }) {
               <option value="COUPON_SUBMITTED">Submitted (Pending Approval)</option>
               <option value="APPROVED">Approved</option>
               <option value="REJECTED">Rejected</option>
+              <option value="DELETED">Deleted</option>
             </select>
           </div>
         )}
