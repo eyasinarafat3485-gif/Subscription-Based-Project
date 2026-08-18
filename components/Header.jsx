@@ -123,7 +123,6 @@ export default function Header() {
     { href: '/product-category/seo-tools', label: 'SEO Tools' },
     { href: '/resources', label: 'Resources' },
     { href: '/changelog', label: 'Changelog' },
-    { href: '/membership', label: 'Membership' },
     { href: '/contact', label: 'Contact' },
   ];
 
@@ -134,46 +133,46 @@ export default function Header() {
     return pathname === href || pathname.startsWith(href);
   };
 
-  // Mega Menu Organized Categories (Matching Reference Image 1)
+  // Mega Menu Organized Categories (Matching Project Product Titles)
   const megaMenuColumns = [
     {
       title: 'WordPress Themes',
       items: [
-        { label: 'E-commerce Themes', href: '/product-category/wordpress-themes?sub=WooCommerce' },
-        { label: 'Educational LMS Themes', href: '/product-category/wordpress-themes?sub=Multipurpose' },
-        { label: 'Multipurpose Themes', href: '/product-category/wordpress-themes?sub=Multipurpose' },
-        { label: 'News & Magazine Themes', href: '/product-category/wordpress-themes?sub=Blog' },
-        { label: 'Portfolio and Creative Theme', href: '/product-category/wordpress-themes?sub=Business' },
+        { label: 'WoodMart Theme', href: '/resources?search=WoodMart' },
+        { label: 'Astra Pro Addon', href: '/resources?search=Astra' },
+        { label: 'Martfury Theme', href: '/resources?search=Martfury' },
+        { label: 'Flatsome Theme', href: '/resources?search=Flatsome' },
+        { label: 'Multipurpose Themes', href: '/resources?search=Multipurpose' },
       ],
     },
     {
       title: 'WordPress Plugins',
       items: [
-        { label: 'Backup & Security Plugins', href: '/product-category/wordpress-plugins?sub=Security' },
-        { label: 'Elementor Pro Addon', href: '/product-category/wordpress-plugins?sub=Page+Builders' },
-        { label: 'E-Commerce Plugins', href: '/product-category/wordpress-plugins?sub=WooCommerce' },
-        { label: 'Page Builder Plugins', href: '/product-category/wordpress-plugins?sub=Page+Builders' },
-        { label: 'SEO Plugins', href: '/product-category/wordpress-plugins?sub=SEO' },
+        { label: 'Elementor Pro', href: '/resources?search=Elementor' },
+        { label: 'WP Rocket Premium', href: '/resources?search=WP Rocket' },
+        { label: 'Rank Math SEO Pro', href: '/resources?search=Rank Math' },
+        { label: 'Yoast SEO Premium', href: '/resources?search=Yoast' },
+        { label: 'PixelYourSite Pro', href: '/resources?search=PixelYourSite' },
       ],
     },
     {
       title: 'WooCommerce Plugins',
       items: [
-        { label: 'WooCommerce Product Search', href: '/product-category/wordpress-plugins?sub=WooCommerce' },
-        { label: 'WooCommerce Product Bundles', href: '/product-category/wordpress-plugins?sub=WooCommerce' },
-        { label: 'WooCommerce Memberships', href: '/product-category/wordpress-plugins?sub=WooCommerce' },
-        { label: 'Fancy Product Designer', href: '/product-category/wordpress-plugins?sub=WooCommerce' },
-        { label: 'Cartflows pro', href: '/product-category/wordpress-plugins?sub=WooCommerce' },
+        { label: 'Cartflows pro', href: '/resources?search=Cartflows' },
+        { label: 'AAWP Affiliate Plugin', href: '/resources?search=AAWP' },
+        { label: 'JetAppointments Booking', href: '/resources?search=JetAppointments' },
+        { label: 'WooCommerce Plugins', href: '/resources?search=WooCommerce' },
+        { label: 'Form Builder Plugins', href: '/resources?search=Form' },
       ],
     },
     {
-      title: 'WooCommerce Themes',
+      title: 'WordPress Bundles & Packs',
       items: [
-        { label: 'Electro Electronics Store', href: '/product-category/wordpress-themes?sub=WooCommerce' },
-        { label: 'WoodMart Theme', href: '/product-category/wordpress-themes?sub=WooCommerce' },
-        { label: 'Martfury Theme', href: '/product-category/wordpress-themes?sub=WooCommerce' },
-        { label: 'Flatsome Theme', href: '/product-category/wordpress-themes?sub=WooCommerce' },
-        { label: 'XStore Theme', href: '/product-category/wordpress-themes?sub=WooCommerce' },
+        { label: 'Professional WordPress Bundle', href: '/resources?search=Professional%20WordPress%20Bundle' },
+        { label: 'Mega Plugin Bundle', href: '/resources?search=Bundle' },
+        { label: 'E-Commerce Store Pack', href: '/resources?search=WooCommerce' },
+        { label: 'SEO Super Pack', href: '/resources?search=SEO' },
+        { label: 'All Premium Products', href: '/resources' },
       ],
     },
   ];

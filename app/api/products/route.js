@@ -92,12 +92,61 @@ export async function GET(req) {
       query.isPopular = true;
     }
 
-    if (search) {
-      query.$or = [
-        { title: new RegExp(search, 'i') },
-        { description: new RegExp(search, 'i') },
-        { category: new RegExp(search, 'i') },
+    // Ultimate Tokenized Title Relevance Scoring Function
+    const getRelevanceScore = (titleStr, searchStr) => {
+      if (!titleStr || !searchStr) return 0;
+      const t = titleStr.toLowerCase().trim();
+      const s = searchStr.toLowerCase().trim();
+
+      // 1. Exact Full Title Match
+      if (t === s) return 1000;
+
+      // 2. Title Starts With Search String
+      if (t.startsWith(s)) return 800;
+
+      // 3. Exact Search String Contained Within Title
+      if (t.includes(s)) return 600;
+
+      // 4. Tokenized Multi-Word Overlap Match
+      const searchTokens = s.split(/\s+/).filter(Boolean);
+      if (searchTokens.length === 0) return 0;
+
+      let tokenMatches = 0;
+      let wordStartMatches = 0;
+
+      searchTokens.forEach((token) => {
+        if (t.includes(token)) {
+          tokenMatches++;
+          if (t.startsWith(token) || t.includes(` ${token}`)) {
+            wordStartMatches++;
+          }
+        }
+      });
+
+      const matchRatio = tokenMatches / searchTokens.length;
+
+      if (matchRatio === 1) {
+        return 400 + wordStartMatches * 20;
+      }
+
+      return matchRatio * 200 + wordStartMatches * 10;
+    };
+
+    if (search && search.trim()) {
+      const cleanSearch = search.trim();
+      const searchTokens = cleanSearch.split(/\s+/).filter(Boolean);
+      
+      const titleOrConditions = [
+        { title: new RegExp(cleanSearch.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i') }
       ];
+
+      searchTokens.forEach((token) => {
+        if (token.length > 1) {
+          titleOrConditions.push({ title: new RegExp(token.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i') });
+        }
+      });
+
+      query.$or = titleOrConditions;
     }
 
     if (pageParam && limitParam) {
@@ -105,15 +154,29 @@ export async function GET(req) {
       const limit = parseInt(limitParam, 10) || 8;
       const skip = (page - 1) * limit;
 
-      const totalProducts = await db.collection('products').countDocuments(query);
-      const rawProducts = await db.collection('products')
+      let rawProducts = await db.collection('products')
         .find(query)
         .sort({ createdAt: -1, _id: -1 })
-        .skip(skip)
-        .limit(limit)
         .toArray();
 
-      const products = rawProducts.map((p) => {
+      // If search query is active, sort strictly by Title Relevance Score (highest match first)
+      if (search && search.trim()) {
+        const cleanSearch = search.trim();
+        rawProducts.sort((a, b) => {
+          const scoreA = getRelevanceScore(a.title, cleanSearch);
+          const scoreB = getRelevanceScore(b.title, cleanSearch);
+          if (scoreB !== scoreA) {
+            return scoreB - scoreA;
+          }
+          return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        });
+      }
+
+      const totalProducts = rawProducts.length;
+
+      const paginatedRaw = rawProducts.slice(skip, skip + limit);
+
+      const products = paginatedRaw.map((p) => {
         const numPrice = typeof p.price === 'number' ? p.price : (typeof p.salePrice === 'number' ? p.salePrice : (Number(p.price) || Number(p.salePrice) || 299));
         const numRegularPrice = typeof p.regularPrice === 'number' ? p.regularPrice : (Number(p.regularPrice) || numPrice * 2);
         return {
@@ -143,10 +206,22 @@ export async function GET(req) {
       );
     }
 
-    const rawProducts = await db.collection('products')
+    let rawProducts = await db.collection('products')
       .find(query)
       .sort({ createdAt: -1, _id: -1 })
       .toArray();
+
+    if (search && search.trim()) {
+      const cleanSearch = search.trim();
+      rawProducts.sort((a, b) => {
+        const scoreA = getRelevanceScore(a.title, cleanSearch);
+        const scoreB = getRelevanceScore(b.title, cleanSearch);
+        if (scoreB !== scoreA) {
+          return scoreB - scoreA;
+        }
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      });
+    }
 
     const products = rawProducts.map((p) => {
       const numPrice = typeof p.price === 'number' ? p.price : (typeof p.salePrice === 'number' ? p.salePrice : (Number(p.price) || Number(p.salePrice) || 299));
