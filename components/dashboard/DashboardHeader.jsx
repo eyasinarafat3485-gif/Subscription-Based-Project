@@ -7,8 +7,11 @@ import Link from 'next/link';
 import { toast } from 'react-toastify';
 
 export default function DashboardHeader() {
-  const { data: session } = useSession();
+  const { data: session, isPending: isSessionLoading } = useSession();
   const [profileData, setProfileData] = useState(null);
+  const [activeSubscription, setActiveSubscription] = useState(null);
+  const [isMembershipLoading, setIsMembershipLoading] = useState(true);
+  const [subTimeLeft, setSubTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, isLifetime: false, isExpired: false });
 
   // Notification Center States
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -20,26 +23,67 @@ export default function DashboardHeader() {
   const notifRef = useRef(null);
 
   useEffect(() => {
+    let isMounted = true;
+    let timer = null;
+
     const loadProfile = async () => {
       try {
         const stored = localStorage.getItem('user_profile');
-        if (stored) {
+        if (stored && isMounted) {
           setProfileData(JSON.parse(stored));
         }
         const res = await fetch('/api/user/profile');
         if (res.ok) {
           const data = await res.json();
-          if (data?.user) {
+          if (data?.user && isMounted) {
             setProfileData(data.user);
             localStorage.setItem('user_profile', JSON.stringify(data.user));
+            if (data.user.membership && (data.user.membership.status === 'active' || !data.user.membership.status)) {
+              setActiveSubscription(data.user.membership);
+              localStorage.setItem('user_membership', JSON.stringify(data.user.membership));
+            } else {
+              setActiveSubscription(null);
+              localStorage.removeItem('user_membership');
+            }
           }
+        } else if (res.status === 401 && isMounted) {
+          setProfileData(null);
+          setActiveSubscription(null);
+          localStorage.removeItem('user_profile');
+          localStorage.removeItem('user_membership');
         }
-      } catch (err) { }
+      } catch (err) {
+      } finally {
+        timer = setTimeout(() => {
+          if (isMounted) setIsMembershipLoading(false);
+        }, 800);
+      }
     };
 
-    loadProfile();
+    if (session?.user) {
+      loadProfile();
+    } else if (!isSessionLoading) {
+      setActiveSubscription(null);
+      localStorage.removeItem('user_membership');
+      timer = setTimeout(() => {
+        if (isMounted) setIsMembershipLoading(false);
+      }, 800);
+    }
 
     const handleProfileUpdate = () => {
+      const storedMem = localStorage.getItem('user_membership');
+      if (storedMem) {
+        try {
+          const parsed = JSON.parse(storedMem);
+          if (parsed && (parsed.status === 'active' || !parsed.status)) {
+            setActiveSubscription(parsed);
+            setIsMembershipLoading(false);
+            return;
+          }
+        } catch (e) {}
+      }
+      setActiveSubscription(null);
+      setIsMembershipLoading(false);
       const stored = localStorage.getItem('user_profile');
       if (stored) {
         setProfileData(JSON.parse(stored));
@@ -510,44 +554,42 @@ export default function DashboardHeader() {
 
         <div className="h-6 w-px bg-slate-200 hidden sm:block" />
 
-        {/* Professional User Profile Card & Avatar */}
-        <Link
-          href={
-            userRole === 'admin'
-              ? '/dashboard/admin/my-profile'
-              : userRole === 'guest'
-                ? '/dashboard/guest/my-profile'
-                : '/dashboard/user/my-profile'
-          }
-          className="flex items-center gap-3 p-1.5 pr-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all group"
-        >
-          {/* Avatar Container with Online Indicator Dot */}
-          <div className="relative shrink-0">
-            {userImage ? (
-              <img
-                src={userImage}
-                alt={userName}
-                className="w-9 h-9 rounded-xl object-cover border-2 border-blue-500 shadow-xs group-hover:scale-105 transition-transform"
-              />
-            ) : (
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-xs flex items-center justify-center border-2 border-blue-400 shadow-xs group-hover:scale-105 transition-transform">
-                {userInitial}
-              </div>
-            )}
-            {/* Online Green Pulse Indicator */}
-            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white shadow-2xs" />
+        {/* Get Membership CTA Button OR Active Membership Live Countdown Display OR Professional Loading Spinner (Matches Homepage Header) */}
+        {isMembershipLoading || isSessionLoading ? (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-slate-200 shadow-2xs text-xs font-medium text-slate-500">
+            <Loader2 className="w-3.5 h-3.5 text-indigo-600 animate-spin shrink-0" />
+            <span className="text-[11px] font-bold text-slate-400">Checking status...</span>
           </div>
-
-          {/* User Name & Email */}
-          <div className="flex flex-col text-left min-w-0">
-            <span className="text-xs font-black text-slate-900 group-hover:text-blue-600 transition-colors truncate max-w-[140px]">
-              {userName}
-            </span>
-            <span className="text-[10px] font-medium text-slate-400 truncate max-w-[140px]">
-              {userEmail}
-            </span>
-          </div>
-        </Link>
+        ) : activeSubscription && (!subTimeLeft.isExpired || subTimeLeft.isLifetime) ? (
+          <Link
+            href="/membership"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-400 text-slate-800 shadow-2xs transition"
+            title="Active Membership Status & Expiration Countdown"
+          >
+            <Clock className="w-3.5 h-3.5 text-red-500 shrink-0 animate-pulse" />
+            <div className="flex items-center gap-1.5 text-xs font-bold whitespace-nowrap">
+              <span className="text-slate-800 font-extrabold uppercase tracking-wider text-[11px] truncate max-w-[85px]">
+                {(activeSubscription.planId || activeSubscription.planTitle || 'PRO').toUpperCase()}
+              </span>
+              <span className="text-slate-300 font-normal">•</span>
+              {subTimeLeft.isLifetime ? (
+                <span className="text-red-500 font-black text-xs">LIFETIME</span>
+              ) : (
+                <span className="text-red-500 font-bold font-mono text-xs tracking-tight">
+                  {subTimeLeft.days}d {String(subTimeLeft.hours).padStart(2, '0')}h {String(subTimeLeft.minutes).padStart(2, '0')}m {String(subTimeLeft.seconds).padStart(2, '0')}s
+                </span>
+              )}
+            </div>
+          </Link>
+        ) : (
+          <Link
+            href="/membership"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-xs transition hover:scale-102 cursor-pointer"
+          >
+            <Gift className="w-4 h-4 text-indigo-200" />
+            <span>Membership</span>
+          </Link>
+        )}
       </div>
     </header>
   );

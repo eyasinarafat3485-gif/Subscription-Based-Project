@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef, use } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useSession } from '@/lib/auth-client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -17,17 +17,31 @@ import {
   Eye,
   Loader2,
   Menu,
+  Sparkles,
   SlidersHorizontal,
   FolderKanban,
   CheckCircle2
 } from 'lucide-react';
 
+const CATEGORY_MAP = {
+  'wordpress-plugins': { title: 'WordPress Plugins', defaultCat: 'Plugins' },
+  'wordpress-themes': { title: 'WordPress Themes', defaultCat: 'Themes' },
+  'seo-tools': { title: 'SEO Tools', defaultCat: 'SEO' },
+  'landing-pages': { title: 'Landing Pages', defaultCat: 'Page Builders' },
+  'resources': { title: 'WordPress Resources', defaultCat: 'All' },
+};
+
 const SIDEBAR_CATEGORIES = [
   {
-    name: 'WordPress Resources',
-    slug: 'Resources',
+    name: 'WordPress Plugins',
+    slug: 'Plugins',
     subcategories: [
-      { name: 'All Resources', slug: 'Resources' },
+      { name: 'All Plugins', slug: 'Plugins' },
+      { name: 'WooCommerce Plugins', slug: 'WooCommerce' },
+      { name: 'Elementor Addons', slug: 'Page Builders' },
+      { name: 'SEO Plugins', slug: 'SEO' },
+      { name: 'Security & Backup', slug: 'Security' },
+      { name: 'Speed & Cache', slug: 'Performance' },
     ],
   },
   {
@@ -35,29 +49,10 @@ const SIDEBAR_CATEGORIES = [
     slug: 'Themes',
     subcategories: [
       { name: 'All Themes', slug: 'Themes' },
-      { name: 'Blog Themes', slug: 'Blog' },
-      { name: 'Corporate & Service', slug: 'Business' },
-      { name: 'Directories & Listings', slug: 'Business' },
-      { name: 'Ecommerce Themes', slug: 'WooCommerce' },
-      { name: 'Educational LMS Themes', slug: 'Multipurpose' },
       { name: 'Multipurpose Themes', slug: 'Multipurpose' },
-      { name: 'Portfolio & Creative', slug: 'Multipurpose' },
-      { name: 'Real Estate Themes', slug: 'Business' },
-    ],
-  },
-  {
-    name: 'WordPress Plugins',
-    slug: 'Plugins',
-    subcategories: [
-      { name: 'All Plugins', slug: 'Plugins' },
-      { name: 'E-Commerce Plugins', slug: 'WooCommerce' },
-      { name: 'Form Builders Plugin', slug: 'Plugins' },
-      { name: 'Page Builder Plugins', slug: 'Page Builders' },
-      { name: 'Add-Ons', slug: 'Page Builders' },
-      { name: 'SEO Plugins', slug: 'SEO' },
-      { name: 'Backup & Security', slug: 'Security' },
-      { name: 'Speed & Performance', slug: 'Performance' },
-      { name: 'LMS Plugins', slug: 'Plugins' },
+      { name: 'E-commerce Themes', slug: 'WooCommerce' },
+      { name: 'Blog & Magazine', slug: 'Blog' },
+      { name: 'Business & Agency', slug: 'Business' },
     ],
   },
   {
@@ -77,13 +72,25 @@ const SIDEBAR_CATEGORIES = [
       { name: 'Elementor Kits', slug: 'Page Builders' },
     ],
   },
+  {
+    name: 'WordPress Resources',
+    slug: 'Resources',
+    subcategories: [
+      { name: 'All Resources', slug: 'Resources' },
+    ],
+  },
 ];
 
-function ResourcesContent() {
+export default function CategoryClient({ params }) {
+  const resolvedParams = use(params);
+  const rawCategorySlug = resolvedParams.category;
   const { data: session } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const urlSearch = searchParams.get('search') || '';
+
+  const categoryMeta = CATEGORY_MAP[rawCategorySlug] || {
+    title: rawCategorySlug ? rawCategorySlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'All Products',
+    defaultCat: 'All',
+  };
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -91,27 +98,15 @@ function ResourcesContent() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [totalProducts, setTotalProducts] = useState(0);
-  const [selectedSubcat, setSelectedSubcat] = useState('All');
-  const [searchQuery, setSearchQuery] = useState(urlSearch);
+  const [selectedSubcat, setSelectedSubcat] = useState(categoryMeta.defaultCat);
+  const [searchQuery, setSearchQuery] = useState('');
   const [expandedCats, setExpandedCats] = useState({
-    'Resources': true,
-    'Themes': true,
     'Plugins': true,
+    'Themes': true,
     'SEO': true,
   });
 
   const BATCH_SIZE = 16;
-
-  // Sync search input if URL search param changes
-  useEffect(() => {
-    if (urlSearch !== searchQuery) {
-      setSearchQuery(urlSearch);
-    }
-  }, [urlSearch]);
-
-  const toggleExpand = (catSlug) => {
-    setExpandedCats((prev) => ({ ...prev, [catSlug]: !prev[catSlug] }));
-  };
 
   const handleProtectedAction = (e, targetUrl) => {
     if (!session?.user) {
@@ -120,12 +115,15 @@ function ResourcesContent() {
     }
   };
 
-  // Fetch products (16 items batch) based on category, title, slug & search filter
+  const toggleExpand = (catSlug) => {
+    setExpandedCats((prev) => ({ ...prev, [catSlug]: !prev[catSlug] }));
+  };
+
   const fetchCategoryProducts = async (pageNum = 1, isAppend = false) => {
     try {
       if (isAppend) {
         setLoadingMore(true);
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       } else {
         setLoading(true);
       }
@@ -154,7 +152,7 @@ function ResourcesContent() {
         setHasMore(pageNum < (data.totalPages || 1));
       }
     } catch (err) {
-      console.error('Error fetching resources:', err);
+      console.error('Error fetching category products:', err);
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -175,7 +173,6 @@ function ResourcesContent() {
     fetchCategoryProducts(nextPage, true);
   };
 
-  // Auto-trigger next 16 items loading when scrolled near bottom
   useEffect(() => {
     if (!hasMore || loadingMore || loading) return;
 
@@ -195,6 +192,16 @@ function ResourcesContent() {
     return () => observer.disconnect();
   }, [hasMore, loadingMore, loading, page, selectedSubcat, searchQuery]);
 
+  const displaySidebarCategories = (rawCategorySlug === 'resources' || !rawCategorySlug || rawCategorySlug === 'all')
+    ? SIDEBAR_CATEGORIES
+    : SIDEBAR_CATEGORIES.filter((group) => {
+        if (rawCategorySlug === 'wordpress-plugins') return group.slug === 'Plugins';
+        if (rawCategorySlug === 'wordpress-themes') return group.slug === 'Themes';
+        if (rawCategorySlug === 'seo-tools') return group.slug === 'SEO';
+        if (rawCategorySlug === 'landing-pages') return group.slug === 'Page Builders';
+        return true;
+      });
+
   return (
     <div className="min-h-screen bg-slate-50/70 text-slate-900 font-sans flex flex-col justify-between">
       <div>
@@ -202,17 +209,14 @@ function ResourcesContent() {
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
-          {/* Top Banner Notice Bar */}
           <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
-            
-            {/* Left: Section Title */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
                 <Menu className="w-5 h-5" />
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  {searchQuery ? `Search Results for "${searchQuery}"` : 'WordPress Resources'}
+                  {categoryMeta.title}
                 </h1>
                 <p className="text-xs text-slate-500 font-medium">
                   {products.length} Products Available
@@ -220,23 +224,18 @@ function ResourcesContent() {
               </div>
             </div>
 
-            {/* Right: Dynamic Promo Box OR Active Membership Countdown Box */}
+            {/* Dynamic Right Side: Default Promo Box OR Active Membership Countdown Box */}
             <CategoryBannerCTA />
-
           </div>
 
-          {/* Main Layout: Left Sidebar + Right Product Grid */}
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start pt-2">
 
-            {/* Compact Left Sidebar Filter */}
             <aside className="w-full lg:w-60 xl:w-64 shrink-0 bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-6">
-              
-              {/* Search Box */}
               <div className="space-y-2">
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Search theme, plugin, slug..."
+                    placeholder="Search theme & plugin..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-600 transition"
@@ -245,7 +244,6 @@ function ResourcesContent() {
                 </div>
               </div>
 
-              {/* Browse By Categories Tree List */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
                   <SlidersHorizontal className="w-4 h-4 text-indigo-600" />
@@ -255,19 +253,18 @@ function ResourcesContent() {
                 </div>
 
                 <div className="space-y-1 text-xs">
-                  {SIDEBAR_CATEGORIES.map((catGroup) => {
+                  {displaySidebarCategories.map((catGroup) => {
                     const isExpanded = expandedCats[catGroup.slug] !== false;
                     const hasSubcats = catGroup.subcategories && catGroup.subcategories.length > 0;
 
                     return (
                       <div key={catGroup.name} className="space-y-1">
-                        {/* Parent Category Header */}
                         <button
                           onClick={() => {
                             setSelectedSubcat(catGroup.slug);
                             if (hasSubcats) toggleExpand(catGroup.slug);
                           }}
-                          className={`w-full flex items-center justify-between p-2 rounded-xl text-left font-bold transition cursor-pointer ${selectedSubcat === catGroup.slug
+                          className={`w-full flex items-center justify-between p-2 rounded-xl text-left font-bold transition ${selectedSubcat === catGroup.slug
                               ? 'bg-indigo-50 text-indigo-600 font-extrabold'
                               : 'text-slate-700 hover:bg-slate-50 hover:text-indigo-600'
                             }`}
@@ -280,7 +277,6 @@ function ResourcesContent() {
                           )}
                         </button>
 
-                        {/* Subcategories Dropdown */}
                         {hasSubcats && isExpanded && (
                           <div className="pl-4 space-y-1 border-l-2 border-slate-100 ml-3 my-1">
                             {catGroup.subcategories.map((sub) => {
@@ -289,7 +285,7 @@ function ResourcesContent() {
                                 <button
                                   key={sub.name}
                                   onClick={() => setSelectedSubcat(sub.slug)}
-                                  className={`w-full text-left py-1.5 px-2 rounded-lg text-[11px] font-semibold transition flex items-center justify-between cursor-pointer ${isSubActive
+                                  className={`w-full text-left py-1.5 px-2 rounded-lg text-[11px] font-semibold transition flex items-center justify-between ${isSubActive
                                       ? 'text-indigo-600 font-extrabold bg-indigo-50/60'
                                       : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                                     }`}
@@ -306,27 +302,24 @@ function ResourcesContent() {
                   })}
                 </div>
               </div>
-
             </aside>
 
-            {/* Right Product Grid */}
             <div className="flex-1 min-w-0 space-y-6">
-              
               {loading ? (
                 <div className="py-20 text-center space-y-3 bg-white rounded-2xl border border-slate-200 p-8 shadow-xs">
                   <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mx-auto" />
                   <p className="text-xs font-extrabold text-slate-500">
-                    Searching products...
+                    Loading products...
                   </p>
                 </div>
               ) : products.length === 0 ? (
                 <div className="py-16 text-center space-y-3 bg-white rounded-2xl border border-slate-200 p-8 shadow-xs">
                   <FolderKanban className="w-10 h-10 text-slate-300 mx-auto" />
                   <h3 className="text-base font-black text-slate-800">
-                    No products found matching "{searchQuery}"
+                    No products found in this category
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Try searching with another keyword or clear your search query.
+                    Try selecting a different category from the sidebar or clear your search term.
                   </p>
                 </div>
               ) : (
@@ -343,7 +336,6 @@ function ResourcesContent() {
                           className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:-translate-y-1"
                         >
                           <div>
-                            {/* Image Container */}
                             <div className="relative aspect-square w-full bg-slate-100/70 overflow-hidden border-b border-slate-100 flex items-center justify-center p-3">
                               {item.image ? (
                                 <>
@@ -370,13 +362,8 @@ function ResourcesContent() {
                               </span>
                             </div>
 
-                            {/* Body Content */}
                             <div className="p-3 space-y-2 text-center">
-                              <Link
-                                href={`/products/${item.slug}`}
-                                onClick={(e) => handleProtectedAction(e, `/products/${item.slug}`)}
-                                className="block"
-                              >
+                              <Link href={`/products/${item.slug}`} className="block">
                                 <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 min-h-[38px] group-hover:text-indigo-600 transition-colors">
                                   {item.title}
                                 </h3>
@@ -385,7 +372,6 @@ function ResourcesContent() {
                                 {item.version || 'Latest Version'}
                               </p>
 
-                              {/* Price Display */}
                               <div className="flex items-center justify-center gap-2 pt-1">
                                 {hasDiscount && (
                                   <span className="text-sm text-slate-400 line-through font-semibold">
@@ -399,7 +385,6 @@ function ResourcesContent() {
                             </div>
                           </div>
 
-                          {/* Footer Action Buttons */}
                           <div className="p-3 pt-0 grid grid-cols-2 gap-1.5">
                             <Link
                               href={`/products/${item.slug}`}
@@ -424,7 +409,6 @@ function ResourcesContent() {
                     })}
                   </div>
 
-                  {/* Auto-Loader Spinner */}
                   {hasMore && (
                     <div ref={loaderRef} className="py-10 flex items-center justify-center">
                       <Loader2 className="w-8 h-8 animate-spin text-slate-800 stroke-[2.5]" />
@@ -432,7 +416,6 @@ function ResourcesContent() {
                   )}
                 </div>
               )}
-
             </div>
 
           </div>
@@ -442,17 +425,5 @@ function ResourcesContent() {
 
       <Footer />
     </div>
-  );
-}
-
-export default function ResourcesPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
-      </div>
-    }>
-      <ResourcesContent />
-    </Suspense>
   );
 }

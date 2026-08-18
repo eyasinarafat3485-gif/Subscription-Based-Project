@@ -31,22 +31,22 @@ export default function MembershipPage() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const stored = localStorage.getItem('user_membership');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          setActiveSubscription(parsed);
-        }
-
         const res = await fetch('/api/user/profile');
         if (res.ok) {
           const data = await res.json();
           if (data?.user) {
             setUserProfile(data.user);
-            if (data.user.membership) {
+            if (data.user.membership && (data.user.membership.status === 'active' || !data.user.membership.status)) {
               setActiveSubscription(data.user.membership);
               localStorage.setItem('user_membership', JSON.stringify(data.user.membership));
+            } else {
+              setActiveSubscription(null);
+              localStorage.removeItem('user_membership');
             }
           }
+        } else if (res.status === 401) {
+          setActiveSubscription(null);
+          localStorage.removeItem('user_membership');
         }
       } catch (err) {
         console.error('Failed to load profile for membership:', err);
@@ -225,61 +225,61 @@ export default function MembershipPage() {
 
           {/* Active Membership Live Banner (If User Has Active Membership) */}
           {activeSubscription && (
-            <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white border-b border-indigo-500/30 py-4 px-4 sm:px-6 lg:px-8">
-              <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3 text-center md:text-left">
-                  <div className="w-10 h-10 rounded-full bg-indigo-600/30 border border-indigo-400/40 flex items-center justify-center text-indigo-400 shrink-0">
-                    <ShieldCheck className="w-5 h-5" />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 mb-4">
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5 text-center md:text-left">
+                  <div className="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0 shadow-2xs">
+                    <ShieldCheck className="w-6 h-6" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 justify-center md:justify-start">
-                      <span className="text-xs font-black uppercase tracking-wider text-indigo-400 bg-indigo-500/20 px-2 py-0.5 rounded-md border border-indigo-400/30">
+                      <span className="text-[11px] font-black uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-md border border-indigo-200/80">
                         Active Membership
                       </span>
-                      <span className="text-xs text-slate-300 font-bold">
+                      <span className="text-xs text-slate-400 font-bold">
                         Order #{activeSubscription.orderId || 'SUCCESS'}
                       </span>
                     </div>
-                    <h2 className="text-sm sm:text-base font-extrabold text-white mt-0.5">
+                    <h2 className="text-base sm:text-lg font-black text-slate-900 mt-1">
                       {activeSubscription.planTitle || 'Developers Club Member'}
                     </h2>
                   </div>
                 </div>
 
                 {/* Live Subscription Timer Display */}
-                <div className="bg-slate-900/80 border border-slate-700/80 rounded-2xl px-5 py-2.5 flex items-center gap-4 shadow-lg backdrop-blur-md">
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 flex items-center gap-4 shadow-2xs">
                   <div className="text-right hidden sm:block">
-                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Remaining Time</p>
-                    <p className="text-xs font-extrabold text-indigo-400">
+                    <p className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider">Remaining Time</p>
+                    <p className="text-xs font-black text-indigo-600">
                       {subTimeLeft.isLifetime ? 'Unlimited Access' : 'Auto Renew Active'}
                     </p>
                   </div>
 
                   {subTimeLeft.isLifetime ? (
-                    <div className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black px-4 py-1.5 rounded-xl text-xs shadow-md">
+                    <div className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black px-4 py-2 rounded-xl text-xs shadow-xs">
                       <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
                       <span>LIFETIME UNLIMITED</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 font-mono font-black text-sm text-white">
-                      <div className="text-center px-2 py-1 bg-slate-800 rounded-lg border border-slate-700">
-                        <span className="text-indigo-400">{String(subTimeLeft.days).padStart(2, '0')}</span>
-                        <span className="block text-[8px] font-sans text-slate-400 uppercase">Days</span>
+                    <div className="flex items-center gap-2 font-mono font-black text-sm text-slate-800">
+                      <div className="text-center px-2.5 py-1 bg-white rounded-xl border border-slate-200 shadow-2xs min-w-[44px]">
+                        <span className="text-red-500 block text-base font-black leading-tight">{String(subTimeLeft.days).padStart(2, '0')}</span>
+                        <span className="block text-[8px] font-sans text-slate-400 uppercase font-bold">Days</span>
                       </div>
-                      <span>:</span>
-                      <div className="text-center px-2 py-1 bg-slate-800 rounded-lg border border-slate-700">
-                        <span className="text-indigo-400">{String(subTimeLeft.hours).padStart(2, '0')}</span>
-                        <span className="block text-[8px] font-sans text-slate-400 uppercase">Hrs</span>
+                      <span className="text-slate-300">:</span>
+                      <div className="text-center px-2.5 py-1 bg-white rounded-xl border border-slate-200 shadow-2xs min-w-[44px]">
+                        <span className="text-red-500 block text-base font-black leading-tight">{String(subTimeLeft.hours).padStart(2, '0')}</span>
+                        <span className="block text-[8px] font-sans text-slate-400 uppercase font-bold">Hrs</span>
                       </div>
-                      <span>:</span>
-                      <div className="text-center px-2 py-1 bg-slate-800 rounded-lg border border-slate-700">
-                        <span className="text-indigo-400">{String(subTimeLeft.minutes).padStart(2, '0')}</span>
-                        <span className="block text-[8px] font-sans text-slate-400 uppercase">Min</span>
+                      <span className="text-slate-300">:</span>
+                      <div className="text-center px-2.5 py-1 bg-white rounded-xl border border-slate-200 shadow-2xs min-w-[44px]">
+                        <span className="text-red-500 block text-base font-black leading-tight">{String(subTimeLeft.minutes).padStart(2, '0')}</span>
+                        <span className="block text-[8px] font-sans text-slate-400 uppercase font-bold">Min</span>
                       </div>
-                      <span>:</span>
-                      <div className="text-center px-2 py-1 bg-slate-800 rounded-lg border border-slate-700">
-                        <span className="text-indigo-400 animate-pulse">{String(subTimeLeft.seconds).padStart(2, '0')}</span>
-                        <span className="block text-[8px] font-sans text-slate-400 uppercase">Sec</span>
+                      <span className="text-slate-300">:</span>
+                      <div className="text-center px-2.5 py-1 bg-white rounded-xl border border-slate-200 shadow-2xs min-w-[44px]">
+                        <span className="text-red-500 block text-base font-black leading-tight animate-pulse">{String(subTimeLeft.seconds).padStart(2, '0')}</span>
+                        <span className="block text-[8px] font-sans text-slate-400 uppercase font-bold">Sec</span>
                       </div>
                     </div>
                   )}
@@ -289,56 +289,13 @@ export default function MembershipPage() {
           )}
 
           {/* Section Header */}
-          <div className="text-center pt-12 pb-8 px-4 max-w-3xl mx-auto space-y-3">
+          <div className="text-center pt-12 pb-15 px-4 max-w-3xl mx-auto space-y-3">
             <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
               Choose Your Membership Plan
             </h1>
             <p className="text-sm sm:text-base text-slate-500 font-medium">
               Select the perfect plan for your needs. All plans include Access All Product!
             </p>
-          </div>
-
-          {/* Limited Offers Banner Box (Matching Reference Image 1) */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
-            <div className="bg-gradient-to-r from-indigo-50/80 via-purple-50/50 to-blue-50/80 border border-indigo-200/80 rounded-2xl p-4 sm:p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-center sm:text-left">
-                <h3 className="text-lg font-black text-slate-900 flex items-center justify-center sm:justify-start gap-2">
-                  <span className="text-red-500 font-black">Limited</span>
-                  <span>Offers!</span>
-                </h3>
-                <p className="text-xs text-slate-600 font-semibold mt-0.5">
-                  Hurry Up To Buy These Membership With Discount.
-                </p>
-              </div>
-
-              {/* Offer Countdown Clock Boxes */}
-              <div className="flex items-center gap-2 sm:gap-3 font-mono">
-                <div className="bg-white border border-slate-200 rounded-xl px-3 sm:px-4 py-2 text-center shadow-xs min-w-[54px]">
-                  <span className="text-base sm:text-lg font-black text-red-500 block leading-tight">
-                    {String(offerTimeLeft.days).padStart(2, '0')}
-                  </span>
-                  <span className="text-[9px] font-sans font-extrabold text-slate-400 uppercase">Days</span>
-                </div>
-                <div className="bg-white border border-slate-200 rounded-xl px-3 sm:px-4 py-2 text-center shadow-xs min-w-[54px]">
-                  <span className="text-base sm:text-lg font-black text-red-500 block leading-tight">
-                    {String(offerTimeLeft.hours).padStart(2, '0')}
-                  </span>
-                  <span className="text-[9px] font-sans font-extrabold text-slate-400 uppercase">Hours</span>
-                </div>
-                <div className="bg-white border border-slate-200 rounded-xl px-3 sm:px-4 py-2 text-center shadow-xs min-w-[54px]">
-                  <span className="text-base sm:text-lg font-black text-red-500 block leading-tight">
-                    {String(offerTimeLeft.minutes).padStart(2, '0')}
-                  </span>
-                  <span className="text-[9px] font-sans font-extrabold text-slate-400 uppercase">Minutes</span>
-                </div>
-                <div className="bg-white border border-slate-200 rounded-xl px-3 sm:px-4 py-2 text-center shadow-xs min-w-[54px]">
-                  <span className="text-base sm:text-lg font-black text-red-500 block leading-tight">
-                    {String(offerTimeLeft.seconds).padStart(2, '0')}
-                  </span>
-                  <span className="text-[9px] font-sans font-extrabold text-slate-400 uppercase">Seconds</span>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Membership 3 Cards Grid (Matching Reference Image 1 Layout) */}

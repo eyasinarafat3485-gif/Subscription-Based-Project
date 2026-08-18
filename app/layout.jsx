@@ -6,7 +6,7 @@ import FloatingContact from '@/components/FloatingContact';
 export const metadata = {
   title: {
     default: 'Developers Club - WordPress Developer Platform',
-    template: '%s | Developers Club - WordPress Developer Platform',
+    template: '%s | Developers Club',
   },
   description: 'Premium plugins, themes, templates, resources, and documentation - all in one place.',
   keywords: ['wordpress', 'plugins', 'gpl themes', 'developers club', 'elementor pro', 'wp rocket'],
