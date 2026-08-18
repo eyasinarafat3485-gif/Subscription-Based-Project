@@ -277,3 +277,27 @@ export async function POST(req) {
     return NextResponse.json({ error: error.message || 'Server error' }, { status: 500 });
   }
 }
+
+// PATCH: Mark admin notifications as read
+export async function PATCH(req) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user || session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await connectToDatabase();
+    await GuestRequest.updateMany(
+      { isReadByAdmin: false },
+      { $set: { isReadByAdmin: true } }
+    );
+
+    return NextResponse.json({ success: true, message: 'Admin notifications marked as read' });
+  } catch (error) {
+    console.error('PATCH /api/admin/guest-requests error:', error);
+    return NextResponse.json({ error: error.message || 'Server error' }, { status: 500 });
+  }
+}

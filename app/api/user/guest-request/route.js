@@ -30,14 +30,44 @@ export async function GET(req) {
     const guestReqs = await GuestRequest.find({ userEmail: user.email.toLowerCase() })
       .sort({ createdAt: -1 });
 
+    const unreadCount = await GuestRequest.countDocuments({
+      userEmail: user.email.toLowerCase(),
+      isReadByUser: false,
+    });
+
     return NextResponse.json({
       success: true,
       role: user.role || 'user',
       request: guestReqs[0] || null,
       requests: guestReqs || [],
+      unreadCount,
     });
   } catch (error) {
     console.error('GET /api/user/guest-request error:', error);
+    return NextResponse.json({ error: error.message || 'Server error' }, { status: 500 });
+  }
+}
+
+// PATCH: Mark all notifications as read for logged in user
+export async function PATCH(req) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await connectToDatabase();
+    await GuestRequest.updateMany(
+      { userEmail: session.user.email.toLowerCase(), isReadByUser: false },
+      { $set: { isReadByUser: true } }
+    );
+
+    return NextResponse.json({ success: true, message: 'Notifications marked as read' });
+  } catch (error) {
+    console.error('PATCH /api/user/guest-request error:', error);
     return NextResponse.json({ error: error.message || 'Server error' }, { status: 500 });
   }
 }

@@ -73,6 +73,20 @@ export default function AllNotificationsView({ userRole = 'user' }) {
     }
   };
 
+  // Mark notifications as read when opening page
+  useEffect(() => {
+    const markRead = async () => {
+      try {
+        if (userRole === 'admin') {
+          await fetch('/api/admin/guest-requests', { method: 'PATCH' });
+        } else {
+          await fetch('/api/user/guest-request', { method: 'PATCH' });
+        }
+      } catch (e) {}
+    };
+    markRead();
+  }, [userRole]);
+
   useEffect(() => {
     fetchNotifications(1);
   }, [statusFilter, userRole]);

@@ -97,7 +97,7 @@ export default function GuestDashboardPage() {
           </div>
         </div>
         <Link
-          href="/#pricing"
+          href="/membership"
           className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition shadow-sm shrink-0"
         >
           Upgrade Now

@@ -56,6 +56,20 @@ export default function DashboardHeader() {
   const userImage = profileData?.image || session?.user?.image;
   const userInitial = userName.charAt(0).toUpperCase();
 
+  // Mark notifications as read
+  const markNotificationsAsRead = async () => {
+    try {
+      setUnreadCount(0);
+      if (userRole === 'admin') {
+        await fetch('/api/admin/guest-requests', { method: 'PATCH' });
+      } else {
+        await fetch('/api/user/guest-request', { method: 'PATCH' });
+      }
+    } catch (err) {
+      console.error('Failed to mark notifications read:', err);
+    }
+  };
+
   // Fetch Notifications depending on role
   const fetchNotifications = async () => {
     try {
@@ -73,13 +87,9 @@ export default function DashboardHeader() {
         const res = await fetch('/api/user/guest-request');
         if (res.ok) {
           const data = await res.json();
-          if (data.request) {
-            setNotifications([data.request]);
-            setUnreadCount(data.request.status === 'COUPON_SENT' || data.request.status === 'APPROVED' ? 1 : 0);
-          } else {
-            setNotifications([]);
-            setUnreadCount(0);
-          }
+          const allReqs = data.requests || (data.request ? [data.request] : []);
+          setNotifications(allReqs);
+          setUnreadCount(typeof data.unreadCount === 'number' ? data.unreadCount : 0);
         }
       }
     } catch (err) {
@@ -231,8 +241,12 @@ export default function DashboardHeader() {
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => {
-              setIsNotifOpen(!isNotifOpen);
+              const nextOpen = !isNotifOpen;
+              setIsNotifOpen(nextOpen);
               fetchNotifications();
+              if (nextOpen && unreadCount > 0) {
+                markNotificationsAsRead();
+              }
             }}
             className={`relative p-2 rounded-xl transition cursor-pointer ${
               isNotifOpen
@@ -262,9 +276,13 @@ export default function DashboardHeader() {
                     {userRole === 'admin' ? 'Admin Guest Requests' : 'Notifications'}
                   </h3>
                 </div>
-                {unreadCount > 0 && (
+                {unreadCount > 0 ? (
                   <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full">
-                    {unreadCount} pending
+                    {unreadCount} new
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded-full">
+                    All read
                   </span>
                 )}
               </div>

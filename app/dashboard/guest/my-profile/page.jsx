@@ -205,10 +205,10 @@ export default function GuestMyProfilePage() {
           </div>
 
           <Link
-            href="/#pricing"
+            href="/membership"
             className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm"
           >
-            <span>Upgrade to PRO</span>
+            <span>Upgrade View Plans</span>
           </Link>
         </div>
 
