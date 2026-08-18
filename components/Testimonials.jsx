@@ -38,7 +38,7 @@ export default function Testimonials() {
   const displayReviews = reviews.length > 0 ? [...reviews, ...reviews] : [];
 
   return (
-    <section className="py-16 bg-slate-50/60 relative overflow-hidden">
+    <section className="pt-16 bg-slate-50/60 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
         {/* Section Header */}

@@ -27,7 +27,7 @@ const CATEGORY_MAP = {
   'wordpress-themes': { title: 'WordPress Themes', defaultCat: 'Themes' },
   'seo-tools': { title: 'SEO Tools', defaultCat: 'SEO' },
   'landing-pages': { title: 'Landing Pages', defaultCat: 'Page Builders' },
-  'resources': { title: 'WordPress Resources', defaultCat: 'Resources' },
+  'resources': { title: 'WordPress Resources', defaultCat: 'All' },
 };
 
 const SIDEBAR_CATEGORIES = [
@@ -129,7 +129,7 @@ export default function CategoryPage({ params }) {
 
       let url = `/api/products?page=${pageNum}&limit=${BATCH_SIZE}`;
 
-      if (selectedSubcat && selectedSubcat !== 'All') {
+      if (selectedSubcat && selectedSubcat !== 'All' && selectedSubcat !== 'Resources') {
         url += `&category=${encodeURIComponent(selectedSubcat)}`;
       }
       if (searchQuery.trim()) {
@@ -191,6 +191,17 @@ export default function CategoryPage({ params }) {
 
     return () => observer.disconnect();
   }, [hasMore, loadingMore, loading, page, selectedSubcat, searchQuery]);
+
+  // Filter sidebar categories based on current page route context (Plugins page shows Plugins filter, Themes page shows Themes filter, Resources page shows All)
+  const displaySidebarCategories = (rawCategorySlug === 'resources' || !rawCategorySlug || rawCategorySlug === 'all')
+    ? SIDEBAR_CATEGORIES
+    : SIDEBAR_CATEGORIES.filter((group) => {
+        if (rawCategorySlug === 'wordpress-plugins') return group.slug === 'Plugins';
+        if (rawCategorySlug === 'wordpress-themes') return group.slug === 'Themes';
+        if (rawCategorySlug === 'seo-tools') return group.slug === 'SEO';
+        if (rawCategorySlug === 'landing-pages') return group.slug === 'Page Builders';
+        return true;
+      });
 
   return (
     <div className="min-h-screen bg-slate-50/70 text-slate-900 font-sans flex flex-col justify-between">
@@ -274,7 +285,7 @@ export default function CategoryPage({ params }) {
                 </div>
 
                 <div className="space-y-1 text-xs">
-                  {SIDEBAR_CATEGORIES.map((catGroup) => {
+                  {displaySidebarCategories.map((catGroup) => {
                     const isExpanded = expandedCats[catGroup.slug] !== false;
                     const hasSubcats = catGroup.subcategories && catGroup.subcategories.length > 0;
 
@@ -347,15 +358,6 @@ export default function CategoryPage({ params }) {
                   <p className="text-xs text-slate-500">
                     Try selecting a different category from the sidebar or clear your search term.
                   </p>
-                  <button
-                    onClick={() => {
-                      setSelectedSubcat('All');
-                      setSearchQuery('');
-                    }}
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition"
-                  >
-                    View All Products
-                  </button>
                 </div>
               ) : (
                 <div className="space-y-8">

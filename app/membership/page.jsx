@@ -290,7 +290,7 @@ export default function MembershipPage() {
 
           {/* Section Header */}
           <div className="text-center pt-12 pb-8 px-4 max-w-3xl mx-auto space-y-3">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
               Choose Your Membership Plan
             </h1>
             <p className="text-sm sm:text-base text-slate-500 font-medium">

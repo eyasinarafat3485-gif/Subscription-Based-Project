@@ -42,14 +42,23 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!name.trim() || !email.trim() || !password) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
       const res = await signUp.email({
-        email,
+        email: email.trim(),
         password,
-        name,
+        name: name.trim(),
         role: 'user',
       });
 
@@ -58,6 +67,7 @@ export default function RegisterPage() {
         setError(msg);
         toast.error(msg);
       } else {
+        toast.success('Account created successfully!');
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('just_registered', 'true');
         }
@@ -75,7 +85,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50/50 text-slate-900 font-sans selection:bg-blue-600 selection:text-white">
       <Header />
-      
+
       <main className="flex-1 flex items-center justify-center py-20 px-4 relative overflow-hidden">
         {/* Abstract Glow Effects */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
@@ -96,13 +106,14 @@ export default function RegisterPage() {
           {/* Card Body */}
           <div className="p-8">
             {error && (
-              <div className="mb-6 p-4 bg-red-50 text-red-600 text-xs rounded-xl border border-red-150">
+              <div className="mb-6 p-4 bg-red-50 text-red-600 text-xs rounded-xl border border-red-150 leading-relaxed">
                 {error}
               </div>
             )}
 
             {/* Google Sign In */}
             <button
+              type="button"
               onClick={handleGoogleSignIn}
               disabled={loading}
               className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-bold rounded-xl transition shadow-sm mb-6 cursor-pointer"
@@ -173,6 +184,7 @@ export default function RegisterPage() {
                   <input
                     type="password"
                     required
+                    minLength={6}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"

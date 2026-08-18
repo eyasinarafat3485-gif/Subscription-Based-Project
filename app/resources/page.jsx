@@ -68,6 +68,14 @@ const SIDEBAR_CATEGORIES = [
       { name: 'Schema & Indexing', slug: 'SEO' },
     ],
   },
+  {
+    name: 'Landing Pages & Templates',
+    slug: 'Page Builders',
+    subcategories: [
+      { name: 'All Templates', slug: 'Page Builders' },
+      { name: 'Elementor Kits', slug: 'Page Builders' },
+    ],
+  },
 ];
 
 export default function ResourcesPage() {
@@ -115,7 +123,7 @@ export default function ResourcesPage() {
 
       let url = `/api/products?page=${pageNum}&limit=${BATCH_SIZE}`;
 
-      if (selectedSubcat && selectedSubcat !== 'All') {
+      if (selectedSubcat && selectedSubcat !== 'All' && selectedSubcat !== 'Resources') {
         url += `&category=${encodeURIComponent(selectedSubcat)}`;
       }
       if (searchQuery.trim()) {
@@ -333,15 +341,6 @@ export default function ResourcesPage() {
                   <p className="text-xs text-slate-500">
                     Try selecting a different category from the sidebar or clear your search term.
                   </p>
-                  <button
-                    onClick={() => {
-                      setSelectedSubcat('All');
-                      setSearchQuery('');
-                    }}
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer"
-                  >
-                    View All Products
-                  </button>
                 </div>
               ) : (
                 <div className="space-y-8">

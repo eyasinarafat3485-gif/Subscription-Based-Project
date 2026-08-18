@@ -1,17 +1,61 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { ShoppingCart, LogOut } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import {
+  ShoppingCart,
+  LogOut,
+  Phone,
+  Search,
+  Gift,
+  Home,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronRight,
+  CheckCircle2,
+  Layers,
+  FileText,
+  Bookmark
+} from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useSession, signOut } from '@/lib/auth-client';
 
 export default function Header() {
   const { data: session } = useSession();
   const pathname = usePathname();
+  const router = useRouter();
+
   const [cartCount, setCartCount] = useState(0);
   const [profileData, setProfileData] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+
+  const megaMenuRef = useRef(null);
+  const userDropdownRef = useRef(null);
+
+  // Close mobile menu & mega menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setMegaMenuOpen(false);
+  }, [pathname]);
+
+  // Handle outside click for Mega Menu & User Dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (megaMenuRef.current && !megaMenuRef.current.contains(event.target)) {
+        setMegaMenuOpen(false);
+      }
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -64,13 +108,21 @@ export default function Header() {
     }
   };
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/resources?search=${encodeURIComponent(searchQuery.trim())}`);
+      setMobileMenuOpen(false);
+    }
+  };
+
   const navItems = [
-    { href: '/', label: 'Home' },
-    { href: '/product-category/wordpress-plugins', label: 'Plugins' },
+    { href: '/', label: 'Home', icon: Home },
     { href: '/product-category/wordpress-themes', label: 'Themes' },
+    { href: '/product-category/wordpress-plugins', label: 'Plugins' },
     { href: '/product-category/seo-tools', label: 'SEO Tools' },
-    // { href: '/product-category/landing-pages', label: 'Landing Page' },
     { href: '/resources', label: 'Resources' },
+    { href: '/changelog', label: 'Changelog' },
     { href: '/membership', label: 'Membership' },
     { href: '/contact', label: 'Contact' },
   ];
@@ -82,110 +134,400 @@ export default function Header() {
     return pathname === href || pathname.startsWith(href);
   };
 
+  // Mega Menu Organized Categories (Matching Reference Image 1)
+  const megaMenuColumns = [
+    {
+      title: 'WordPress Themes',
+      items: [
+        { label: 'E-commerce Themes', href: '/product-category/wordpress-themes?sub=WooCommerce' },
+        { label: 'Educational LMS Themes', href: '/product-category/wordpress-themes?sub=Multipurpose' },
+        { label: 'Multipurpose Themes', href: '/product-category/wordpress-themes?sub=Multipurpose' },
+        { label: 'News & Magazine Themes', href: '/product-category/wordpress-themes?sub=Blog' },
+        { label: 'Portfolio and Creative Theme', href: '/product-category/wordpress-themes?sub=Business' },
+      ],
+    },
+    {
+      title: 'WordPress Plugins',
+      items: [
+        { label: 'Backup & Security Plugins', href: '/product-category/wordpress-plugins?sub=Security' },
+        { label: 'Elementor Pro Addon', href: '/product-category/wordpress-plugins?sub=Page+Builders' },
+        { label: 'E-Commerce Plugins', href: '/product-category/wordpress-plugins?sub=WooCommerce' },
+        { label: 'Page Builder Plugins', href: '/product-category/wordpress-plugins?sub=Page+Builders' },
+        { label: 'SEO Plugins', href: '/product-category/wordpress-plugins?sub=SEO' },
+      ],
+    },
+    {
+      title: 'WooCommerce Plugins',
+      items: [
+        { label: 'WooCommerce Product Search', href: '/product-category/wordpress-plugins?sub=WooCommerce' },
+        { label: 'WooCommerce Product Bundles', href: '/product-category/wordpress-plugins?sub=WooCommerce' },
+        { label: 'WooCommerce Memberships', href: '/product-category/wordpress-plugins?sub=WooCommerce' },
+        { label: 'Fancy Product Designer', href: '/product-category/wordpress-plugins?sub=WooCommerce' },
+        { label: 'Cartflows pro', href: '/product-category/wordpress-plugins?sub=WooCommerce' },
+      ],
+    },
+    {
+      title: 'WooCommerce Themes',
+      items: [
+        { label: 'Electro Electronics Store', href: '/product-category/wordpress-themes?sub=WooCommerce' },
+        { label: 'WoodMart Theme', href: '/product-category/wordpress-themes?sub=WooCommerce' },
+        { label: 'Martfury Theme', href: '/product-category/wordpress-themes?sub=WooCommerce' },
+        { label: 'Flatsome Theme', href: '/product-category/wordpress-themes?sub=WooCommerce' },
+        { label: 'XStore Theme', href: '/product-category/wordpress-themes?sub=WooCommerce' },
+      ],
+    },
+  ];
+
   return (
-    <>
-      <header className="sticky top-0 z-40 bg-slate-50/90 backdrop-blur-md border-b border-slate-200/60 shadow-xs transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            {/* Brand Logo */}
-            <Link href="/" className="flex items-center gap-2.5 group">
+    <header className="sticky top-0 z-50 bg-white shadow-sm transition-all border-b border-slate-200/80">
+      
+      {/* TIER 1: Top Brand, Phone, Search & User Action Controls */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div className="flex items-center justify-between gap-3 sm:gap-4">
+          
+          {/* Brand Logo & Phone Number */}
+          <div className="flex items-center gap-3 sm:gap-6 shrink-0">
+            <Link href="/" className="flex items-center gap-2 group">
               <img
                 src="/icon.png"
                 alt="Developers Club"
-                className="w-10 h-10 object-contain transition-transform group-hover:scale-105"
+                className="w-9 h-9 sm:w-10 sm:h-10 object-contain transition-transform group-hover:scale-105"
               />
               <div className="flex flex-col" suppressHydrationWarning={true}>
-                <span className="text-xl font-black text-slate-900 leading-tight tracking-tight" suppressHydrationWarning={true}>
+                <span className="text-lg sm:text-xl font-black text-slate-900 leading-tight tracking-tight" suppressHydrationWarning={true}>
                   Developers <span className="text-indigo-600" suppressHydrationWarning={true}>Club</span>
                 </span>
-                <span className="text-[9px] font-bold text-slate-400 tracking-widest uppercase -mt-0.5" suppressHydrationWarning={true}>
+                <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 tracking-widest uppercase -mt-0.5" suppressHydrationWarning={true}>
                   BY BENGAL-IT
                 </span>
               </div>
             </Link>
 
-            {/* Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-7 text-sm font-medium">
-              {navItems.map((item) => {
+            {/* Desktop & Tablet Phone Number Display */}
+            <a
+              href="tel:01796679254"
+              className="hidden md:flex items-center gap-1.5 text-xs font-extrabold text-slate-700 hover:text-indigo-600 border-l border-slate-200 pl-4 py-1 transition"
+              title="Call Support: 01796-679254"
+            >
+              <Phone className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+              <span>01796-679254</span>
+            </a>
+          </div>
+
+          {/* Desktop & Tablet Search Bar */}
+          <form
+            onSubmit={handleSearchSubmit}
+            className="hidden sm:flex items-center w-full max-w-xs md:max-w-md bg-slate-50 border border-slate-200 rounded-full overflow-hidden focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-600/20 transition shadow-2xs"
+          >
+            <input
+              type="text"
+              placeholder="Search theme & plugin..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2 bg-transparent text-xs text-slate-900 placeholder-slate-400 focus:outline-none font-medium"
+            />
+            <button
+              type="submit"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 md:px-5 py-2 text-xs font-extrabold transition flex items-center justify-center shrink-0 cursor-pointer"
+            >
+              Search
+            </button>
+          </form>
+
+          {/* Right Action Controls: Membership CTA, Cart, User Session & Mobile Toggle */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            
+            {/* Get Membership CTA Button */}
+            <Link
+              href="/membership"
+              className="hidden lg:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs shadow-xs transition hover:scale-102 cursor-pointer"
+            >
+              <Gift className="w-4 h-4 text-indigo-200" />
+              <span>Membership</span>
+            </Link>
+
+            {/* User Session Check: Ultra-Clean Profile Dropdown (No Clutter) */}
+            {session?.user ? (
+              <div className="relative" ref={userDropdownRef}>
+                <button
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center gap-2 p-1 sm:px-2.5 bg-slate-100 hover:bg-slate-200/80 text-slate-800 rounded-xl transition border border-slate-200 shadow-2xs cursor-pointer group"
+                  title="User Profile Menu"
+                >
+                  {userImage ? (
+                    <img src={userImage} alt={userName} className="w-8 h-8 rounded-lg object-cover border border-indigo-500 shadow-2xs shrink-0" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white font-black text-sm flex items-center justify-center border border-indigo-400 shadow-2xs shrink-0">
+                      {userInitial}
+                    </div>
+                  )}
+                  <span suppressHydrationWarning className="hidden sm:inline text-xs font-extrabold truncate max-w-[90px]">
+                    {userName}
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${userDropdownOpen ? 'rotate-180 text-indigo-600' : ''}`} />
+                </button>
+
+                {/* Elegant User Dropdown Menu */}
+                {userDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl border border-slate-200 shadow-2xl p-2 z-50 animate-in fade-in-50 slide-in-from-top-2 duration-200">
+                    <div className="px-3 py-2.5 border-b border-slate-100 mb-1">
+                      <p className="text-xs font-black text-slate-900 truncate" suppressHydrationWarning>{userName}</p>
+                      <p className="text-[11px] text-slate-400 font-medium truncate" suppressHydrationWarning>{session.user.email}</p>
+                    </div>
+
+                    <a
+                      href="/dashboard"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:text-indigo-600 hover:bg-slate-50 rounded-xl transition"
+                    >
+                      <Gift className="w-4 h-4 text-indigo-600 shrink-0" />
+                      <span>Dashboard</span>
+                    </a>
+
+                    <div className="border-t border-slate-100 my-1 pt-1">
+                      <button
+                        onClick={() => {
+                          setUserDropdownOpen(false);
+                          handleLogout();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer"
+                      >
+                        <LogOut className="w-4 h-4 shrink-0" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <a
+                href="/login"
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-indigo-50 text-slate-800 hover:text-indigo-600 font-extrabold text-xs rounded-xl transition border border-slate-200 shadow-2xs cursor-pointer"
+                title="Login to Account"
+              >
+                <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span>Login</span>
+              </a>
+            )}
+
+            {/* Cart Drawer Button */}
+            <button
+              className="relative p-2 text-slate-700 hover:text-indigo-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+              title="Cart"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {cartCount > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-indigo-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
+            {/* Mobile Hamburger Menu Toggle Button (Matching 2nd Image Icon) */}
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-2 text-slate-800 hover:text-indigo-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+              aria-label="Open Navigation Drawer"
+            >
+              <Menu className="w-6 h-6 stroke-[2.5]" />
+            </button>
+
+          </div>
+
+        </div>
+      </div>
+
+      {/* TIER 2: Bottom Navigation Bar Row (Project Indigo Theme Background with Mega Menu Dropdown) */}
+      <div className="hidden lg:block bg-indigo-600 text-white border-t border-indigo-500/50 relative" ref={megaMenuRef}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex items-center justify-start gap-1 sm:gap-2 py-1.5 text-xs font-extrabold tracking-wide">
+            
+            {/* Home Link */}
+            <Link
+              href="/"
+              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                checkIsActive('/')
+                  ? 'bg-white/20 text-white font-black shadow-xs ring-1 ring-white/30'
+                  : 'text-indigo-100 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <Home className="w-3.5 h-3.5 shrink-0" />
+              <span>Home</span>
+            </Link>
+
+            {/* MEGA MENU TRIGGER BUTTON (Matching Reference Image 1 "Theme & Plugins ▾") */}
+            <div className="relative">
+              <button
+                onClick={() => setMegaMenuOpen(!megaMenuOpen)}
+                onMouseEnter={() => setMegaMenuOpen(true)}
+                className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                  megaMenuOpen
+                    ? 'bg-white text-indigo-700 font-black shadow-md'
+                    : 'text-indigo-100 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5 shrink-0" />
+                <span>Theme & Plugins</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${megaMenuOpen ? 'rotate-180 text-indigo-700' : ''}`} />
+              </button>
+
+              {/* MEGA MENU DROPDOWN BOX (Matching Reference Image 1 Layout) */}
+              {megaMenuOpen && (
+                <div
+                  onMouseLeave={() => setMegaMenuOpen(false)}
+                  className="absolute top-full left-0 mt-1 w-[920px] bg-white rounded-3xl border border-slate-200/90 shadow-2xl p-7 text-slate-800 grid grid-cols-4 gap-6 z-50 animate-in fade-in-50 slide-in-from-top-2 duration-200"
+                >
+                  {megaMenuColumns.map((col, idx) => (
+                    <div key={idx} className="space-y-3">
+                      <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2">
+                        {col.title}
+                      </h4>
+                      <ul className="space-y-2 text-xs">
+                        {col.items.map((item, itemIdx) => (
+                          <li key={itemIdx}>
+                            <Link
+                              href={item.href}
+                              onClick={() => setMegaMenuOpen(false)}
+                              className="group/item flex items-center gap-2 text-slate-600 hover:text-indigo-600 font-semibold transition-colors py-0.5"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5 text-teal-500 shrink-0 group-hover/item:scale-110 transition-transform" />
+                              <span className="truncate">{item.label}</span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Rest of Navigation Links (Positioned with space after Theme & Plugins) */}
+            <div className="flex items-center gap-1.5 md:gap-3 lg:gap-5 ml-auto">
+              {navItems.slice(1).map((item) => {
                 const isActive = checkIsActive(item.href);
+
                 return (
                   <Link
                     key={item.label}
                     href={item.href}
-                    className={`transition-colors relative py-1 ${isActive
-                      ? 'text-indigo-600 font-extrabold border-b-2 border-indigo-600'
-                      : 'text-slate-800 hover:text-indigo-600 font-medium'
-                      }`}
+                    className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                      isActive
+                        ? 'bg-white/20 text-white font-black shadow-xs ring-1 ring-white/30'
+                        : 'text-indigo-100 hover:text-white hover:bg-white/10'
+                    }`}
                   >
-                    {item.label}
+                    <span>{item.label}</span>
                   </Link>
                 );
               })}
-            </nav>
+            </div>
+          </nav>
+        </div>
+      </div>
 
-            {/* Right Action Controls */}
-            <div className="flex items-center gap-4">
-              {/* Cart Drawer Trigger Button */}
-              <button
-                className="relative p-2.5 text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition cursor-pointer"
-                title="Cart"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {cartCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-blue-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
+      {/* MOBILE DRAWER SIDEBAR (Matching Reference Image 2 Design) */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          {/* Dark Backdrop Overlay */}
+          <div
+            onClick={() => setMobileMenuOpen(false)}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-300"
+          />
 
-              {/* User Session Check */}
-              {session?.user ? (
-                <div className="flex items-center gap-3">
-                  <a
-                    href="/dashboard"
-                    className="flex items-center gap-2 py-1.5 px-3 bg-slate-100 hover:bg-slate-200/80 rounded-xl text-xs font-bold text-slate-800 transition border border-slate-200/60 shadow-2xs group"
-                  >
-                    {userImage ? (
-                      <img
-                        src={userImage}
-                        alt={userName}
-                        className="w-6 h-6 rounded-full object-cover border border-blue-500 shadow-2xs group-hover:scale-105 transition-transform shrink-0"
-                      />
-                    ) : (
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-[10px] flex items-center justify-center border border-blue-400 shadow-2xs group-hover:scale-105 transition-transform shrink-0">
-                        {userInitial}
-                      </div>
-                    )}
-                    <span suppressHydrationWarning>Dashboard</span>
-                  </a>
+          {/* Left Slide-Over Drawer Panel (Matching Image 2 Layout & Style) */}
+          <div className="relative w-72 sm:w-80 max-w-full bg-white h-full shadow-2xl flex flex-col justify-between p-6 z-50 overflow-y-auto animate-in slide-in-from-left duration-300">
+            
+            <div className="space-y-6">
+              {/* Drawer Top Header: Search & Close Button */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <img src="/icon.png" alt="" className="w-7 h-7 object-contain" />
+                    <span className="text-base font-black text-slate-900 tracking-tight">
+                      Developers <span className="text-indigo-600">Club</span>
+                    </span>
+                  </div>
                   <button
-                    onClick={handleLogout}
-                    className="p-2 text-slate-500 hover:text-red-600 rounded-lg hover:bg-red-50 transition cursor-pointer"
-                    title="Logout"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-1.5 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition cursor-pointer"
                   >
-                    <LogOut className="w-4 h-4" />
+                    <X className="w-6 h-6 stroke-[2.5]" />
                   </button>
                 </div>
-              ) : (
-                <div className="flex items-center gap-3 text-sm font-semibold">
-                  <a
-                    href="/login"
-                    className="text-slate-700 hover:text-blue-600 px-3 py-2 transition"
-                  >
-                    Login
-                  </a>
-                  <a
-                    href="/register"
-                    className="py-2.5 px-5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md shadow-blue-500/20 transition-all hover:shadow-blue-500/35"
-                  >
-                    Sign Up
-                  </a>
-                </div>
-              )}
+
+                {/* Mobile Drawer Search Bar (Matching Image 2 Input + Search Icon Button) */}
+                <form onSubmit={handleSearchSubmit} className="flex items-center w-full bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
+                  <input
+                    type="text"
+                    placeholder="Search theme & plugin..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none font-medium bg-transparent"
+                  />
+                  <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white p-2.5 shrink-0 cursor-pointer">
+                    <Search className="w-4 h-4" />
+                  </button>
+                </form>
+              </div>
+
+              {/* Vertical Menu Items (Matching Image 2 Text Items) */}
+              <nav className="space-y-1 text-sm font-bold border-t border-slate-100 pt-4">
+                {navItems.map((item) => {
+                  const isActive = checkIsActive(item.href);
+
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`block py-2.5 px-3 rounded-xl transition ${
+                        isActive
+                          ? 'text-indigo-600 bg-indigo-50 font-black'
+                          : 'text-slate-700 hover:text-indigo-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </nav>
             </div>
+
+            {/* Bottom Icon Action Items (Matching Image 2 Bottom Layout: Changelog & Cart) */}
+            <div className="pt-6 border-t border-slate-100 space-y-3 text-xs font-bold text-slate-700">
+              <Link
+                href="/changelog"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 py-2 px-3 hover:bg-slate-50 rounded-xl transition"
+              >
+                <FileText className="w-4 h-4 text-slate-800 shrink-0" />
+                <span>Changelog</span>
+              </Link>
+
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center gap-3 py-2 px-3 hover:bg-slate-50 rounded-xl transition text-left cursor-pointer"
+              >
+                <ShoppingCart className="w-4 h-4 text-slate-800 shrink-0" />
+                <span>Cart</span>
+              </button>
+
+              <a
+                href="tel:01796679254"
+                className="flex items-center gap-3 py-2.5 px-3 bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100 transition font-extrabold"
+              >
+                <Phone className="w-4 h-4 text-indigo-600 shrink-0" />
+                <span>Call: 01796-679254</span>
+              </a>
+            </div>
+
           </div>
         </div>
-      </header>
-    </>
+      )}
+
+    </header>
   );
 }
