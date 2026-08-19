@@ -41,6 +41,10 @@ export default function TemplatesClient() {
   const loaderRef = useRef(null);
   const BATCH_SIZE = 16;
 
+  useEffect(() => {
+    document.title = 'Templates | Developers Club';
+  }, []);
+
   const handleProtectedAction = (e, targetUrl) => {
     if (!session?.user) {
       e.preventDefault();

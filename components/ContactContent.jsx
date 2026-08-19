@@ -1,9 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Phone, Send, Download, RefreshCw, Infinity, Headphones, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function ContactContent() {
+  useEffect(() => {
+    document.title = 'Contact | Developers Club';
+  }, []);
   const [formData, setFormData] = useState({
     name: '',
     email: '',

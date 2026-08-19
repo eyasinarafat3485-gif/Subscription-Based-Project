@@ -241,8 +241,8 @@ export default function DashboardSidebar() {
           {/* Brand Logo Header */}
           <div className="p-5 border-b border-slate-100">
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-                <img src="/icon.png" alt="Developers Club" className="w-6 h-6 object-contain" />
+              <div className="w-10 h-10 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <img src="/icon.png" alt="Developers Club" className="w-9 h-9 object-contain" />
               </div>
               <div className="flex flex-col">
                 <span className="text-lg font-black tracking-tight text-slate-900 flex items-center gap-1">

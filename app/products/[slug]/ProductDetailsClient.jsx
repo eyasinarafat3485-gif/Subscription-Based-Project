@@ -270,6 +270,12 @@ export default function ProductDetailsClient({ params }) {
     }
   }, [slug]);
 
+  useEffect(() => {
+    if (product?.title) {
+      document.title = `${product.title} | Developers Club`;
+    }
+  }, [product?.title]);
+
   // Fetch 10 Related Products from the same category
   useEffect(() => {
     if (!product) return;

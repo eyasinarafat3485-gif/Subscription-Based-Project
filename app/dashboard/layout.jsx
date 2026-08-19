@@ -20,6 +20,19 @@ export default function DashboardLayout({ children }) {
   }, []);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (pathname.includes('/admin')) {
+      document.title = 'Admin Dashboard | Developers Club';
+    } else if (pathname.includes('/guest')) {
+      document.title = 'Guest Dashboard | Developers Club';
+    } else if (pathname.includes('/user')) {
+      document.title = 'User Dashboard | Developers Club';
+    } else {
+      document.title = 'Dashboard | Developers Club';
+    }
+  }, [pathname]);
+
+  useEffect(() => {
     if (isPending) return;
 
     // 1. Check if user is logged in
