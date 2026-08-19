@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PlusCircle, Link as LinkIcon, Image as ImageIcon, Layers, Plus, Trash2, Clock } from 'lucide-react';
+import { PlusCircle, Link as LinkIcon, Image as ImageIcon, Layers, Plus, Trash2, Clock, Upload } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 export default function AdminAddProductPage() {
@@ -15,6 +15,7 @@ export default function AdminAddProductPage() {
     price: '299',
     regularPrice: '598',
     image: '',
+    previewImage: '',
     downloadUrl: '',
     demoUrl: '',
     description: '',
@@ -40,6 +41,90 @@ export default function AdminAddProductPage() {
 
   const handleRemoveBundleItem = (index) => {
     setBundleItems(bundleItems.filter((_, i) => i !== index));
+  };
+
+  const handleImageFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image file size must be less than 5MB!');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+        setForm((prev) => ({
+          ...prev,
+          image: dataUrl,
+        }));
+        toast.success('Main Image uploaded in HD quality!');
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handlePreviewImageFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 12 * 1024 * 1024) {
+      toast.error('Preview Image file size must be less than 12MB!');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1920;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+        setForm((prev) => ({
+          ...prev,
+          previewImage: dataUrl,
+        }));
+        toast.success('2nd Preview Image uploaded in Crisp HD quality!');
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleBundleItemChange = (index, field, value) => {
@@ -150,11 +235,12 @@ export default function AdminAddProductPage() {
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none focus:border-blue-500 transition font-medium"
               >
-                <option value="Plugins">WordPress Plugins (Plugins)</option>
-                <option value="Themes">GPL Themes (Themes)</option>
-                <option value="SEO">SEO Plugins</option>
+                <option value="Plugins">Plugins</option>
+                <option value="Themes">Themes</option>
+                <option value="Templates">Templates</option>
+                <option value="SEO">SEO</option>
                 <option value="Page Builders">Page Builders</option>
-                <option value="Offer">Mega Offer / Bundle (Offer!)</option>
+                <option value="Offer">Offer</option>
               </select>
             </div>
           </div>
@@ -197,18 +283,115 @@ export default function AdminAddProductPage() {
             </div>
           </div>
 
-          {/* Product Image URL */}
-          <div>
-            <label className="block text-slate-700 font-bold mb-1.5">Product Image URL</label>
-            <div className="relative">
-              <input
-                type="url"
-                placeholder="https://example.com/image.jpg"
-                value={form.image}
-                onChange={(e) => setForm({ ...form, image: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none focus:border-blue-500 transition font-medium"
-              />
-              <ImageIcon className="w-4 h-4 text-slate-400 absolute right-3 top-3" />
+          {/* Product Image Selection & Live Preview */}
+          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="block text-slate-800 font-extrabold text-xs">Product Image (Main)</label>
+              <span className="text-[10px] text-slate-400 font-semibold">Paste Image URL or Upload File from Device</span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              {/* Live Thumbnail Preview */}
+              <div className="w-16 h-16 rounded-xl bg-white border border-slate-200 overflow-hidden flex items-center justify-center shrink-0 relative shadow-2xs">
+                {form.image ? (
+                  <img
+                    src={form.image}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=200&auto=format&fit=crop';
+                    }}
+                  />
+                ) : (
+                  <span className="text-[9px] font-bold text-slate-400 text-center px-1">No Image</span>
+                )}
+              </div>
+
+              <div className="flex-1 space-y-2 w-full">
+                <input
+                  type="text"
+                  placeholder="Paste Image URL (e.g. https://...)"
+                  value={form.image}
+                  onChange={(e) => setForm({ ...form, image: e.target.value })}
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500 transition font-medium"
+                />
+
+                <div className="flex items-center gap-2">
+                  <label className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs cursor-pointer transition flex items-center gap-1.5 whitespace-nowrap">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload File from Device</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageFileUpload}
+                    />
+                  </label>
+                  {form.image && (
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, image: '' })}
+                      className="text-[11px] text-red-500 hover:underline font-semibold cursor-pointer"
+                    >
+                      Clear Image
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 2nd Image / Landing Page Screenshot (Optional) */}
+          <div className="p-3.5 bg-indigo-50/50 border border-indigo-100 rounded-2xl space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="block text-indigo-950 font-extrabold text-xs">2nd Image / Landing Page Screenshot (Hover Preview)</label>
+              <span className="text-[10px] text-indigo-600 font-semibold">Optional: Full Website Screenshot for /templates Hover Scroll</span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <div className="w-16 h-16 rounded-xl bg-white border border-indigo-200 overflow-hidden flex items-center justify-center shrink-0 relative shadow-2xs">
+                {form.previewImage ? (
+                  <img
+                    src={form.previewImage}
+                    alt="Preview"
+                    className="w-full h-full object-cover object-top"
+                  />
+                ) : (
+                  <span className="text-[9px] font-bold text-indigo-400 text-center px-1">No 2nd Img</span>
+                )}
+              </div>
+
+              <div className="flex-1 space-y-2 w-full">
+                <input
+                  type="text"
+                  placeholder="Paste 2nd Image URL (Full Landing Page Screenshot)"
+                  value={form.previewImage}
+                  onChange={(e) => setForm({ ...form, previewImage: e.target.value })}
+                  className="w-full bg-white border border-indigo-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 transition font-medium"
+                />
+
+                <div className="flex items-center gap-2">
+                  <label className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs cursor-pointer transition flex items-center gap-1.5 whitespace-nowrap">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload 2nd Screenshot</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handlePreviewImageFileUpload}
+                    />
+                  </label>
+                  {form.previewImage && (
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, previewImage: '' })}
+                      className="text-[11px] text-red-500 hover:underline font-semibold cursor-pointer"
+                    >
+                      Clear 2nd Image
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 

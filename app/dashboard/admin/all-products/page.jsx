@@ -14,7 +14,8 @@ import {
   ExternalLink,
   Layers,
   Calendar,
-  DollarSign
+  DollarSign,
+  Upload
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { getPaginationRange } from '@/lib/pagination';
@@ -49,6 +50,7 @@ export default function AdminAllProductsPage() {
       price: 299,
       regularPrice: 598,
       image: '',
+      previewImage: '',
       downloadUrl: '',
       demoUrl: '',
       description: '',
@@ -172,7 +174,8 @@ export default function AdminAllProductsPage() {
         version: product.version || 'v1.0.0',
         price: product.price ?? 0,
         regularPrice: product.regularPrice ?? 0,
-        image: product.image || '',
+        image: product.image || product.imageUrl || product.img || product.productImage || '',
+        previewImage: product.previewImage || product.secondImage || product.landingImage || '',
         downloadUrl: product.downloadUrl || '',
         demoUrl: product.demoUrl || '',
         description: product.description || '',
@@ -217,6 +220,57 @@ export default function AdminAllProductsPage() {
         [name]: type === 'checkbox' ? checked : value
       }
     }));
+  };
+
+  const handleImageFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image file size must be less than 5MB!');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 400;
+        const MAX_HEIGHT = 400;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        setEditModal((prev) => ({
+          ...prev,
+          formData: {
+            ...prev.formData,
+            image: dataUrl,
+          },
+        }));
+        toast.success('Image uploaded & compressed successfully!');
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
   };
 
   // Bundle item manager logic
@@ -272,8 +326,14 @@ export default function AdminAllProductsPage() {
             .filter(Boolean)
         : (Array.isArray(formData.features) ? formData.features : []);
 
+      const cleanImg = formData.image ? formData.image.trim() : '';
+
       const payload = {
         ...formData,
+        image: cleanImg,
+        imageUrl: cleanImg,
+        img: cleanImg,
+        productImage: cleanImg,
         features: featuresArray,
         price: Number(formData.price),
         regularPrice: Number(formData.regularPrice),
@@ -341,11 +401,12 @@ export default function AdminAllProductsPage() {
             className="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-blue-500 transition cursor-pointer"
           >
             <option value="All">All Categories</option>
-            <option value="Offer">Offers</option>
             <option value="Plugins">Plugins</option>
             <option value="Themes">Themes</option>
-            <option value="Page Builders">Page Builders</option>
+            <option value="Templates">Templates</option>
             <option value="SEO">SEO</option>
+            <option value="Page Builders">Page Builders</option>
+            <option value="Offer">Offer</option>
           </select>
         </div>
       </div>
@@ -384,7 +445,13 @@ export default function AdminAllProductsPage() {
                     <td className="p-4">
                       <div className="flex items-center gap-3">
                         <img
-                          src={item.image?.startsWith('http') ? item.image : (item.image ? `${process.env.NEXT_PUBLIC_BASE_URL || ''}/${item.image}` : 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=200&auto=format&fit=crop')}
+                          src={
+                            !item.image 
+                              ? 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=200&auto=format&fit=crop' 
+                              : (item.image.startsWith('http') || item.image.startsWith('data:') || item.image.startsWith('/')) 
+                                ? item.image 
+                                : `/${item.image}`
+                          }
                           alt={item.title}
                           loading="lazy"
                           onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=200&auto=format&fit=crop'; }}
@@ -570,12 +637,12 @@ export default function AdminAllProductsPage() {
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-blue-500 transition font-medium cursor-pointer"
                     required
                   >
-                    <option value="Plugin">Plugin</option>
-                    <option value="Theme">Theme</option>
-                    <option value="Page Builder">Page Builder</option>
+                    <option value="Plugins">Plugins</option>
+                    <option value="Themes">Themes</option>
+                    <option value="Templates">Templates</option>
                     <option value="SEO">SEO</option>
+                    <option value="Page Builders">Page Builders</option>
                     <option value="Offer">Offer</option>
-                    <option value="Bundle">Bundle</option>
                   </select>
                 </div>
               </div>
@@ -618,18 +685,99 @@ export default function AdminAllProductsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-slate-700 font-bold mb-1">Image URL</label>
-                  <input
-                    type="text"
-                    name="image"
-                    value={editModal.formData.image}
-                    onChange={handleEditChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-blue-500 transition font-medium"
-                  />
+              {/* Product Image Selection & Live Preview */}
+              <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-slate-800 font-extrabold text-xs">Product Image</label>
+                  <span className="text-[10px] text-slate-400 font-semibold">Paste Image URL or Upload File</span>
                 </div>
 
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  {/* Live Thumbnail Preview */}
+                  <div className="w-16 h-16 rounded-xl bg-white border border-slate-200 overflow-hidden flex items-center justify-center shrink-0 relative shadow-2xs">
+                    {editModal.formData.image ? (
+                      <img
+                        src={editModal.formData.image}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.src = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=200&auto=format&fit=crop';
+                        }}
+                      />
+                    ) : (
+                      <span className="text-[9px] font-bold text-slate-400 text-center px-1">No Image</span>
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-2 w-full">
+                    <input
+                      type="text"
+                      name="image"
+                      placeholder="Paste Image URL (e.g. https://...)"
+                      value={editModal.formData.image}
+                      onChange={handleEditChange}
+                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500 transition font-medium"
+                    />
+
+                    <div className="flex items-center gap-2">
+                      <label className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs cursor-pointer transition flex items-center gap-1.5 whitespace-nowrap">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Upload File from Device</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleImageFileUpload}
+                        />
+                      </label>
+                      {editModal.formData.image && (
+                        <button
+                          type="button"
+                          onClick={() => setEditModal(prev => ({ ...prev, formData: { ...prev.formData, image: '' } }))}
+                          className="text-[11px] text-red-500 hover:underline font-semibold cursor-pointer"
+                        >
+                          Clear Image
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2nd Image / Landing Page Screenshot (Hover Preview) */}
+              <div className="p-3 bg-indigo-50/50 border border-indigo-100 rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-indigo-950 font-extrabold text-xs">2nd Image / Landing Page Screenshot (Hover Preview)</label>
+                  <span className="text-[10px] text-indigo-600 font-semibold">Optional Landing Page Screenshot</span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <div className="w-14 h-14 rounded-xl bg-white border border-indigo-200 overflow-hidden flex items-center justify-center shrink-0 relative shadow-2xs">
+                    {editModal.formData.previewImage ? (
+                      <img
+                        src={editModal.formData.previewImage}
+                        alt="Preview"
+                        className="w-full h-full object-cover object-top"
+                      />
+                    ) : (
+                      <span className="text-[9px] font-bold text-indigo-400 text-center px-1">No 2nd Img</span>
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-2 w-full">
+                    <input
+                      type="text"
+                      name="previewImage"
+                      placeholder="Paste 2nd Image URL (Full Landing Page Screenshot)"
+                      value={editModal.formData.previewImage || ''}
+                      onChange={handleEditChange}
+                      className="w-full bg-white border border-indigo-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 transition font-medium"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-slate-700 font-bold mb-1">Download ZIP URL *</label>
                   <input
@@ -641,17 +789,16 @@ export default function AdminAllProductsPage() {
                     required
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-slate-700 font-bold mb-1">Live Demo URL</label>
-                <input
-                  type="text"
-                  name="demoUrl"
-                  value={editModal.formData.demoUrl}
-                  onChange={handleEditChange}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-blue-500 transition font-medium"
-                />
+                <div>
+                  <label className="block text-slate-700 font-bold mb-1">Live Demo URL</label>
+                  <input
+                    type="text"
+                    name="demoUrl"
+                    value={editModal.formData.demoUrl}
+                    onChange={handleEditChange}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-blue-500 transition font-medium"
+                  />
+                </div>
               </div>
 
               <div>

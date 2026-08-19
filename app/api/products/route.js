@@ -33,54 +33,48 @@ export async function GET(req) {
     if (category && category !== 'All' && category !== 'all') {
       const lowerCat = category.toLowerCase().trim();
 
-      if (lowerCat === 'offer') {
+      if (lowerCat === 'offer' || lowerCat === 'offers' || lowerCat === 'bundle') {
         query.$or = [{ isOffer: true }, { category: /offer|bundle/i }];
       } else if (lowerCat === 'plugins' || lowerCat === 'plugin') {
-        query.category = { $in: ['Plugin', 'plugin', 'Plugins', 'plugins'] };
+        query.$or = [
+          { category: /plugin/i },
+          { category: 'Plugins' },
+          { category: 'Plugin' }
+        ];
       } else if (lowerCat === 'themes' || lowerCat === 'theme') {
-        query.category = { $in: ['Theme', 'theme', 'Themes', 'themes', 'GPL Theme'] };
-      } else if (lowerCat === 'woocommerce') {
-        query.$or = [
-          { category: /woocommerce/i },
-          { title: /woocommerce|shop|cart|checkout/i },
-        ];
-      } else if (lowerCat === 'security') {
-        query.$or = [
-          { category: /security|backup/i },
-          { title: /security|wordfence|updraft|backup|defender|malware/i },
-        ];
-      } else if (lowerCat === 'performance') {
-        query.$or = [
-          { category: /performance|speed|cache/i },
-          { title: /wp rocket|cache|speed|litespeed|perfmatters|rocket/i },
-        ];
-      } else if (lowerCat === 'multipurpose') {
         query.$or = [
           { category: /theme/i },
-          { title: /astra|divi|avada|multipurpose|elementor/i },
+          { category: 'Themes' },
+          { category: 'Theme' }
         ];
-      } else if (lowerCat === 'blog') {
+      } else if (lowerCat === 'templates' || lowerCat === 'readymade' || lowerCat === 'readymade website') {
         query.$or = [
-          { category: /theme/i },
-          { title: /blog|newspaper|magazine/i },
+          { category: /template|readymade|website|landing/i },
+          { category: 'Templates' },
+          { category: 'Ecommerce Website' },
+          { category: 'Business Website' },
+          { category: 'Blog Website' },
+          { category: 'Landing Page' }
         ];
-      } else if (lowerCat === 'business') {
+      } else if (['ecommerce website', 'business website', 'blog website', 'landing page', 'ecommerce', 'business', 'blog', 'landing'].includes(lowerCat)) {
+        const escapedCat = category.trim().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
         query.$or = [
-          { category: /theme|plugin/i },
-          { title: /business|agency|corporate/i },
+          { category: new RegExp(escapedCat, 'i') },
+          { title: new RegExp(escapedCat, 'i') }
         ];
       } else if (lowerCat === 'seo') {
         query.$or = [
           { category: /seo/i },
-          { title: /seo|rank math|yoast|schema|indexer/i },
+          { title: /seo|rank math|yoast|schema|indexer/i }
         ];
-      } else if (lowerCat.includes('builder') || lowerCat.includes('page')) {
+      } else if (lowerCat.includes('builder')) {
         query.$or = [
           { category: /builder/i },
-          { title: /elementor|divi|beaver|builder|addon|kit/i },
+          { title: /elementor|divi|beaver|builder|addon|kit/i }
         ];
       } else {
-        query.category = new RegExp(`^${category.trim()}$`, 'i');
+        const escapedCat = category.trim().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+        query.category = new RegExp(escapedCat, 'i');
       }
     }
 
@@ -179,8 +173,16 @@ export async function GET(req) {
       const products = paginatedRaw.map((p) => {
         const numPrice = typeof p.price === 'number' ? p.price : (typeof p.salePrice === 'number' ? p.salePrice : (Number(p.price) || Number(p.salePrice) || 299));
         const numRegularPrice = typeof p.regularPrice === 'number' ? p.regularPrice : (Number(p.regularPrice) || numPrice * 2);
+        const imgUrl = p.image || p.imageUrl || p.img || p.productImage || '';
+        const prevImgUrl = p.previewImage || p.secondImage || p.landingImage || '';
         return {
           ...p,
+          image: imgUrl,
+          imageUrl: imgUrl,
+          img: imgUrl,
+          productImage: imgUrl,
+          previewImage: prevImgUrl,
+          secondImage: prevImgUrl,
           price: numPrice,
           salePrice: numPrice,
           regularPrice: numRegularPrice,
@@ -226,8 +228,13 @@ export async function GET(req) {
     const products = rawProducts.map((p) => {
       const numPrice = typeof p.price === 'number' ? p.price : (typeof p.salePrice === 'number' ? p.salePrice : (Number(p.price) || Number(p.salePrice) || 299));
       const numRegularPrice = typeof p.regularPrice === 'number' ? p.regularPrice : (Number(p.regularPrice) || numPrice * 2);
+      const imgUrl = p.image || p.imageUrl || p.img || p.productImage || '';
       return {
         ...p,
+        image: imgUrl,
+        imageUrl: imgUrl,
+        img: imgUrl,
+        productImage: imgUrl,
         price: numPrice,
         salePrice: numPrice,
         regularPrice: numRegularPrice,
@@ -266,6 +273,9 @@ export async function POST(req) {
       price,
       regularPrice,
       image,
+      previewImage,
+      secondImage,
+      landingImage,
       downloadUrl,
       demoUrl,
       description,
@@ -296,6 +306,9 @@ export async function POST(req) {
     const parsedPrice = isNaN(Number(price)) ? 299 : Number(price);
     const parsedRegularPrice = isNaN(Number(regularPrice)) ? 598 : Number(regularPrice);
 
+    const cleanImg = image ? image.trim() : 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop';
+    const cleanPreviewImg = (previewImage || secondImage || landingImage || '').trim();
+
     const newProduct = {
       title: title.trim(),
       slug,
@@ -304,7 +317,12 @@ export async function POST(req) {
       price: parsedPrice,
       salePrice: parsedPrice,
       regularPrice: parsedRegularPrice,
-      image: image || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop',
+      image: cleanImg,
+      imageUrl: cleanImg,
+      img: cleanImg,
+      productImage: cleanImg,
+      previewImage: cleanPreviewImg,
+      secondImage: cleanPreviewImg,
       downloadUrl: downloadUrl.trim(),
       demoUrl: demoUrl ? demoUrl.trim() : '',
       description: description || '',

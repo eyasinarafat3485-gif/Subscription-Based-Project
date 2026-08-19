@@ -19,6 +19,8 @@ function TopLinearLoaderContent() {
   }, [pathname, searchParams]);
 
   useEffect(() => {
+    const attachedAnchors = new WeakSet();
+
     const handleAnchorClick = (e) => {
       const targetUrl = e.currentTarget.getAttribute('href');
       if (
@@ -37,18 +39,21 @@ function TopLinearLoaderContent() {
     const handleMutation = () => {
       const anchors = document.querySelectorAll('a[href]');
       anchors.forEach((a) => {
-        if (!a.dataset.hasLoaderListener) {
-          a.dataset.hasLoaderListener = 'true';
+        if (!attachedAnchors.has(a)) {
+          attachedAnchors.add(a);
           a.addEventListener('click', handleAnchorClick);
         }
       });
     };
 
-    handleMutation();
+    const timer = setTimeout(handleMutation, 0);
     const observer = new MutationObserver(handleMutation);
     observer.observe(document.body, { childList: true, subtree: true });
 
-    return () => observer.disconnect();
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
   }, []);
 
   if (!loading && progress === 0) return null;

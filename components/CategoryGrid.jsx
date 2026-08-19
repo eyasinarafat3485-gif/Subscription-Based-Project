@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Puzzle, Palette, Layout, FolderKanban, PlaySquare, Wrench, BookOpen } from 'lucide-react';
+import { ArrowRight, Puzzle, Palette, Layout, FolderKanban, PlaySquare, Wrench, Crown } from 'lucide-react';
 
 const categories = [
   {
@@ -41,9 +41,9 @@ const categories = [
     href: '/resources',
   },
   {
-    name: 'Offers',
-    count: '3000+ Items',
-    icon: BookOpen,
+    name: 'Membership',
+    count: 'VIP Access',
+    icon: Crown,
     href: '/membership',
   },
 ];

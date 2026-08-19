@@ -79,6 +79,8 @@ const SIDEBAR_CATEGORIES = [
   },
 ];
 
+import ConfirmDownloadModal from '@/components/ConfirmDownloadModal';
+
 function ResourcesContent() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -93,6 +95,9 @@ function ResourcesContent() {
   const [totalProducts, setTotalProducts] = useState(0);
   const [selectedSubcat, setSelectedSubcat] = useState('All');
   const [searchQuery, setSearchQuery] = useState(urlSearch);
+  const [userMembership, setUserMembership] = useState(null);
+  const [selectedProductForDownload, setSelectedProductForDownload] = useState(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [expandedCats, setExpandedCats] = useState({
     'Resources': true,
     'Themes': true,
@@ -105,6 +110,41 @@ function ResourcesContent() {
   useEffect(() => {
     document.title = 'Resources | Developers Club';
   }, []);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch('/api/user/profile');
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user?.membership && (data.user.membership.status === 'active' || !data.user.membership.status)) {
+            setUserMembership(data.user.membership);
+          } else {
+            setUserMembership(null);
+          }
+        }
+      } catch (err) { }
+    };
+    if (session?.user) {
+      fetchUser();
+    }
+    const handleProfileUpdate = () => fetchUser();
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
+  }, [session]);
+
+  const handleBuyNowClick = (e, item) => {
+    if (!session?.user) {
+      e.preventDefault();
+      router.push(`/login?redirectTo=${encodeURIComponent(`/checkout?product=${item.slug}`)}`);
+      return;
+    }
+    if (userMembership && (userMembership.status === 'active' || !userMembership.status)) {
+      e.preventDefault();
+      setSelectedProductForDownload(item);
+      setIsConfirmModalOpen(true);
+    }
+  };
 
   // Sync search input if URL search param changes
   useEffect(() => {
@@ -416,11 +456,11 @@ function ResourcesContent() {
 
                             <Link
                               href={`/checkout?product=${item.slug}`}
-                              onClick={(e) => handleProtectedAction(e, `/checkout?product=${item.slug}`)}
+                              onClick={(e) => handleBuyNowClick(e, item)}
                               className="py-2 px-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs shadow-xs shadow-indigo-500/20 transition flex items-center justify-center gap-1 whitespace-nowrap min-w-0"
                             >
                               <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
-                              <span>Buy Now</span>
+                              <span>{userMembership ? 'Download' : 'Buy Now'}</span>
                             </Link>
                           </div>
                         </div>
@@ -442,6 +482,13 @@ function ResourcesContent() {
           </div>
 
         </main>
+
+        <ConfirmDownloadModal
+          isOpen={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          product={selectedProductForDownload}
+          userMembership={userMembership}
+        />
       </div>
 
       <Footer />

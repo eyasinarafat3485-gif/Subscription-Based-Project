@@ -9,6 +9,8 @@ import { Loader2, ShoppingBag, History, ChevronLeft, ChevronRight } from 'lucide
 import { useSession } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 
+import ConfirmDownloadModal from '@/components/ConfirmDownloadModal';
+
 export default function ChangelogClient() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -18,12 +20,50 @@ export default function ChangelogClient() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
+  const [userMembership, setUserMembership] = useState(null);
+  const [selectedProductForDownload, setSelectedProductForDownload] = useState(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   const ITEMS_PER_PAGE = 20;
 
   useEffect(() => {
     document.title = 'Changelog | Developers Club';
   }, []);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch('/api/user/profile');
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user?.membership && (data.user.membership.status === 'active' || !data.user.membership.status)) {
+            setUserMembership(data.user.membership);
+          } else {
+            setUserMembership(null);
+          }
+        }
+      } catch (err) { }
+    };
+    if (session?.user) {
+      fetchUser();
+    }
+    const handleProfileUpdate = () => fetchUser();
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
+  }, [session]);
+
+  const handleBuyNowClick = (e, item) => {
+    if (!session?.user) {
+      e.preventDefault();
+      router.push(`/login?redirectTo=${encodeURIComponent(`/checkout?product=${item.slug}`)}`);
+      return;
+    }
+    if (userMembership && (userMembership.status === 'active' || !userMembership.status)) {
+      e.preventDefault();
+      setSelectedProductForDownload(item);
+      setIsConfirmModalOpen(true);
+    }
+  };
 
   const fetchChangelogData = async (pageNum = 1) => {
     try {
@@ -179,11 +219,11 @@ export default function ChangelogClient() {
                           <td className="py-3.5 px-6 text-right">
                             <Link
                               href={`/checkout?product=${item.slug}`}
-                              onClick={(e) => handleProtectedAction(e, `/checkout?product=${item.slug}`)}
+                              onClick={(e) => handleBuyNowClick(e, item)}
                               className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs rounded-xl shadow-xs shadow-indigo-500/20 transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
                             >
                               <ShoppingBag className="w-3.5 h-3.5" />
-                              <span>Buy Now</span>
+                              <span>{userMembership ? 'Download' : 'Buy Now'}</span>
                             </Link>
                           </td>
                         </tr>
@@ -244,6 +284,13 @@ export default function ChangelogClient() {
           </div>
 
         </main>
+
+        <ConfirmDownloadModal
+          isOpen={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          product={selectedProductForDownload}
+          userMembership={userMembership}
+        />
       </div>
 
       <Footer />

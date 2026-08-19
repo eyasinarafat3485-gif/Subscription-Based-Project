@@ -76,10 +76,32 @@ export default function AdminGetCouponPage() {
   };
 
   const handleCopy = (code) => {
-    navigator.clipboard.writeText(code);
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(code).catch(() => fallbackCopy(code));
+      } else {
+        fallbackCopy(code);
+      }
+    } catch (e) {
+      fallbackCopy(code);
+    }
     setCopiedCode(code);
     toast.success(`Coupon code ${code} copied!`);
     setTimeout(() => setCopiedCode(''), 2000);
+  };
+
+  const fallbackCopy = (text) => {
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    } catch (e) {}
   };
 
   return (

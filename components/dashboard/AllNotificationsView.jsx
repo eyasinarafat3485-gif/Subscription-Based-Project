@@ -201,10 +201,32 @@ export default function AllNotificationsView({ userRole = 'user' }) {
   };
 
   const copyCode = (code) => {
-    navigator.clipboard.writeText(code);
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(code).catch(() => fallbackCopy(code));
+      } else {
+        fallbackCopy(code);
+      }
+    } catch (e) {
+      fallbackCopy(code);
+    }
     setCopiedCode(code);
     toast.success(`Code ${code} copied!`, { autoClose: 2000 });
     setTimeout(() => setCopiedCode(''), 2000);
+  };
+
+  const fallbackCopy = (text) => {
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    } catch (e) {}
   };
 
   // User side pagination slice

@@ -38,9 +38,16 @@ export async function GET(req, { params }) {
 
     const numPrice = typeof product.price === 'number' ? product.price : (typeof product.salePrice === 'number' ? product.salePrice : (Number(product.price) || Number(product.salePrice) || 299));
     const numRegularPrice = typeof product.regularPrice === 'number' ? product.regularPrice : (Number(product.regularPrice) || numPrice * 2);
+    const imgUrl = product.image || product.imageUrl || product.img || product.productImage || '';
+    const prevImgUrl = product.previewImage || product.secondImage || product.landingImage || '';
 
     const normalizedProduct = {
       ...product,
+      image: imgUrl,
+      imageUrl: imgUrl,
+      img: imgUrl,
+      previewImage: prevImgUrl,
+      secondImage: prevImgUrl,
       price: numPrice,
       salePrice: numPrice,
       regularPrice: numRegularPrice,
@@ -104,6 +111,12 @@ export async function PUT(req, { params }) {
       price,
       regularPrice,
       image,
+      imageUrl,
+      img,
+      productImage,
+      previewImage,
+      secondImage,
+      landingImage,
       downloadUrl,
       demoUrl,
       description,
@@ -129,7 +142,22 @@ export async function PUT(req, { params }) {
     }
     
     if (regularPrice !== undefined) updateFields.regularPrice = Number(regularPrice) || 0;
-    if (image !== undefined) updateFields.image = image;
+
+    const imgVal = image !== undefined ? image : (imageUrl !== undefined ? imageUrl : (img !== undefined ? img : productImage));
+    if (imgVal !== undefined) {
+      const cleanImg = typeof imgVal === 'string' ? imgVal.trim() : '';
+      updateFields.image = cleanImg;
+      updateFields.imageUrl = cleanImg;
+      updateFields.img = cleanImg;
+      updateFields.productImage = cleanImg;
+    }
+
+    const prevImgVal = previewImage !== undefined ? previewImage : (secondImage !== undefined ? secondImage : landingImage);
+    if (prevImgVal !== undefined) {
+      const cleanPrevImg = typeof prevImgVal === 'string' ? prevImgVal.trim() : '';
+      updateFields.previewImage = cleanPrevImg;
+      updateFields.secondImage = cleanPrevImg;
+    }
     if (downloadUrl !== undefined) updateFields.downloadUrl = downloadUrl.trim();
     if (demoUrl !== undefined) updateFields.demoUrl = demoUrl.trim();
     if (description !== undefined) updateFields.description = description;

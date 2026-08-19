@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useSession } from '@/lib/auth-client';
+import ConfirmDownloadModal from '@/components/ConfirmDownloadModal';
 
 export default function ProductDetailsClient({ params }) {
   const resolvedParams = use(params);
@@ -37,6 +38,51 @@ export default function ProductDetailsClient({ params }) {
   const [loading, setLoading] = useState(true);
   const [isExpired, setIsExpired] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [userMembership, setUserMembership] = useState(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
+  // Dynamic Image Hover Pan State
+  const [isImageHovered, setIsImageHovered] = useState(false);
+  const [imageMousePos, setImageMousePos] = useState({ x: 0.5, y: 0.5 });
+
+  const handleImageMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+    setImageMousePos({ x, y });
+  };
+
+  const handleImageMouseEnter = (e) => {
+    setIsImageHovered(true);
+    handleImageMouseMove(e);
+  };
+
+  const handleImageMouseLeave = () => {
+    setIsImageHovered(false);
+    setImageMousePos({ x: 0.5, y: 0.5 });
+  };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch('/api/user/profile');
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user?.membership && (data.user.membership.status === 'active' || !data.user.membership.status)) {
+            setUserMembership(data.user.membership);
+          } else {
+            setUserMembership(null);
+          }
+        }
+      } catch (err) { }
+    };
+    fetchUser();
+
+    const handleProfileUpdate = () => fetchUser();
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
+  }, []);
 
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -424,12 +470,17 @@ export default function ProductDetailsClient({ params }) {
           <CategoryBannerCTA />
         </div>
 
-        {/* Top Product Hero Section (Qulabi 2 Column Layout) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Top Product Hero Section (Equal Size 2 Column Layout) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
 
-          {/* Left Column: Product Image Box (2nd screenshot style) */}
-          <div className="lg:col-span-6 bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm relative">
-            <div className="relative aspect-square w-full bg-slate-100/70 rounded-2xl border border-slate-100 flex items-center justify-center p-4 overflow-hidden group">
+          {/* Left Column: Product Image Box (Clean Card without Outer White Padding) */}
+          <div className="lg:col-span-6 bg-white rounded-3xl border border-slate-200 shadow-sm relative flex flex-col justify-center items-center h-full overflow-hidden">
+            <div
+              onMouseEnter={handleImageMouseEnter}
+              onMouseMove={handleImageMouseMove}
+              onMouseLeave={handleImageMouseLeave}
+              className="relative w-full h-full min-h-[340px] sm:min-h-[420px] bg-slate-100/70 flex items-center justify-center p-6 sm:p-8 overflow-hidden group flex-1 cursor-crosshair select-none"
+            >
               {product.image && !imageError ? (
                 <>
                   {/* Ambient Color Backdrop for Non-Square Photos */}
@@ -439,25 +490,42 @@ export default function ProductDetailsClient({ params }) {
                     aria-hidden="true"
                     className="absolute inset-0 w-full h-full object-cover blur-xl opacity-35 scale-125 pointer-events-none select-none"
                   />
-                  {/* Crisp Foreground Product Graphic */}
+                  {/* Crisp Foreground Product Graphic with Dynamic Mouse Hover Pan */}
                   <img
                     src={product.image}
                     alt={product.title}
                     onError={() => setImageError(true)}
-                    className="relative z-10 max-w-full max-h-full object-contain filter drop-shadow-sm transition-transform duration-500 group-hover:scale-105"
+                    style={{
+                      transform: `translate3d(${isImageHovered ? (0.5 - imageMousePos.x) * 45 : 0}%, ${isImageHovered ? (0.5 - imageMousePos.y) * 45 : 0}%, 0) scale(${isImageHovered ? 1.45 : 1})`,
+                      transition: isImageHovered ? 'transform 100ms ease-out' : 'transform 450ms cubic-bezier(0.4, 0, 0.2, 1)',
+                      willChange: 'transform',
+                      imageRendering: '-webkit-optimize-contrast',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                      filter: 'contrast(102%) brightness(101%) drop-shadow(0 1px 2px rgba(0,0,0,0.05))',
+                    }}
+                    className="relative z-10 max-w-full max-h-full object-contain filter drop-shadow-sm pointer-events-none"
                   />
+                  {/* Subtle Hover Inspection Indicator */}
+                  <div
+                    className={`absolute bottom-3 right-3 z-20 bg-slate-900/75 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-1 rounded-full pointer-events-none transition-opacity duration-300 flex items-center gap-1.5 ${
+                      isImageHovered ? 'opacity-0' : 'opacity-70 group-hover:opacity-100'
+                    }`}
+                  >
+                    <Eye className="w-3.5 h-3.5 text-indigo-400" />
+                    Hover to inspect
+                  </div>
                 </>
               ) : (
-                <div className="w-full h-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white font-black text-4xl rounded-xl shadow-inner">
+                <div className="w-full h-full min-h-[300px] bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white font-black text-4xl rounded-xl shadow-inner">
                   {product.title?.charAt(0)}
                 </div>
               )}
-              
             </div>
           </div>
 
-          {/* Right Column: Product Details, Timer & Dynamic Price Switching Box */}
-          <div className="lg:col-span-6 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+          {/* Right Column: Product Details, Timer & Dynamic Price Switching Box (Equal Height & Size Card) */}
+          <div className="lg:col-span-6 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6 flex flex-col justify-between h-full">
 
             {/* Title & Rating */}
             <div className="space-y-2">
@@ -590,13 +658,24 @@ export default function ProductDetailsClient({ params }) {
 
             {/* Buy Now / Download Primary Action Button */}
             <div className="space-y-3 pt-2">
-              <Link
-                href={`/checkout?product=${slug}`}
-                className="w-full py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm shadow-lg shadow-indigo-500/25 transition-all hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <ShoppingBag className="w-5 h-5" />
-                <span>Buy Now ৳{currentPrice} (Download)</span>
-              </Link>
+              {userMembership ? (
+                <button
+                  type="button"
+                  onClick={() => setIsConfirmModalOpen(true)}
+                  className="w-full py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm shadow-lg shadow-indigo-500/25 transition-all hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Download className="w-5 h-5" />
+                  <span>Direct Download (Member Access)</span>
+                </button>
+              ) : (
+                <Link
+                  href={`/checkout?product=${slug}`}
+                  className="w-full py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm shadow-lg shadow-indigo-500/25 transition-all hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <ShoppingBag className="w-5 h-5" />
+                  <span>Buy Now ৳{currentPrice} (Download)</span>
+                </Link>
+              )}
 
               {/* Secure Payment Gateway Logos & Guarantee Badge */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-[11px] text-slate-500 pt-2 border-t border-slate-100 font-medium">
@@ -1220,6 +1299,14 @@ export default function ProductDetailsClient({ params }) {
           </div>
         </div>
       )}
+
+      {/* Confirm Download Modal */}
+      <ConfirmDownloadModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        product={product}
+        userMembership={userMembership}
+      />
 
       <Footer />
     </div>

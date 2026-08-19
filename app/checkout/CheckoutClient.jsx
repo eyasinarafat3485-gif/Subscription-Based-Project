@@ -16,8 +16,10 @@ import {
   CheckCircle2,
   Tag,
   Loader2,
-  ArrowLeft
+  ArrowLeft,
+  Download
 } from 'lucide-react';
+import ConfirmDownloadModal from '@/components/ConfirmDownloadModal';
 
 const PLAN_DETAILS = {
   basic: {
@@ -119,6 +121,9 @@ function CheckoutContent() {
     fetchProduct();
   }, [productParam]);
 
+  const [userMembership, setUserMembership] = useState(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -131,6 +136,9 @@ function CheckoutContent() {
               name: data.user.name || '',
               email: data.user.email || '',
             }));
+            if (data.user.membership && (data.user.membership.status === 'active' || !data.user.membership.status)) {
+              setUserMembership(data.user.membership);
+            }
           }
         }
       } catch (err) { }
@@ -288,6 +296,36 @@ function CheckoutContent() {
               <p className="text-xs text-indigo-700 font-semibold">
                 Your membership plan has been activated. Redirecting to your membership dashboard...
               </p>
+            </div>
+          )}
+
+          {/* Active Membership Banner for Direct Download */}
+          {userMembership && productParam && (
+            <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 text-white rounded-2xl p-5 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-amber-300 shrink-0">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-emerald-200">
+                    ACTIVE MEMBERSHIP UNLOCKED
+                  </span>
+                  <h3 className="text-base font-black text-white leading-tight">
+                    You Have Active Membership!
+                  </h3>
+                  <p className="text-xs text-emerald-100 font-medium mt-0.5">
+                    No payment required! Download this product for FREE with your active plan.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsConfirmModalOpen(true)}
+                className="px-5 py-3 rounded-xl bg-white text-emerald-800 hover:bg-emerald-50 font-black text-xs shadow-md transition flex items-center gap-2 shrink-0 cursor-pointer"
+              >
+                <Download className="w-4 h-4 text-emerald-600" />
+                <span>Confirm & Download Free</span>
+              </button>
             </div>
           )}
 
@@ -591,6 +629,13 @@ function CheckoutContent() {
           </form>
 
         </main>
+
+        <ConfirmDownloadModal
+          isOpen={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          product={selectedProduct}
+          userMembership={userMembership}
+        />
       </div>
 
       <Footer />

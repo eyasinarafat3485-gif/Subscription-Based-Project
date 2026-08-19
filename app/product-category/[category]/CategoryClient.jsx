@@ -7,6 +7,7 @@ import { useSession } from '@/lib/auth-client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CategoryBannerCTA from '@/components/CategoryBannerCTA';
+import ConfirmDownloadModal from '@/components/ConfirmDownloadModal';
 import {
   Search,
   ChevronDown,
@@ -49,10 +50,9 @@ const SIDEBAR_CATEGORIES = [
     slug: 'Themes',
     subcategories: [
       { name: 'All Themes', slug: 'Themes' },
+      { name: 'E-commerce Themes', slug: 'E-commerce' },
       { name: 'Multipurpose Themes', slug: 'Multipurpose' },
-      { name: 'E-commerce Themes', slug: 'WooCommerce' },
       { name: 'Blog & Magazine', slug: 'Blog' },
-      { name: 'Business & Agency', slug: 'Business' },
     ],
   },
   {
@@ -100,10 +100,49 @@ export default function CategoryClient({ params }) {
   const [totalProducts, setTotalProducts] = useState(0);
   const [selectedSubcat, setSelectedSubcat] = useState(categoryMeta.defaultCat);
   const [searchQuery, setSearchQuery] = useState('');
+  const [userMembership, setUserMembership] = useState(null);
+  const [selectedProductForDownload, setSelectedProductForDownload] = useState(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   useEffect(() => {
     document.title = `${categoryMeta.title || 'Category'} | Developers Club`;
   }, [categoryMeta.title]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch('/api/user/profile');
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user?.membership && (data.user.membership.status === 'active' || !data.user.membership.status)) {
+            setUserMembership(data.user.membership);
+          } else {
+            setUserMembership(null);
+          }
+        }
+      } catch (err) { }
+    };
+    if (session?.user) {
+      fetchUser();
+    }
+    const handleProfileUpdate = () => fetchUser();
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
+  }, [session]);
+
+  const handleBuyNowClick = (e, item) => {
+    if (!session?.user) {
+      e.preventDefault();
+      router.push(`/login?redirectTo=${encodeURIComponent(`/checkout?product=${item.slug}`)}`);
+      return;
+    }
+    if (userMembership && (userMembership.status === 'active' || !userMembership.status)) {
+      e.preventDefault();
+      setSelectedProductForDownload(item);
+      setIsConfirmModalOpen(true);
+    }
+  };
+
   const [expandedCats, setExpandedCats] = useState({
     'Plugins': true,
     'Themes': true,
@@ -401,11 +440,11 @@ export default function CategoryClient({ params }) {
 
                             <Link
                               href={`/checkout?product=${item.slug}`}
-                              onClick={(e) => handleProtectedAction(e, `/checkout?product=${item.slug}`)}
+                              onClick={(e) => handleBuyNowClick(e, item)}
                               className="py-2 px-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs shadow-xs shadow-indigo-500/20 transition flex items-center justify-center gap-1 whitespace-nowrap min-w-0"
                             >
                               <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
-                              <span>Buy Now</span>
+                              <span>{userMembership ? 'Download' : 'Buy Now'}</span>
                             </Link>
                           </div>
                         </div>
@@ -425,6 +464,13 @@ export default function CategoryClient({ params }) {
           </div>
 
         </main>
+
+        <ConfirmDownloadModal
+          isOpen={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          product={selectedProductForDownload}
+          userMembership={userMembership}
+        />
       </div>
 
       <Footer />

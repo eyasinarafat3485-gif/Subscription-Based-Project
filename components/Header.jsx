@@ -223,6 +223,7 @@ export default function Header() {
     { href: '/product-category/wordpress-themes', label: 'Themes' },
     { href: '/product-category/wordpress-plugins', label: 'Plugins' },
     { href: '/product-category/seo-tools', label: 'SEO Tools' },
+    { href: '/templates', label: 'Templates' },
     { href: '/resources', label: 'Resources' },
     { href: '/changelog', label: 'Changelog' },
     { href: '/contact', label: 'Contact' },

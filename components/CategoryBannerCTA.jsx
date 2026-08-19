@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Gift, ShieldCheck, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
+import { Gift, ShieldCheck, ArrowRight, Sparkles, Loader2, Download } from 'lucide-react';
 import { useSession } from '@/lib/auth-client';
 
 export default function CategoryBannerCTA() {
@@ -138,6 +138,9 @@ export default function CategoryBannerCTA() {
 
   // IF USER HAS ACTIVE MEMBERSHIP: Render Active Membership Banner (Right Side)
   if (hasActiveMembership) {
+    const maxLimit = activeSubscription?.dailyLimit || (activeSubscription?.planId === 'premium' ? 20 : activeSubscription?.planId === 'standard' ? 10 : 5);
+    const usedDownloads = typeof activeSubscription?.downloadsToday === 'number' ? activeSubscription.downloadsToday : 0;
+
     return (
       <div className="w-full xl:w-auto bg-white border border-slate-200/90 rounded-2xl p-3 sm:p-3.5 shadow-2xs flex flex-col lg:flex-row items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-3 text-center sm:text-left min-w-0">
@@ -159,51 +162,68 @@ export default function CategoryBannerCTA() {
           </div>
         </div>
 
-        {/* Live Subscription Timer Display */}
-        <div className="bg-slate-50 border border-slate-200/80 rounded-2xl px-3 sm:px-4 py-2 flex items-center gap-2.5 shadow-2xs shrink-0 max-w-full">
-          <div className="text-right hidden sm:block whitespace-nowrap">
-            <p className="text-[9px] uppercase font-extrabold text-slate-400 tracking-wider">REMAINING TIME</p>
-            <p className="text-[11px] font-extrabold text-indigo-600">
-              {subTimeLeft.isLifetime ? 'Unlimited Access' : 'Auto Renew Active'}
-            </p>
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
+          {/* Live Subscription Timer Display */}
+          <div className="bg-slate-50 border border-slate-200/80 rounded-2xl px-3 sm:px-4 py-2 flex items-center gap-2.5 shadow-2xs shrink-0 max-w-full">
+            <div className="text-right hidden sm:block whitespace-nowrap">
+              <p className="text-[9px] uppercase font-extrabold text-slate-400 tracking-wider">REMAINING TIME</p>
+              <p className="text-[11px] font-extrabold text-indigo-600">
+                {subTimeLeft.isLifetime ? 'Unlimited Access' : 'Auto Renew Active'}
+              </p>
+            </div>
+
+            {subTimeLeft.isLifetime ? (
+              <div className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black px-3 py-1.5 rounded-xl text-xs shadow-xs whitespace-nowrap">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin" />
+                <span>LIFETIME UNLIMITED</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 font-mono">
+                <div className="bg-white border border-slate-200 rounded-xl px-2 py-1 text-center shadow-2xs min-w-[38px]">
+                  <span className="text-xs sm:text-sm font-black text-red-500 block leading-tight">
+                    {String(subTimeLeft.days).padStart(2, '0')}
+                  </span>
+                  <span className="text-[8px] font-sans font-extrabold text-slate-400 uppercase block leading-none mt-0.5">DAYS</span>
+                </div>
+                <span className="text-slate-300 font-bold text-xs">:</span>
+                <div className="bg-white border border-slate-200 rounded-xl px-2 py-1 text-center shadow-2xs min-w-[38px]">
+                  <span className="text-xs sm:text-sm font-black text-red-500 block leading-tight">
+                    {String(subTimeLeft.hours).padStart(2, '0')}
+                  </span>
+                  <span className="text-[8px] font-sans font-extrabold text-slate-400 uppercase block leading-none mt-0.5">HRS</span>
+                </div>
+                <span className="text-slate-300 font-bold text-xs">:</span>
+                <div className="bg-white border border-slate-200 rounded-xl px-2 py-1 text-center shadow-2xs min-w-[38px]">
+                  <span className="text-xs sm:text-sm font-black text-red-500 block leading-tight">
+                    {String(subTimeLeft.minutes).padStart(2, '0')}
+                  </span>
+                  <span className="text-[8px] font-sans font-extrabold text-slate-400 uppercase block leading-none mt-0.5">MIN</span>
+                </div>
+                <span className="text-slate-300 font-bold text-xs">:</span>
+                <div className="bg-white border border-slate-200 rounded-xl px-2 py-1 text-center shadow-2xs min-w-[38px]">
+                  <span className="text-xs sm:text-sm font-black text-red-500 block leading-tight animate-pulse">
+                    {String(subTimeLeft.seconds).padStart(2, '0')}
+                  </span>
+                  <span className="text-[8px] font-sans font-extrabold text-slate-400 uppercase block leading-none mt-0.5">SEC</span>
+                </div>
+              </div>
+            )}
           </div>
 
-          {subTimeLeft.isLifetime ? (
-            <div className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black px-3 py-1.5 rounded-xl text-xs shadow-xs whitespace-nowrap">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin" />
-              <span>LIFETIME UNLIMITED</span>
+          {/* Dynamic Daily Download Limit Badge */}
+          <div className="bg-slate-50 border border-slate-200/80 rounded-2xl px-3 sm:px-3.5 py-2 flex items-center gap-2.5 shadow-2xs shrink-0 whitespace-nowrap">
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
+              <Download className="w-4 h-4" />
             </div>
-          ) : (
-            <div className="flex items-center gap-1 font-mono">
-              <div className="bg-white border border-slate-200 rounded-xl px-2 py-1 text-center shadow-2xs min-w-[38px]">
-                <span className="text-xs sm:text-sm font-black text-red-500 block leading-tight">
-                  {String(subTimeLeft.days).padStart(2, '0')}
-                </span>
-                <span className="text-[8px] font-sans font-extrabold text-slate-400 uppercase block leading-none mt-0.5">DAYS</span>
-              </div>
-              <span className="text-slate-300 font-bold text-xs">:</span>
-              <div className="bg-white border border-slate-200 rounded-xl px-2 py-1 text-center shadow-2xs min-w-[38px]">
-                <span className="text-xs sm:text-sm font-black text-red-500 block leading-tight">
-                  {String(subTimeLeft.hours).padStart(2, '0')}
-                </span>
-                <span className="text-[8px] font-sans font-extrabold text-slate-400 uppercase block leading-none mt-0.5">HRS</span>
-              </div>
-              <span className="text-slate-300 font-bold text-xs">:</span>
-              <div className="bg-white border border-slate-200 rounded-xl px-2 py-1 text-center shadow-2xs min-w-[38px]">
-                <span className="text-xs sm:text-sm font-black text-red-500 block leading-tight">
-                  {String(subTimeLeft.minutes).padStart(2, '0')}
-                </span>
-                <span className="text-[8px] font-sans font-extrabold text-slate-400 uppercase block leading-none mt-0.5">MIN</span>
-              </div>
-              <span className="text-slate-300 font-bold text-xs">:</span>
-              <div className="bg-white border border-slate-200 rounded-xl px-2 py-1 text-center shadow-2xs min-w-[38px]">
-                <span className="text-xs sm:text-sm font-black text-red-500 block leading-tight animate-pulse">
-                  {String(subTimeLeft.seconds).padStart(2, '0')}
-                </span>
-                <span className="text-[8px] font-sans font-extrabold text-slate-400 uppercase block leading-none mt-0.5">SEC</span>
+            <div className="text-left">
+              <p className="text-[9px] uppercase font-extrabold text-slate-400 tracking-wider">DAILY LIMIT</p>
+              <div className="flex items-baseline gap-0.5 font-mono text-sm sm:text-base font-black leading-tight mt-0.5">
+                <span className="text-emerald-600 font-black">{usedDownloads}</span>
+                <span className="text-slate-300 font-bold text-xs px-0.5">/</span>
+                <span className="text-indigo-600 font-black">{maxLimit}</span>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     );

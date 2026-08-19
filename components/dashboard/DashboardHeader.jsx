@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from '@/lib/auth-client';
-import { ShieldCheck, UserCheck, Award, Bell, Search, Check, Send, Sparkles, Clock, X, Loader2, Copy, Gift } from 'lucide-react';
+import { ShieldCheck, UserCheck, Award, Bell, Search, Check, Send, Sparkles, Clock, X, Loader2, Copy, Gift, Download } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
 
@@ -70,35 +70,42 @@ export default function DashboardHeader() {
       }, 800);
     }
 
-    const handleProfileUpdate = () => {
-      const storedMem = localStorage.getItem('user_membership');
-      if (storedMem) {
-        try {
-          const parsed = JSON.parse(storedMem);
-          if (parsed && (parsed.status === 'active' || !parsed.status)) {
-            setActiveSubscription(parsed);
-            setIsMembershipLoading(false);
-            return;
+    const handleProfileUpdate = async () => {
+      try {
+        const res = await fetch('/api/user/profile');
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user) {
+            setProfileData(data.user);
+            localStorage.setItem('user_profile', JSON.stringify(data.user));
+            if (data.user.membership) {
+              setActiveSubscription(data.user.membership);
+              localStorage.setItem('user_membership', JSON.stringify(data.user.membership));
+            }
           }
-        } catch (e) {}
-      }
-      setActiveSubscription(null);
+        }
+      } catch (e) {}
       setIsMembershipLoading(false);
-      const stored = localStorage.getItem('user_profile');
-      if (stored) {
-        setProfileData(JSON.parse(stored));
-      }
     };
 
     window.addEventListener('profileUpdated', handleProfileUpdate);
-    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
-  }, []);
+    return () => {
+      isMounted = false;
+      if (timer) clearTimeout(timer);
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
+  }, [session, isSessionLoading]);
 
   const userRole = profileData?.role || session?.user?.role || 'user';
   const userName = profileData?.name || session?.user?.name || 'Developers Club User';
   const userEmail = profileData?.email || session?.user?.email || 'user@developersclub.com';
   const userImage = profileData?.image || session?.user?.image;
   const userInitial = userName.charAt(0).toUpperCase();
+  const totalDownloads = typeof profileData?.totalDownloads === 'number'
+    ? profileData.totalDownloads
+    : (Array.isArray(profileData?.collections) ? profileData.collections.length : 0);
+  const downloadsToday = profileData?.membership?.downloadsToday ?? activeSubscription?.downloadsToday ?? (totalDownloads > 0 ? totalDownloads : 0);
+  const dailyLimit = profileData?.membership?.dailyLimit || activeSubscription?.dailyLimit || 5;
 
   // Mark notifications as read
   const markNotificationsAsRead = async () => {
@@ -221,8 +228,30 @@ export default function DashboardHeader() {
     }
   };
 
+  const fallbackCopyText = (text) => {
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    } catch (e) {}
+  };
+
   const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).catch(() => fallbackCopyText(text));
+      } else {
+        fallbackCopyText(text);
+      }
+    } catch (e) {
+      fallbackCopyText(text);
+    }
     setCopiedCode(text);
     toast.success(`Coupon code ${text} copied!`);
     setTimeout(() => setCopiedCode(''), 2000);
@@ -230,7 +259,7 @@ export default function DashboardHeader() {
 
   return (
     <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-2xs">
-      {/* Left: Greeting & Search Bar */}
+      {/* Left: Greeting */}
       <div className="flex items-center gap-4">
         <div className="hidden md:flex flex-col">
           <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
@@ -244,16 +273,6 @@ export default function DashboardHeader() {
                 ? 'Guest Free Trial Membership'
                 : 'Pro Membership Dashboard'}
           </p>
-        </div>
-
-        {/* Global Search Bar Input */}
-        <div className="relative hidden lg:block w-72">
-          <input
-            type="text"
-            placeholder="Search plugins, themes or files..."
-            className="w-full bg-slate-100/80 border border-slate-200/80 rounded-xl px-3.5 py-1.5 pl-9 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-blue-500 transition shadow-xs font-medium"
-          />
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2" />
         </div>
       </div>
 
@@ -280,6 +299,33 @@ export default function DashboardHeader() {
             {userRole ? userRole.toUpperCase() : 'USER'}
           </span>
         </div>
+
+        {/* Dynamic User Daily Download Limit Badge */}
+        <Link
+          href={
+            userRole === 'admin'
+              ? '/dashboard/admin/my-collections'
+              : userRole === 'guest'
+              ? '/dashboard/guest/my-collections'
+              : '/dashboard/user/my-collections'
+          }
+          className="hidden sm:flex items-center gap-2.5 px-3 py-1 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-indigo-300 transition cursor-pointer group"
+          title={`Daily Downloads: ${downloadsToday} of ${dailyLimit} used today | Total Downloads: ${totalDownloads}`}
+        >
+          <div className="w-6.5 h-6.5 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+            <Download className="w-3.5 h-3.5 stroke-[2.5]" />
+          </div>
+          <div className="flex flex-col justify-center leading-none">
+            <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 mb-0.5">
+              DAILY LIMIT
+            </span>
+            <div className="text-xs font-black flex items-center gap-1">
+              <span className="text-emerald-600">{downloadsToday}</span>
+              <span className="text-slate-300 font-normal">/</span>
+              <span className="text-indigo-600">{dailyLimit}</span>
+            </div>
+          </div>
+        </Link>
 
         {/* Interactive Notifications Icon Button */}
         <div className="relative" ref={notifRef}>
