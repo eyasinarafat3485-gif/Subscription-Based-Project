@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { FolderHeart, Download, Search, Sparkles, ExternalLink, ShieldCheck, Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -27,7 +28,17 @@ export default function UserMyCollectionsPage() {
       }
     };
 
+    const clearDownloadNotifications = async () => {
+      try {
+        await fetch('/api/user/download-notifications', { method: 'PATCH' });
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('profileUpdated'));
+        }
+      } catch (e) {}
+    };
+
     fetchCollections();
+    clearDownloadNotifications();
   }, []);
 
   const formatDate = (dateStr) => {
@@ -102,13 +113,13 @@ export default function UserMyCollectionsPage() {
 
               <div className="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
                 <span className="text-[11px] text-slate-500">Saved: {formatDate(item.downloadedAt)}</span>
-                <button
-                  onClick={() => handleDownload(item)}
-                  className="px-3 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                <Link
+                  href={item.slug ? `/products/${item.slug}` : `/resources`}
+                  className="px-3.5 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white text-xs font-extrabold transition flex items-center gap-1.5 cursor-pointer border border-blue-500/20 hover:border-blue-500"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span suppressHydrationWarning>Download</span>
-                </button>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>View Details</span>
+                </Link>
               </div>
             </div>
           ))}

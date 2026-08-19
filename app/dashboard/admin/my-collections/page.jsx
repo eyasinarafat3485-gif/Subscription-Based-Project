@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Download, Search, Loader2, FolderHeart } from 'lucide-react';
+import Link from 'next/link';
+import { Download, Search, Loader2, FolderHeart, ExternalLink } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 export default function AdminMyCollectionsPage() {
@@ -27,7 +28,17 @@ export default function AdminMyCollectionsPage() {
       }
     };
 
+    const clearDownloadNotifications = async () => {
+      try {
+        await fetch('/api/user/download-notifications', { method: 'PATCH' });
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('profileUpdated'));
+        }
+      } catch (e) {}
+    };
+
     fetchCollections();
+    clearDownloadNotifications();
   }, []);
 
   const formatDate = (dateStr) => {
@@ -103,13 +114,13 @@ export default function AdminMyCollectionsPage() {
                 <span className="text-[11px] text-slate-500 flex items-center gap-1">
                   Saved: {formatDate(item.downloadedAt)}
                 </span>
-                <button
-                  onClick={() => handleDownload(item)}
-                  className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                <Link
+                  href={item.slug ? `/products/${item.slug}` : `/resources`}
+                  className="px-3.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white text-xs font-extrabold transition flex items-center gap-1.5 cursor-pointer border border-blue-100/80 shadow-2xs group-hover:border-blue-300"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span suppressHydrationWarning>Download</span>
-                </button>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>View Details</span>
+                </Link>
               </div>
             </div>
           ))}

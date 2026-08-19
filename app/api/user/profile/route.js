@@ -61,6 +61,10 @@ export async function GET(req) {
     const defaultDailyLimit = planId === 'premium' ? 20 : planId === 'standard' ? 10 : 5;
     const dailyLimit = user.membership?.dailyLimit || defaultDailyLimit;
 
+    const createdAt = user.createdAt ? new Date(user.createdAt) : new Date();
+    const defaultExpiresAt = new Date(createdAt.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const expiresAt = user.membership?.expiresAt || defaultExpiresAt;
+
     return NextResponse.json({
       user: {
         name: user.name,
@@ -70,6 +74,9 @@ export async function GET(req) {
         role: user.role || 'user',
         totalDownloads: totalDownloads,
         membership: {
+          planId: planId,
+          planTitle: user.membership?.planTitle || (planId === 'premium' ? 'Premium' : planId === 'standard' ? 'Standard' : 'Basic'),
+          expiresAt: expiresAt,
           ...(user.membership || {}),
           status: user.membership?.status || 'active',
           downloadsToday: currentDownloadsToday,

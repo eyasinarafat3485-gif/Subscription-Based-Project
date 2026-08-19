@@ -19,7 +19,9 @@ import {
   FileText,
   Bookmark,
   Clock,
-  Loader2
+  Loader2,
+  Download,
+  FolderHeart
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useSession, signOut } from '@/lib/auth-client';
@@ -35,6 +37,9 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [downloadNotifications, setDownloadNotifications] = useState([]);
+  const [unreadDownloadCount, setUnreadDownloadCount] = useState(0);
+  const [downloadNotifOpen, setDownloadNotifOpen] = useState(false);
 
   const [activeSubscription, setActiveSubscription] = useState(null);
   const [isMembershipLoading, setIsMembershipLoading] = useState(true);
@@ -42,14 +47,16 @@ export default function Header() {
 
   const megaMenuRef = useRef(null);
   const userDropdownRef = useRef(null);
+  const downloadNotifRef = useRef(null);
 
   // Close mobile menu & mega menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
     setMegaMenuOpen(false);
+    setDownloadNotifOpen(false);
   }, [pathname]);
 
-  // Handle outside click for Mega Menu & User Dropdown
+  // Handle outside click for Mega Menu, User Dropdown & Download Notifications
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (megaMenuRef.current && !megaMenuRef.current.contains(event.target)) {
@@ -57,6 +64,9 @@ export default function Header() {
       }
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
         setUserDropdownOpen(false);
+      }
+      if (downloadNotifRef.current && !downloadNotifRef.current.contains(event.target)) {
+        setDownloadNotifOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -118,10 +128,31 @@ export default function Header() {
       }
     };
 
+    const fetchDownloadNotifications = async () => {
+      try {
+        if (!session?.user) {
+          setDownloadNotifications([]);
+          setUnreadDownloadCount(0);
+          return;
+        }
+        const res = await fetch('/api/user/download-notifications');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            setDownloadNotifications(data.notifications || []);
+            setUnreadDownloadCount(data.unreadCount || 0);
+          }
+        }
+      } catch (e) {}
+    };
+
     if (session?.user) {
       loadProfile();
+      fetchDownloadNotifications();
     } else if (!isSessionLoading) {
       setActiveSubscription(null);
+      setDownloadNotifications([]);
+      setUnreadDownloadCount(0);
       localStorage.removeItem('user_membership');
       timer = setTimeout(() => {
         if (isMounted) setIsMembershipLoading(false);
@@ -129,6 +160,7 @@ export default function Header() {
     }
 
     const handleProfileUpdate = () => {
+      fetchDownloadNotifications();
       const storedMem = localStorage.getItem('user_membership');
       if (storedMem) {
         try {
@@ -144,24 +176,28 @@ export default function Header() {
       setIsMembershipLoading(false);
     };
 
+    const interval = setInterval(fetchDownloadNotifications, 15000);
+
     window.addEventListener('profileUpdated', handleProfileUpdate);
     return () => {
       isMounted = false;
       if (timer) clearTimeout(timer);
+      clearInterval(interval);
       window.removeEventListener('profileUpdated', handleProfileUpdate);
     };
   }, [session, isSessionLoading]);
 
   // Live Subscription Timer Countdown for Active Membership
   useEffect(() => {
-    if (!activeSubscription || !activeSubscription.expiresAt) return;
+    if (!activeSubscription) return;
 
     if (activeSubscription.expiresAt === 'LIFETIME' || activeSubscription.planId === 'premium') {
       setSubTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isLifetime: true, isExpired: false });
       return;
     }
 
-    const expiryMs = new Date(activeSubscription.expiresAt).getTime();
+    const expiryDateStr = activeSubscription.expiresAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const expiryMs = new Date(expiryDateStr).getTime();
 
     const updateTimer = () => {
       const nowMs = Date.now();
@@ -442,18 +478,160 @@ export default function Header() {
               </a>
             )}
 
-            {/* Cart Drawer Button */}
-            <button
-              className="relative p-2 text-slate-700 hover:text-indigo-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
-              title="Cart"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              {cartCount > 0 && (
-                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-indigo-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </button>
+            {/* Cart Button -> Download Notifications Dropdown */}
+            {(() => {
+              const userRole = profileData?.role || session?.user?.role || 'user';
+              const collectionsPath = userRole === 'admin'
+                ? '/dashboard/admin/my-collections'
+                : userRole === 'guest'
+                ? '/dashboard/guest/my-collections'
+                : '/dashboard/user/my-collections';
+
+              const markDownloadNotifsAsRead = async () => {
+                try {
+                  setUnreadDownloadCount(0);
+                  setDownloadNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+                  await fetch('/api/user/download-notifications', { method: 'PATCH' });
+                } catch (e) {}
+              };
+
+              return (
+                <div className="relative" ref={downloadNotifRef}>
+                  <button
+                    onClick={() => {
+                      const nextOpen = !downloadNotifOpen;
+                      setDownloadNotifOpen(nextOpen);
+                      if (nextOpen && unreadDownloadCount > 0) {
+                        markDownloadNotifsAsRead();
+                      }
+                    }}
+                    className={`relative p-2 text-slate-700 hover:text-indigo-600 hover:bg-slate-100 rounded-xl transition cursor-pointer ${
+                      downloadNotifOpen ? 'bg-indigo-50 text-indigo-600' : ''
+                    }`}
+                    title="Download Notifications & Cart Archive"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    {unreadDownloadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-indigo-600 text-white font-extrabold text-[9px] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center border-2 border-white animate-pulse">
+                        {unreadDownloadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {downloadNotifOpen && (
+                    <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden z-50 animate-fadeIn">
+                      {/* Header */}
+                      <div className="p-4 bg-slate-50 border-b border-slate-150 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Download className="w-4 h-4 text-indigo-600" />
+                          <h3 className="text-xs font-extrabold text-slate-900">
+                            Download Notifications
+                          </h3>
+                        </div>
+                        {unreadDownloadCount > 0 ? (
+                          <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-bold rounded-full">
+                            {unreadDownloadCount} new
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded-full">
+                            All read
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Body */}
+                      <div className="max-h-[360px] overflow-y-auto divide-y divide-slate-100">
+                        {downloadNotifications.length === 0 ? (
+                          <div className="py-8 text-center space-y-2 text-slate-400">
+                            <FolderHeart className="w-8 h-8 text-slate-300 mx-auto" />
+                            <p className="text-xs font-medium">No download notifications yet</p>
+                            <p className="text-[11px] text-slate-400">Products you download will appear here.</p>
+                          </div>
+                        ) : (
+                          downloadNotifications.map((item, idx) => (
+                            <div key={item._id || idx} className="p-3.5 hover:bg-slate-50/80 transition space-y-2 text-xs">
+                              <div className="flex items-start gap-3">
+                                {item.image ? (
+                                  <img
+                                    src={item.image}
+                                    alt={item.productTitle || item.title}
+                                    className="w-10 h-10 rounded-xl object-cover border border-slate-200 shrink-0 shadow-2xs"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 font-bold text-xs flex items-center justify-center shrink-0 border border-indigo-100">
+                                    <Download className="w-5 h-5" />
+                                  </div>
+                                )}
+
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between gap-1">
+                                    <h4 className="font-extrabold text-slate-900 truncate">
+                                      {item.productTitle || item.title || 'WordPress Resource'}
+                                    </h4>
+                                    <span className="text-[9px] font-bold px-1.5 py-0.5 bg-indigo-50 text-indigo-700 rounded-md border border-indigo-200/60 shrink-0">
+                                      {item.version || 'Latest'}
+                                    </span>
+                                  </div>
+                                  
+                                  <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                                    {item.message || `🎉 Downloaded successfully!`}
+                                  </p>
+                                  
+                                  <div className="flex items-center justify-between text-[10px] text-slate-400 mt-1.5 pt-1 border-t border-slate-100">
+                                    <span>{item.downloadedAt ? new Date(item.downloadedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Recently'}</span>
+                                    <Link
+                                      href={collectionsPath}
+                                      onClick={() => {
+                                        setDownloadNotifOpen(false);
+                                        markDownloadNotifsAsRead();
+                                      }}
+                                      className="text-indigo-600 font-bold hover:underline"
+                                    >
+                                      View in Archive →
+                                    </Link>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      {/* Footer */}
+                      <div className="p-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between px-4 text-[11px] font-bold">
+                        <Link
+                          href={collectionsPath}
+                          onClick={() => {
+                            setDownloadNotifOpen(false);
+                            markDownloadNotifsAsRead();
+                          }}
+                          className="text-slate-600 hover:text-indigo-600 hover:underline"
+                        >
+                          Go to My Collections →
+                        </Link>
+
+                        <Link
+                          href={
+                            userRole === 'admin'
+                              ? '/dashboard/admin/all-notifications'
+                              : userRole === 'guest'
+                              ? '/dashboard/guest/all-notifications'
+                              : '/dashboard/user/all-notifications'
+                          }
+                          onClick={() => {
+                            setDownloadNotifOpen(false);
+                            markDownloadNotifsAsRead();
+                          }}
+                          className="text-indigo-600 hover:underline"
+                        >
+                          View All Notifications →
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Mobile Hamburger Menu Toggle Button (Matching 2nd Image Icon) */}
             <button

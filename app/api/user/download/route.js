@@ -59,8 +59,10 @@ export async function POST(req) {
 
     const newDownloadsToday = downloadsToday + 1;
 
+    const notifId = new mongoose.Types.ObjectId().toString();
+
     const collectionItem = {
-      _id: new mongoose.Types.ObjectId().toString(),
+      _id: notifId,
       productId: productId || null,
       productTitle: productTitle || 'WordPress Resource',
       title: productTitle || 'WordPress Resource',
@@ -70,6 +72,23 @@ export async function POST(req) {
       image: image || '',
       downloadUrl: downloadUrl || '',
       downloadedAt: new Date(),
+      isRead: false,
+    };
+
+    const downloadNotif = {
+      _id: notifId,
+      type: 'DOWNLOAD',
+      title: 'Product Downloaded',
+      message: `You successfully downloaded ${productTitle || 'a resource'} (${version || 'Latest'}).`,
+      productTitle: productTitle || 'WordPress Resource',
+      productId: productId || null,
+      slug: slug || '',
+      category: category || 'Plugin',
+      version: version || 'Latest',
+      image: image || '',
+      downloadUrl: downloadUrl || '',
+      downloadedAt: new Date(),
+      isRead: false,
     };
 
     // Update user record in MongoDB
@@ -84,6 +103,7 @@ export async function POST(req) {
         $push: {
           collections: collectionItem,
           downloadHistory: collectionItem,
+          downloadNotifications: downloadNotif,
         },
       }
     );

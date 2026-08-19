@@ -147,13 +147,6 @@ export default function AdminDashboardPage() {
       trend: 'Live Products',
     },
     {
-      label: 'Today Downloads',
-      value: `${statsData.todayDownloads.toLocaleString('en-US')}`,
-      icon: Download,
-      color: 'from-emerald-600 to-teal-600',
-      trend: 'Active Tracking',
-    },
-    {
       label: 'Active Coupons',
       value: `${statsData.activeCoupons.toLocaleString('en-US')}`,
       icon: Ticket,
@@ -173,18 +166,14 @@ export default function AdminDashboardPage() {
     <div className="space-y-8">
       {/* Header Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white p-6 sm:p-8 shadow-lg shadow-blue-500/15">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-bold mb-3">
-              <ShieldCheck className="w-3.5 h-3.5 text-blue-200" />
-              <span>Admin Control Panel (Live Data)</span>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-blue-100">
+              <Zap className="w-3.5 h-3.5 text-amber-300" />
+              <span>Admin Management Hub</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Welcome, Developers Club Admin! 🚀
-            </h1>
-            <p className="text-blue-100 text-xs sm:text-sm mt-1 max-w-xl">
-              View live data and overview of all users, WordPress plugins, themes, and coupon codes in the MongoDB database.
-            </p>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">System Control Panel</h1>
+            <p className="text-xs sm:text-sm text-blue-100/90 font-medium">Manage users, view real-time system stats, manage products and generate coupons.</p>
           </div>
           <Link
             href="/dashboard/admin/add-product"
@@ -197,7 +186,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         {stats.map((stat, i) => {
           const Icon = stat.icon;
           return (

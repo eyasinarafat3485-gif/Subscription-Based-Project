@@ -96,6 +96,39 @@ export default function DashboardHeader() {
     };
   }, [session, isSessionLoading]);
 
+  // Live Subscription Timer Countdown for Active Membership
+  useEffect(() => {
+    if (!activeSubscription) return;
+
+    if (activeSubscription.expiresAt === 'LIFETIME' || activeSubscription.planId === 'premium') {
+      setSubTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isLifetime: true, isExpired: false });
+      return;
+    }
+
+    const expiryDateStr = activeSubscription.expiresAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const expiryMs = new Date(expiryDateStr).getTime();
+
+    const updateTimer = () => {
+      const nowMs = Date.now();
+      const diff = expiryMs - nowMs;
+
+      if (isNaN(expiryMs) || diff <= 0) {
+        setSubTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isLifetime: false, isExpired: true });
+      } else {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setSubTimeLeft({ days, hours, minutes, seconds, isLifetime: false, isExpired: false });
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(interval);
+  }, [activeSubscription]);
+
   const userRole = profileData?.role || session?.user?.role || 'user';
   const userName = profileData?.name || session?.user?.name || 'Developers Club User';
   const userEmail = profileData?.email || session?.user?.email || 'user@developersclub.com';

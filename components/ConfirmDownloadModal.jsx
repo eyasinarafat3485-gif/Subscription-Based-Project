@@ -38,7 +38,7 @@ export default function ConfirmDownloadModal({ isOpen, onClose, product, userMem
 
       if (res.ok && data.success) {
         toast.success(`Download confirmed! Starting download for ${product.title}...`);
-        
+
         // Notify application to update active membership remaining count in UI
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new Event('profileUpdated'));

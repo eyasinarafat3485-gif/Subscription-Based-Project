@@ -43,28 +43,52 @@ export default function AllNotificationsView({ userRole = 'user' }) {
   const fetchNotifications = async (page = 1) => {
     try {
       setLoading(true);
+      const dlRes = await fetch('/api/user/download-notifications');
+      let downloadNotifs = [];
+      if (dlRes.ok) {
+        const dlData = await dlRes.json();
+        if (dlData.success && Array.isArray(dlData.notifications)) {
+          downloadNotifs = dlData.notifications;
+        }
+      }
+
       if (userRole === 'admin') {
         const res = await fetch(
           `/api/admin/guest-requests?page=${page}&limit=10&status=${statusFilter}&search=${encodeURIComponent(search)}`
         );
+        let guestReqs = [];
         if (res.ok) {
           const data = await res.json();
-          if (data.requests) {
-            setRequests(data.requests);
-            setCurrentPage(data.page || page);
-            setTotalPages(data.totalPages || 1);
-            setTotalRequests(data.totalRequests || 0);
-          }
+          guestReqs = data.requests || [];
         }
+
+        const combined = [...guestReqs, ...downloadNotifs].sort((a, b) => {
+          const timeA = new Date(a.downloadedAt || a.requestedAt || a.createdAt || 0);
+          const timeB = new Date(b.downloadedAt || b.requestedAt || b.createdAt || 0);
+          return timeB - timeA;
+        });
+
+        setRequests(combined);
+        setCurrentPage(page);
+        setTotalPages(Math.max(1, Math.ceil(combined.length / 10)));
+        setTotalRequests(combined.length);
       } else {
         const res = await fetch('/api/user/guest-request');
+        let allReqs = [];
         if (res.ok) {
           const data = await res.json();
-          const allReqs = data.requests || (data.request ? [data.request] : []);
-          setRequests(allReqs);
-          setTotalPages(Math.max(1, Math.ceil(allReqs.length / 10)));
-          setTotalRequests(allReqs.length);
+          allReqs = data.requests || (data.request ? [data.request] : []);
         }
+
+        const combined = [...allReqs, ...downloadNotifs].sort((a, b) => {
+          const timeA = new Date(a.downloadedAt || a.requestedAt || a.createdAt || 0);
+          const timeB = new Date(b.downloadedAt || b.requestedAt || b.createdAt || 0);
+          return timeB - timeA;
+        });
+
+        setRequests(combined);
+        setTotalPages(Math.max(1, Math.ceil(combined.length / 10)));
+        setTotalRequests(combined.length);
       }
     } catch (err) {
       console.error('Fetch notifications error:', err);
@@ -82,6 +106,10 @@ export default function AllNotificationsView({ userRole = 'user' }) {
           await fetch('/api/admin/guest-requests', { method: 'PATCH' });
         } else {
           await fetch('/api/user/guest-request', { method: 'PATCH' });
+        }
+        await fetch('/api/user/download-notifications', { method: 'PATCH' });
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('profileUpdated'));
         }
       } catch (e) {}
     };
@@ -297,11 +325,70 @@ export default function AllNotificationsView({ userRole = 'user' }) {
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
-            {displayedRequests.map((req) => (
-              <div
-                key={req._id}
-                className="py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-slate-50/70 transition px-2.5 rounded-xl text-xs"
-              >
+            {displayedRequests.map((req) => {
+              if (req.type === 'DOWNLOAD' || req.productTitle) {
+                const collectionsPath = userRole === 'admin'
+                  ? '/dashboard/admin/my-collections'
+                  : userRole === 'guest'
+                  ? '/dashboard/guest/my-collections'
+                  : '/dashboard/user/my-collections';
+
+                return (
+                  <div
+                    key={req._id}
+                    className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 transition px-2.5 rounded-xl text-xs border-b border-slate-100 last:border-0"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      {req.image ? (
+                        <img
+                          src={req.image}
+                          alt={req.productTitle || req.title}
+                          className="w-10 h-10 rounded-xl object-cover border border-slate-200 shrink-0 shadow-2xs"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 font-black text-xs flex items-center justify-center shrink-0 border border-indigo-100 shadow-2xs">
+                          <Download className="w-5 h-5" />
+                        </div>
+                      )}
+
+                      <div className="space-y-0.5 flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-extrabold text-slate-900">{req.productTitle || req.title}</span>
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200">
+                            {req.version || 'Latest'}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                            {req.category || 'Plugin'}
+                          </span>
+                        </div>
+
+                        <p className="text-[11px] text-slate-600">
+                          {req.message || '🎉 Resource downloaded & saved to your archive.'}
+                        </p>
+
+                        <p className="text-[10px] text-slate-400 font-medium">
+                          Downloaded: {req.downloadedAt ? new Date(req.downloadedAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : 'Recently'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="shrink-0">
+                      <Link
+                        href={collectionsPath}
+                        className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-2xs inline-block"
+                      >
+                        View in Archive →
+                      </Link>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div
+                  key={req._id}
+                  className="py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-slate-50/70 transition px-2.5 rounded-xl text-xs"
+                >
                 {/* Left: User Avatar & Compact Request Details */}
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {req.userImage ? (
@@ -474,8 +561,9 @@ export default function AllNotificationsView({ userRole = 'user' }) {
                   )}
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
+        </div>
         )}
 
         {/* Pagination Controls (Per page 10 items) */}
