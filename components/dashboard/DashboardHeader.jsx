@@ -78,9 +78,12 @@ export default function DashboardHeader() {
           if (data?.user) {
             setProfileData(data.user);
             localStorage.setItem('user_profile', JSON.stringify(data.user));
-            if (data.user.membership) {
+            if (data.user.membership && data.user.membership.status === 'active') {
               setActiveSubscription(data.user.membership);
               localStorage.setItem('user_membership', JSON.stringify(data.user.membership));
+            } else {
+              setActiveSubscription(null);
+              localStorage.removeItem('user_membership');
             }
           }
         }
@@ -333,32 +336,34 @@ export default function DashboardHeader() {
           </span>
         </div>
 
-        {/* Dynamic User Daily Download Limit Badge */}
-        <Link
-          href={
-            userRole === 'admin'
-              ? '/dashboard/admin/my-collections'
-              : userRole === 'guest'
-              ? '/dashboard/guest/my-collections'
-              : '/dashboard/user/my-collections'
-          }
-          className="hidden sm:flex items-center gap-2.5 px-3 py-1 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-indigo-300 transition cursor-pointer group"
-          title={`Daily Downloads: ${downloadsToday} of ${dailyLimit} used today | Total Downloads: ${totalDownloads}`}
-        >
-          <div className="w-6.5 h-6.5 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-            <Download className="w-3.5 h-3.5 stroke-[2.5]" />
-          </div>
-          <div className="flex flex-col justify-center leading-none">
-            <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 mb-0.5">
-              DAILY LIMIT
-            </span>
-            <div className="text-xs font-black flex items-center gap-1">
-              <span className="text-emerald-600">{downloadsToday}</span>
-              <span className="text-slate-300 font-normal">/</span>
-              <span className="text-indigo-600">{dailyLimit}</span>
+        {/* Dynamic User Daily Download Limit Badge (Only shown if user has active membership) */}
+        {activeSubscription && (!subTimeLeft.isExpired || subTimeLeft.isLifetime) && (
+          <Link
+            href={
+              userRole === 'admin'
+                ? '/dashboard/admin/my-collections'
+                : userRole === 'guest'
+                ? '/dashboard/guest/my-collections'
+                : '/dashboard/user/my-collections'
+            }
+            className="hidden sm:flex items-center gap-2.5 px-3 py-1 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-indigo-300 transition cursor-pointer group"
+            title={`Daily Downloads: ${downloadsToday} of ${dailyLimit} used today | Total Downloads: ${totalDownloads}`}
+          >
+            <div className="w-6.5 h-6.5 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+              <Download className="w-3.5 h-3.5 stroke-[2.5]" />
             </div>
-          </div>
-        </Link>
+            <div className="flex flex-col justify-center leading-none">
+              <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 mb-0.5">
+                DAILY LIMIT
+              </span>
+              <div className="text-xs font-black flex items-center gap-1">
+                <span className="text-emerald-600">{downloadsToday}</span>
+                <span className="text-slate-300 font-normal">/</span>
+                <span className="text-indigo-600">{dailyLimit}</span>
+              </div>
+            </div>
+          </Link>
+        )}
 
         {/* Interactive Notifications Icon Button */}
         <div className="relative" ref={notifRef}>

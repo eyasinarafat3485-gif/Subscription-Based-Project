@@ -257,11 +257,40 @@ export default function AllNotificationsView({ userRole = 'user' }) {
     } catch (e) {}
   };
 
-  // User side pagination slice
-  const displayedRequests =
-    userRole === 'admin'
-      ? requests
-      : requests.slice((currentPage - 1) * 10, currentPage * 10);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter]);
+
+  // Client-side search and status filtering across product title, message, name, email, and coupon
+  const filteredRequests = requests.filter((item) => {
+    // Status Filter
+    if (statusFilter === 'DOWNLOAD') {
+      if (item.type !== 'DOWNLOAD' && !item.productTitle) return false;
+    } else if (statusFilter !== 'all') {
+      if (item.status !== statusFilter) return false;
+    }
+
+    // Search Query
+    if (!search.trim()) return true;
+    const q = search.trim().toLowerCase();
+    const title = (item.productTitle || item.title || '').toLowerCase();
+    const msg = (item.message || '').toLowerCase();
+    const name = (item.userName || item.name || '').toLowerCase();
+    const email = (item.userEmail || item.email || '').toLowerCase();
+    const coupon = (item.couponCode || '').toLowerCase();
+
+    return (
+      title.includes(q) ||
+      msg.includes(q) ||
+      name.includes(q) ||
+      email.includes(q) ||
+      coupon.includes(q)
+    );
+  });
+
+  const totalFilteredCount = filteredRequests.length;
+  const totalPagesCalculated = Math.max(1, Math.ceil(totalFilteredCount / 10));
+  const displayedRequests = filteredRequests.slice((currentPage - 1) * 10, currentPage * 10);
 
   return (
     <div className="space-y-5">
@@ -270,44 +299,40 @@ export default function AllNotificationsView({ userRole = 'user' }) {
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
             <Bell className="w-6 h-6 text-blue-600" />
-            <span>All Notifications & Guest Requests</span>
+            <span>All Notifications</span>
           </h1>
           <p className="text-slate-500 text-xs mt-1">
-            {userRole === 'admin'
-              ? 'Manage, respond, approve, reject or delete guest role requests'
-              : 'Track your guest access requests, coupon codes, and responses'}
+            Manage, search and view all user notifications, download history, and guest role requests.
           </p>
         </div>
 
-        {/* Filter Controls (Admin Only) */}
-        {userRole === 'admin' && (
-          <div className="flex flex-col sm:flex-row items-center gap-2.5">
-            <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-60">
-              <input
-                type="text"
-                placeholder="Search name, email or code..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 pl-8 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition shadow-2xs font-medium"
-              />
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
-            </form>
+        {/* Filter Controls (Available for All Roles) */}
+        <div className="flex flex-col sm:flex-row items-center gap-2.5">
+          <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-64">
+            <input
+              type="text"
+              placeholder="Search product, title, email or name..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 pl-8 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition shadow-2xs font-medium"
+            />
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+          </form>
 
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 font-bold shadow-2xs cursor-pointer"
-            >
-              <option value="all">All Statuses</option>
-              <option value="REQUESTED">Requested (Waiting Coupon)</option>
-              <option value="COUPON_SENT">Coupon Sent</option>
-              <option value="COUPON_SUBMITTED">Submitted (Pending Approval)</option>
-              <option value="APPROVED">Approved</option>
-              <option value="REJECTED">Rejected</option>
-              <option value="DELETED">Deleted</option>
-            </select>
-          </div>
-        )}
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 font-bold shadow-2xs cursor-pointer"
+          >
+            <option value="all">All Notifications</option>
+            <option value="DOWNLOAD">Downloads Only 📥</option>
+            <option value="REQUESTED">Requested (Waiting Coupon)</option>
+            <option value="COUPON_SENT">Coupon Sent</option>
+            <option value="COUPON_SUBMITTED">Submitted (Pending Approval)</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+        </div>
       </div>
 
       {/* Main Notifications Table List Container (Compact Layout) */}
@@ -567,25 +592,25 @@ export default function AllNotificationsView({ userRole = 'user' }) {
         )}
 
         {/* Pagination Controls (Per page 10 items) */}
-        {!loading && totalPages > 1 && (
+        {!loading && totalPagesCalculated > 1 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 mt-4 border-t border-slate-100 text-xs font-semibold text-slate-600">
             <div>
-              Showing <span className="font-bold text-slate-900">{Math.min(totalRequests, (currentPage - 1) * 10 + 1)}</span> to{' '}
-              <span className="font-bold text-slate-900">{Math.min(totalRequests, currentPage * 10)}</span> of{' '}
-              <span className="font-bold text-slate-900">{totalRequests}</span> notifications
+              Showing <span className="font-bold text-slate-900">{Math.min(totalFilteredCount, (currentPage - 1) * 10 + 1)}</span> to{' '}
+              <span className="font-bold text-slate-900">{Math.min(totalFilteredCount, currentPage * 10)}</span> of{' '}
+              <span className="font-bold text-slate-900">{totalFilteredCount}</span> notifications
             </div>
 
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                onClick={() => handlePageChange(currentPage - 1)}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className="p-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition cursor-pointer disabled:opacity-50 disabled:hover:bg-transparent"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
 
-              {getPaginationRange(currentPage, totalPages).map((item, index) => {
+              {getPaginationRange(currentPage, totalPagesCalculated).map((item, index) => {
                 if (item === '...') {
                   return (
                     <span key={`dots-${index}`} className="px-2 py-1 text-slate-400 font-bold text-xs">
@@ -597,7 +622,7 @@ export default function AllNotificationsView({ userRole = 'user' }) {
                   <button
                     key={item}
                     type="button"
-                    onClick={() => handlePageChange(item)}
+                    onClick={() => setCurrentPage(item)}
                     className={`px-3 py-1.5 rounded-xl transition cursor-pointer border ${
                       currentPage === item
                         ? 'bg-blue-600 border-blue-600 text-white font-extrabold'
@@ -611,8 +636,8 @@ export default function AllNotificationsView({ userRole = 'user' }) {
 
               <button
                 type="button"
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPagesCalculated, p + 1))}
+                disabled={currentPage === totalPagesCalculated}
                 className="p-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition cursor-pointer disabled:opacity-50 disabled:hover:bg-transparent"
               >
                 <ChevronRight className="w-4 h-4" />

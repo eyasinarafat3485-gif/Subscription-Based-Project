@@ -57,13 +57,27 @@ export async function GET(req) {
       userCollections.length > 0 ? userCollections.length : 0
     );
 
-    const planId = user.membership?.planId || 'basic';
-    const defaultDailyLimit = planId === 'premium' ? 20 : planId === 'standard' ? 10 : 5;
-    const dailyLimit = user.membership?.dailyLimit || defaultDailyLimit;
+    let userMembership = null;
 
-    const createdAt = user.createdAt ? new Date(user.createdAt) : new Date();
-    const defaultExpiresAt = new Date(createdAt.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
-    const expiresAt = user.membership?.expiresAt || defaultExpiresAt;
+    if (user.membership && typeof user.membership === 'object') {
+      const planId = user.membership.planId || 'basic';
+      const defaultDailyLimit = planId === 'premium' ? 20 : planId === 'standard' ? 10 : 5;
+      const dailyLimit = user.membership.dailyLimit || defaultDailyLimit;
+
+      const createdAt = user.createdAt ? new Date(user.createdAt) : new Date();
+      const defaultExpiresAt = new Date(createdAt.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      const expiresAt = user.membership.expiresAt || defaultExpiresAt;
+
+      userMembership = {
+        planId: planId,
+        planTitle: user.membership.planTitle || (planId === 'premium' ? 'Premium' : planId === 'standard' ? 'Standard' : 'Basic'),
+        expiresAt: expiresAt,
+        ...user.membership,
+        status: user.membership.status || 'active',
+        downloadsToday: currentDownloadsToday,
+        dailyLimit: dailyLimit,
+      };
+    }
 
     return NextResponse.json({
       user: {
@@ -73,15 +87,7 @@ export async function GET(req) {
         bio: user.bio || '',
         role: user.role || 'user',
         totalDownloads: totalDownloads,
-        membership: {
-          planId: planId,
-          planTitle: user.membership?.planTitle || (planId === 'premium' ? 'Premium' : planId === 'standard' ? 'Standard' : 'Basic'),
-          expiresAt: expiresAt,
-          ...(user.membership || {}),
-          status: user.membership?.status || 'active',
-          downloadsToday: currentDownloadsToday,
-          dailyLimit: dailyLimit,
-        },
+        membership: userMembership,
       },
     });
   } catch (error) {

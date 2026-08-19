@@ -66,8 +66,8 @@ export default function UserMyCollectionsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">My Collections</h1>
-          <p className="text-slate-400 text-xs mt-1">Your saved and active downloaded plugins and themes list.</p>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">My Collections</h1>
+          <p className="text-slate-500 text-xs mt-1">Your saved and active downloaded plugins and themes list.</p>
         </div>
 
         <div className="relative w-full sm:w-64">
@@ -76,46 +76,46 @@ export default function UserMyCollectionsPage() {
             placeholder="Search collections..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 pl-9 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition"
+            className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 pl-9 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition shadow-2xs"
           />
-          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
         </div>
       </div>
 
       {loading ? (
-        <div className="py-20 text-center space-y-3 bg-slate-900/60 rounded-2xl border border-slate-800">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto" />
+        <div className="py-20 text-center space-y-3 bg-white rounded-2xl border border-slate-200 shadow-xs">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto" />
           <p className="text-xs font-bold text-slate-400">Loading your collections...</p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="py-16 text-center space-y-3 bg-slate-900/60 rounded-2xl border border-slate-800 p-8">
-          <FolderHeart className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-base font-black text-white">No Saved Collections Yet</h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+        <div className="py-16 text-center space-y-3 bg-white rounded-2xl border border-slate-200 p-8 shadow-xs">
+          <FolderHeart className="w-10 h-10 text-slate-300 mx-auto" />
+          <h3 className="text-base font-black text-slate-800">No Saved Collections Yet</h3>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">
             When you confirm downloads on products with your active membership, they will automatically appear here.
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((item, idx) => (
-            <div key={item._id || idx} className="p-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-blue-500/40 transition-all flex flex-col justify-between group shadow-sm">
+            <div key={item._id || idx} className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-blue-300 transition-all flex flex-col justify-between group shadow-xs">
               <div>
                 <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 text-[10px] font-bold border border-blue-500/20">
+                  <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold border border-blue-100">
                     {item.category || 'Plugin'}
                   </span>
-                  <span className="text-[10px] text-slate-500 font-mono">{item.version || 'v1.0.0'}</span>
+                  <span className="text-[10px] text-slate-400 font-mono">{item.version || 'v1.0.0'}</span>
                 </div>
-                <h3 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-2">
+                <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">
                   {item.title || item.productTitle}
                 </h3>
               </div>
 
-              <div className="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
-                <span className="text-[11px] text-slate-500">Saved: {formatDate(item.downloadedAt)}</span>
+              <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-[11px] text-slate-400">Saved: {formatDate(item.downloadedAt)}</span>
                 <Link
                   href={item.slug ? `/products/${item.slug}` : `/resources`}
-                  className="px-3.5 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white text-xs font-extrabold transition flex items-center gap-1.5 cursor-pointer border border-blue-500/20 hover:border-blue-500"
+                  className="px-3.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white text-xs font-extrabold transition flex items-center gap-1.5 cursor-pointer border border-blue-100/80 shadow-2xs group-hover:border-blue-300"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>View Details</span>

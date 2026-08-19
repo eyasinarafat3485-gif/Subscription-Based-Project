@@ -106,7 +106,7 @@ export default function Header() {
           if (data?.user && isMounted) {
             setProfileData(data.user);
             localStorage.setItem('user_profile', JSON.stringify(data.user));
-            if (data.user.membership && (data.user.membership.status === 'active' || !data.user.membership.status)) {
+            if (data.user.membership && data.user.membership.status === 'active') {
               setActiveSubscription(data.user.membership);
               localStorage.setItem('user_membership', JSON.stringify(data.user.membership));
             } else {
