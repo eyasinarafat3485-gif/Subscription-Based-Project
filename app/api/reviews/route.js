@@ -70,13 +70,7 @@ export async function GET() {
     });
   } catch (error) {
     console.error('GET /api/reviews error:', error);
-    return NextResponse.json({
-      success: true,
-      reviews: INITIAL_REVIEWS,
-      totalReviews: INITIAL_REVIEWS.length,
-      averageRating: 4.9,
-      ratingText: 'Excellent',
-    }, { status: 200 });
+    return NextResponse.json({ error: error.message || 'Failed to fetch reviews' }, { status: 500 });
   }
 }
 
