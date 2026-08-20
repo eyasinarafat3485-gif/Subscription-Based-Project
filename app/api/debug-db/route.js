@@ -13,8 +13,9 @@ export async function GET() {
       bufferCommands: false
     });
     
-    const collections = await conn.connection.db.listCollections().toArray();
-    const count = await conn.connection.db.collection('products').countDocuments();
+    const db = conn.connection.db || (conn.connection.client && conn.connection.client.db());
+    const collections = await db.listCollections().toArray();
+    const count = await db.collection('products').countDocuments();
     
     return NextResponse.json({
       success: true,
