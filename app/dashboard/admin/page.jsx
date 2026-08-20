@@ -165,19 +165,19 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white p-6 sm:p-8 shadow-lg shadow-blue-500/15">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white p-6 sm:p-8 shadow-lg shadow-purple-500/20">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-blue-100">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-purple-100">
               <Zap className="w-3.5 h-3.5 text-amber-300" />
               <span>Admin Management Hub</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">System Control Panel</h1>
-            <p className="text-xs sm:text-sm text-blue-100/90 font-medium">Manage users, view real-time system stats, manage products and generate coupons.</p>
+            <p className="text-xs sm:text-sm text-purple-100/90 font-medium">Manage users, view real-time system stats, manage products and generate coupons.</p>
           </div>
           <Link
             href="/dashboard/admin/add-product"
-            className="px-5 py-3 rounded-2xl bg-white text-blue-600 hover:bg-slate-100 text-xs font-extrabold shadow-md flex items-center gap-2 transition-all hover:scale-105 shrink-0"
+            className="px-5 py-3 rounded-2xl bg-white text-purple-700 hover:bg-purple-50 text-xs font-extrabold shadow-md flex items-center gap-2 transition-all hover:scale-105 shrink-0"
           >
             <PlusCircle className="w-4 h-4" />
             <span>Add Product</span>

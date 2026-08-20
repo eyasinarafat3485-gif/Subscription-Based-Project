@@ -27,7 +27,37 @@ export async function POST(req) {
     }
 
     // Check membership status
-    const membership = user.membership;
+    let membership = user.membership;
+
+    if (user.role === 'guest') {
+      const nowMs = Date.now();
+      const isExpired =
+        membership?.expiresAt &&
+        membership.expiresAt !== 'LIFETIME' &&
+        new Date(membership.expiresAt).getTime() < nowMs;
+      const isInactive = membership && membership.status && membership.status !== 'active';
+
+      if (!membership || isExpired || isInactive) {
+        const oneMonthExpiresAt = new Date(nowMs + 30 * 24 * 60 * 60 * 1000).toISOString();
+        membership = {
+          planId: membership?.planId || 'basic',
+          planTitle: membership?.planTitle || 'Basic Plan',
+          planPrice: 0,
+          status: 'active',
+          startsAt: new Date().toISOString(),
+          expiresAt: oneMonthExpiresAt,
+          downloadsToday: 0,
+          dailyLimit: 5,
+          downloadsPerDay: 5,
+          updatedAt: new Date(),
+        };
+        await db.collection('user').updateOne(
+          { email: user.email.toLowerCase() },
+          { $set: { membership: membership } }
+        );
+      }
+    }
+
     const isMembershipActive = membership && (membership.status === 'active' || !membership.status);
 
     if (!isMembershipActive) {

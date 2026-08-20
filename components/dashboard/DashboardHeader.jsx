@@ -87,7 +87,7 @@ export default function DashboardHeader() {
             }
           }
         }
-      } catch (e) {}
+      } catch (e) { }
       setIsMembershipLoading(false);
     };
 
@@ -275,7 +275,7 @@ export default function DashboardHeader() {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const copyToClipboard = (text) => {
@@ -299,7 +299,7 @@ export default function DashboardHeader() {
       <div className="flex items-center gap-4">
         <div className="hidden md:flex flex-col">
           <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
-            <span suppressHydrationWarning>Welcome, {userName.split(' ')[0]}</span>
+            <span suppressHydrationWarning>Welcome, {userName}</span>
             <span className="text-base">👋</span>
           </h2>
           <p className="text-[11px] font-medium text-slate-500">
@@ -324,13 +324,12 @@ export default function DashboardHeader() {
             <UserCheck className="w-3.5 h-3.5 text-blue-600" />
           )}
           <span
-            className={`text-[10px] font-black uppercase tracking-wider ${
-              userRole === 'admin'
+            className={`text-[10px] font-black uppercase tracking-wider ${userRole === 'admin'
                 ? 'text-purple-700'
                 : userRole === 'guest'
-                ? 'text-amber-700'
-                : 'text-blue-700'
-            }`}
+                  ? 'text-amber-700'
+                  : 'text-blue-700'
+              }`}
           >
             {userRole ? userRole.toUpperCase() : 'USER'}
           </span>
@@ -343,8 +342,8 @@ export default function DashboardHeader() {
               userRole === 'admin'
                 ? '/dashboard/admin/my-collections'
                 : userRole === 'guest'
-                ? '/dashboard/guest/my-collections'
-                : '/dashboard/user/my-collections'
+                  ? '/dashboard/guest/my-collections'
+                  : '/dashboard/user/my-collections'
             }
             className="hidden sm:flex items-center gap-2.5 px-3 py-1 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-indigo-300 transition cursor-pointer group"
             title={`Daily Downloads: ${downloadsToday} of ${dailyLimit} used today | Total Downloads: ${totalDownloads}`}
@@ -376,11 +375,10 @@ export default function DashboardHeader() {
                 markNotificationsAsRead();
               }
             }}
-            className={`relative p-2 rounded-xl transition cursor-pointer ${
-              isNotifOpen
+            className={`relative p-2 rounded-xl transition cursor-pointer ${isNotifOpen
                 ? 'bg-blue-50 text-blue-600'
                 : 'text-slate-500 hover:text-blue-600 hover:bg-slate-100'
-            }`}
+              }`}
             title="Notifications"
           >
             <Bell className="w-4.5 h-4.5" />
@@ -450,15 +448,14 @@ export default function DashboardHeader() {
                               {req.userName}
                             </h4>
                             <span
-                              className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${
-                                req.status === 'REQUESTED'
+                              className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${req.status === 'REQUESTED'
                                   ? 'bg-blue-50 text-blue-700 border-blue-200'
                                   : req.status === 'COUPON_SENT'
-                                  ? 'bg-purple-50 text-purple-700 border-purple-200'
-                                  : req.status === 'COUPON_SUBMITTED'
-                                  ? 'bg-amber-50 text-amber-700 border-amber-200 animate-pulse'
-                                  : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              }`}
+                                    ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                    : req.status === 'COUPON_SUBMITTED'
+                                      ? 'bg-amber-50 text-amber-700 border-amber-200 animate-pulse'
+                                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                }`}
                             >
                               {req.status === 'REQUESTED' && 'Coupon Requested'}
                               {req.status === 'COUPON_SENT' && 'Coupon Sent'}
@@ -467,7 +464,7 @@ export default function DashboardHeader() {
                             </span>
                           </div>
                           <p className="text-[11px] text-slate-500 truncate">{req.userEmail}</p>
-                          
+
                           {/* Timestamps */}
                           <div className="flex items-center gap-3 text-[10px] text-slate-400 mt-1">
                             <span>Account: {req.userCreatedAt ? new Date(req.userCreatedAt).toLocaleDateString() : 'N/A'}</span>
@@ -623,8 +620,8 @@ export default function DashboardHeader() {
                     userRole === 'admin'
                       ? '/dashboard/admin/all-notifications'
                       : userRole === 'guest'
-                      ? '/dashboard/guest/all-notifications'
-                      : '/dashboard/user/all-notifications'
+                        ? '/dashboard/guest/all-notifications'
+                        : '/dashboard/user/all-notifications'
                   }
                   onClick={() => setIsNotifOpen(false)}
                   className="text-[11px] font-bold text-blue-600 hover:underline"

@@ -189,7 +189,7 @@ export default function GuestMyProfilePage() {
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 {formData.name || 'Guest User'}
                 <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black">
-                  GUEST PASS
+                  GUEST
                 </span>
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">{formData.email}</p>
@@ -204,12 +204,7 @@ export default function GuestMyProfilePage() {
             </div>
           </div>
 
-          <Link
-            href="/membership"
-            className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm"
-          >
-            <span>Upgrade View Plans</span>
-          </Link>
+
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5 text-xs">

@@ -109,11 +109,29 @@ export async function PATCH(req) {
 
     const userDoc = await db.collection('user').findOne(filter);
 
-    const result = await db.collection('user').updateOne(filter, {
-      $set: {
-        role: role.toLowerCase(),
+    const updateFields = {
+      role: role.toLowerCase(),
+      updatedAt: new Date(),
+    };
+
+    if (role.toLowerCase() === 'guest') {
+      const oneMonthExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      updateFields.membership = {
+        planId: 'basic',
+        planTitle: 'Basic Plan',
+        planPrice: 0,
+        status: 'active',
+        startsAt: new Date().toISOString(),
+        expiresAt: oneMonthExpiresAt,
+        downloadsToday: 0,
+        dailyLimit: 5,
+        downloadsPerDay: 5,
         updatedAt: new Date(),
-      },
+      };
+    }
+
+    const result = await db.collection('user').updateOne(filter, {
+      $set: updateFields,
     });
 
     if (result.matchedCount === 0) {

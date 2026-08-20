@@ -220,9 +220,24 @@ export async function POST(req) {
         userFilter = { email: targetEmail };
       }
 
+      const oneMonthExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      const guestBasicMembership = {
+        planId: 'basic',
+        planTitle: 'Basic Plan',
+        planPrice: 0,
+        status: 'active',
+        startsAt: new Date().toISOString(),
+        expiresAt: oneMonthExpiresAt,
+        downloadsToday: 0,
+        dailyLimit: 5,
+        downloadsPerDay: 5,
+        updatedAt: new Date(),
+      };
+
       await db.collection('user').updateOne(userFilter, {
         $set: {
           role: 'guest',
+          membership: guestBasicMembership,
           updatedAt: new Date(),
         },
       });

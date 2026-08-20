@@ -59,6 +59,37 @@ export async function GET(req) {
 
     let userMembership = null;
 
+    if (user.role === 'guest') {
+      const nowMs = Date.now();
+      const isExpired =
+        user.membership?.expiresAt &&
+        user.membership.expiresAt !== 'LIFETIME' &&
+        new Date(user.membership.expiresAt).getTime() < nowMs;
+      const isInactive = user.membership && user.membership.status && user.membership.status !== 'active';
+
+      if (!user.membership || isExpired || isInactive) {
+        const oneMonthExpiresAt = new Date(nowMs + 30 * 24 * 60 * 60 * 1000).toISOString();
+        const autoGuestMembership = {
+          planId: user.membership?.planId || 'basic',
+          planTitle: user.membership?.planTitle || 'Basic Plan',
+          planPrice: 0,
+          status: 'active',
+          startsAt: new Date().toISOString(),
+          expiresAt: oneMonthExpiresAt,
+          downloadsToday: currentDownloadsToday,
+          dailyLimit: 5,
+          downloadsPerDay: 5,
+          updatedAt: new Date(),
+        };
+
+        user.membership = autoGuestMembership;
+        await db.collection('user').updateOne(
+          { email: user.email.toLowerCase() },
+          { $set: { membership: autoGuestMembership } }
+        );
+      }
+    }
+
     if (user.membership && typeof user.membership === 'object') {
       const planId = user.membership.planId || 'basic';
       const defaultDailyLimit = planId === 'premium' ? 20 : planId === 'standard' ? 10 : 5;

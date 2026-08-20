@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Download,
@@ -9,26 +10,86 @@ import {
   Zap,
   CheckCircle,
   ShieldCheck,
-  PackageCheck
+  PackageCheck,
+  Loader2,
+  Package
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 export default function UserDashboardPage() {
+  const [profile, setProfile] = useState(null);
+  const [collections, setCollections] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        const [profRes, collRes] = await Promise.all([
+          fetch('/api/user/profile'),
+          fetch('/api/user/collections'),
+        ]);
+
+        if (profRes.ok) {
+          const profData = await profRes.json();
+          if (profData?.user) {
+            setProfile(profData.user);
+          }
+        }
+
+        if (collRes.ok) {
+          const collData = await collRes.json();
+          if (collData?.collections) {
+            setCollections(collData.collections);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching user dashboard data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  const downloadsToday = profile?.membership?.downloadsToday ?? 0;
+  const dailyLimit = profile?.membership?.dailyLimit ?? 5;
+  const remaining = Math.max(0, dailyLimit - downloadsToday);
+  const totalDownloads = profile?.totalDownloads ?? collections.length;
+
   const stats = [
-    { label: 'Membership Status', value: 'PRO Member', icon: ShieldCheck, color: 'from-blue-600 to-indigo-600' },
-    { label: "Today's Download Limit", value: '8 / 10 remaining', icon: Download, color: 'from-emerald-600 to-teal-600' },
-    { label: 'My Collections', value: '12 Plugins', icon: FolderHeart, color: 'from-purple-600 to-pink-600' },
+    {
+      label: 'Membership Status',
+      value: profile?.membership?.planTitle || 'PRO Member',
+      icon: ShieldCheck,
+      color: 'from-blue-600 to-indigo-600',
+      badge: 'Active Plan',
+    },
+    {
+      label: "Today's Download Limit",
+      value: loading ? 'Loading...' : `${downloadsToday} / ${dailyLimit}`,
+      icon: Download,
+      color: 'from-emerald-600 to-teal-600',
+      badge: "Today's Limit",
+      isLimitCard: true,
+    },
+    {
+      label: 'My Collections',
+      value: `${totalDownloads} ${totalDownloads === 1 ? 'Item' : 'Items'}`,
+      icon: FolderHeart,
+      color: 'from-purple-600 to-pink-600',
+      badge: 'Saved',
+    },
   ];
 
-  const recentDownloads = [
-    { title: 'Elementor Pro v3.24 (Original Zip)', category: 'Page Builder', date: 'Today, 1:15 PM', version: 'v3.24.0' },
-    { title: 'WP Rocket Premium v3.16.2', category: 'Cache & Speed', date: 'Yesterday, 4:30 PM', version: 'v3.16.2' },
-    { title: 'Astra Pro Addon Package', category: 'GPL Theme', date: '10 August, 2026', version: 'v4.7.1' },
-    { title: 'Yoast SEO Premium + WooCommerce', category: 'SEO Plugin', date: '05 August, 2026', version: 'v22.8' },
-  ];
-
-  const handleReDownload = (title) => {
-    toast.success(`Re-downloading ${title} file!`);
+  const handleReDownload = (item) => {
+    if (item.downloadUrl) {
+      window.open(item.downloadUrl, '_blank');
+      toast.success(`Re-downloading ${item.productTitle || item.title}!`);
+    } else {
+      toast.info(`Download requested for ${item.productTitle || item.title || 'Item'}!`);
+    }
   };
 
   return (
@@ -74,8 +135,21 @@ export default function UserDashboardPage() {
                   <Icon className="w-5 h-5" />
                 </div>
               </div>
-              <div className="mt-4">
-                <span className="text-2xl font-black text-slate-900">{stat.value}</span>
+              <div className="mt-4 flex items-baseline justify-between">
+                {stat.isLimitCard && !loading ? (
+                  <div className="flex items-center gap-1.5 font-black text-2xl">
+                    <span className="text-emerald-600 font-extrabold">{downloadsToday}</span>
+                    <span className="text-slate-300 font-normal">/</span>
+                    <span className="text-indigo-600 font-extrabold">{dailyLimit}</span>
+                  </div>
+                ) : (
+                  <span className="text-2xl font-black text-slate-900">{stat.value}</span>
+                )}
+                {stat.badge && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                    {stat.badge}
+                  </span>
+                )}
               </div>
             </div>
           );
@@ -101,43 +175,81 @@ export default function UserDashboardPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-slate-200 text-slate-400 uppercase tracking-wider text-[10px]">
-                <th className="pb-3 font-bold">ITEM NAME</th>
-                <th className="pb-3 font-bold">CATEGORY</th>
-                <th className="pb-3 font-bold">VERSION</th>
-                <th className="pb-3 font-bold">DOWNLOAD DATE</th>
-                <th className="pb-3 font-bold text-right">DOWNLOAD</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {recentDownloads.map((item, idx) => (
-                <tr key={idx} className="hover:bg-slate-50 transition">
-                  <td className="py-3.5 font-bold text-slate-800 flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>{item.title}</span>
-                  </td>
-                  <td className="py-3.5 text-slate-600">
-                    <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-600 font-bold text-[10px] border border-blue-100">
-                      {item.category}
-                    </span>
-                  </td>
-                  <td className="py-3.5 text-slate-500 font-mono">{item.version}</td>
-                  <td className="py-3.5 text-slate-500">{item.date}</td>
-                  <td className="py-3.5 text-right">
-                    <button
-                      onClick={() => handleReDownload(item.title)}
-                      className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white font-bold transition flex items-center gap-1.5 ml-auto cursor-pointer"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span suppressHydrationWarning>Download</span>
-                    </button>
-                  </td>
+          {loading ? (
+            <div className="py-8 text-center text-slate-400">
+              <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-blue-600" />
+              <p className="text-xs font-medium">Loading downloads...</p>
+            </div>
+          ) : collections.length === 0 ? (
+            <div className="py-8 text-center text-slate-400">
+              <p className="text-xs font-medium">No downloaded items in your collection yet.</p>
+              <p className="text-[11px] text-slate-400 mt-1">Download plugins from the store to see them listed here.</p>
+            </div>
+          ) : (
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 text-slate-400 uppercase tracking-wider text-[10px]">
+                  <th className="pb-3 font-bold">ITEM NAME</th>
+                  <th className="pb-3 font-bold">CATEGORY</th>
+                  <th className="pb-3 font-bold">VERSION</th>
+                  <th className="pb-3 font-bold">DOWNLOAD DATE</th>
+                  <th className="pb-3 font-bold text-right">DOWNLOAD</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {collections.slice(0, 5).map((item, idx) => (
+                  <tr key={item._id || idx} className="hover:bg-slate-50 transition">
+                    <td className="py-3.5 font-bold text-slate-800 flex items-center gap-3">
+                      {item.image ? (
+                        <img
+                          src={
+                            item.image.startsWith('http') || item.image.startsWith('data:') || item.image.startsWith('/')
+                              ? item.image
+                              : `/${item.image}`
+                          }
+                          alt={item.productTitle || item.title}
+                          className="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0 shadow-2xs"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=200&auto=format&fit=crop';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center shrink-0 border border-blue-100 shadow-2xs">
+                          <Package className="w-5 h-5" />
+                        </div>
+                      )}
+                      <span className="truncate max-w-[200px] sm:max-w-[280px]">{item.productTitle || item.title || 'WordPress Resource'}</span>
+                    </td>
+                    <td className="py-3.5 text-slate-600">
+                      <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-600 font-bold text-[10px] border border-blue-100">
+                        {item.category || 'GPL Resource'}
+                      </span>
+                    </td>
+                    <td className="py-3.5 text-slate-500 font-mono">{item.version || 'v1.0.0'}</td>
+                    <td className="py-3.5 text-slate-500">
+                      {item.downloadedAt || item.savedAt
+                        ? new Date(item.downloadedAt || item.savedAt).toLocaleDateString('en-US', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })
+                        : 'Recently'}
+                    </td>
+                    <td className="py-3.5 text-right">
+                      <button
+                        onClick={() => handleReDownload(item)}
+                        className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white font-bold transition flex items-center gap-1.5 ml-auto cursor-pointer"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span suppressHydrationWarning>Download</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

@@ -265,10 +265,24 @@ export default function DashboardSidebar() {
                   <img
                     src={userImage}
                     alt={userName}
-                    className="w-10 h-10 rounded-xl object-cover border-2 border-blue-500 shadow-xs"
+                    className={`w-10 h-10 rounded-xl object-cover border-2 shadow-xs ${
+                      activeRole === 'admin'
+                        ? 'border-purple-500'
+                        : activeRole === 'guest'
+                          ? 'border-amber-500'
+                          : 'border-blue-500'
+                    }`}
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-sm flex items-center justify-center border-2 border-blue-400 shadow-xs">
+                  <div
+                    className={`w-10 h-10 rounded-xl text-white font-black text-sm flex items-center justify-center border-2 shadow-xs ${
+                      activeRole === 'admin'
+                        ? 'bg-gradient-to-tr from-purple-600 to-indigo-600 border-purple-500'
+                        : activeRole === 'guest'
+                          ? 'bg-gradient-to-tr from-amber-500 to-amber-600 border-amber-500'
+                          : 'bg-gradient-to-tr from-blue-600 to-indigo-600 border-blue-400'
+                    }`}
+                  >
                     {userInitial}
                   </div>
                 )}

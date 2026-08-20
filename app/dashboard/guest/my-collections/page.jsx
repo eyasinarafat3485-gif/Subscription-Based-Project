@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FolderHeart, Download, Search, Sparkles, Award, Loader2, ExternalLink } from 'lucide-react';
+import { FolderHeart, Download, Search, Sparkles, Award, Loader2, ExternalLink, Package } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 export default function GuestMyCollectionsPage() {
@@ -100,15 +100,38 @@ export default function GuestMyCollectionsPage() {
           {filtered.map((item, idx) => (
             <div key={item._id || idx} className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-blue-300 transition-all flex flex-col justify-between group shadow-xs">
               <div>
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold border border-blue-100">
-                    {item.category || 'Plugin'}
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">{item.version || 'v1.0.0'}</span>
+                <div className="flex items-center gap-3 mb-3">
+                  {item.image ? (
+                    <img
+                      src={
+                        item.image.startsWith('http') || item.image.startsWith('data:') || item.image.startsWith('/')
+                          ? item.image
+                          : `/${item.image}`
+                      }
+                      alt={item.title || item.productTitle}
+                      className="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0 shadow-2xs"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=200&auto=format&fit=crop';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center shrink-0 border border-blue-100 shadow-2xs">
+                      <Package className="w-5 h-5" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold border border-blue-100 truncate">
+                        {item.category || 'Plugin'}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono shrink-0">{item.version || 'v1.0.0'}</span>
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+                      {item.title || item.productTitle}
+                    </h3>
+                  </div>
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">
-                  {item.title || item.productTitle}
-                </h3>
               </div>
 
               <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">

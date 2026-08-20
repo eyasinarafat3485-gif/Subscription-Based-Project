@@ -167,10 +167,10 @@ export default function AdminMyProfilePage() {
               <img
                 src={formData.image}
                 alt={formData.name || 'Admin'}
-                className="w-20 h-20 rounded-2xl object-cover border-4 border-blue-500 shadow-md"
+                className="w-20 h-20 rounded-2xl object-cover border-4 border-purple-500 shadow-md"
               />
             ) : (
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-3xl flex items-center justify-center border-4 border-blue-400 shadow-md">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-black text-3xl flex items-center justify-center border-4 border-purple-500 shadow-md">
                 {formData.name ? formData.name.charAt(0).toUpperCase() : 'A'}
               </div>
             )}
