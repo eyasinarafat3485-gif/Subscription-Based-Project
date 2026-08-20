@@ -188,14 +188,13 @@ export default function PluginGrid({ onDownloadClick }) {
           })}
         </div>
 
-        {/* Product Cards Grid (5 Column Responsive - 3 Rows = 15 Items initially) */}
         {loading ? (
-          <div className="py-16 flex flex-col items-center justify-center gap-3 text-slate-500">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-            <p className="text-sm font-semibold">Loading products...</p>
+          <div className="w-full py-16 sm:py-20 flex flex-col items-center justify-center gap-3 bg-white rounded-2xl border border-slate-200 p-8 shadow-xs text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mx-auto" />
+            <p className="text-sm font-bold text-slate-600">Loading products...</p>
           </div>
         ) : products.length === 0 ? (
-          <div className="py-12 text-center text-slate-500 text-sm font-medium bg-white rounded-2xl border border-slate-200 p-8">
+          <div className="w-full py-16 text-center text-slate-500 text-sm font-semibold bg-white rounded-2xl border border-slate-200 p-8 shadow-xs">
             No products found! Add new products from the admin dashboard.
           </div>
         ) : (

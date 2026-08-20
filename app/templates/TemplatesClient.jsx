@@ -291,16 +291,15 @@ export default function TemplatesClient() {
 
         {/* Main Product Grid */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-
           {loading ? (
-            <div className="py-20 text-center space-y-3 bg-white rounded-3xl border border-slate-200 p-8 shadow-xs">
+            <div className="w-full py-20 text-center space-y-3 bg-white rounded-3xl border border-slate-200 p-8 shadow-xs flex flex-col items-center justify-center">
               <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mx-auto" />
               <p className="text-xs font-bold text-slate-500">
                 Loading Readymade Website Templates...
               </p>
             </div>
           ) : products.length === 0 ? (
-            <div className="py-16 text-center space-y-3 bg-white rounded-3xl border border-slate-200 p-8 shadow-xs">
+            <div className="w-full py-16 text-center space-y-3 bg-white rounded-3xl border border-slate-200 p-8 shadow-xs flex flex-col items-center justify-center">
               <FolderKanban className="w-10 h-10 text-slate-300 mx-auto" />
               <h3 className="text-base font-black text-slate-800">
                 No Readymade Templates Found

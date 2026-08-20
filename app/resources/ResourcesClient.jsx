@@ -353,14 +353,13 @@ function ResourcesContent() {
 
             </aside>
 
-            {/* Right Product Grid */}
-            <div className="flex-1 min-w-0 space-y-6">
+            <div className="flex-1 min-w-0 space-y-6 w-full">
               
               {loading ? (
-                <div className="py-20 text-center space-y-3 bg-white rounded-2xl border border-slate-200 p-8 shadow-xs">
+                <div className="w-full py-20 text-center space-y-3 bg-white rounded-2xl border border-slate-200 p-8 shadow-xs flex flex-col items-center justify-center">
                   <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mx-auto" />
                   <p className="text-xs font-extrabold text-slate-500">
-                    Searching products...
+                    Loading products...
                   </p>
                 </div>
               ) : products.length === 0 ? (
