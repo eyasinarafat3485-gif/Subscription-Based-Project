@@ -165,7 +165,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white p-6 sm:p-8 shadow-lg shadow-purple-500/20">
+      <div className="relative overflow-hidden rounded-3xl bg-purple-600 text-white p-6 sm:p-8">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-purple-100">
@@ -287,7 +287,7 @@ export default function AdminDashboardPage() {
               ) : (
                 recentUsers.slice(0, 3).map((user) => (
                   <tr key={user.id} className="hover:bg-slate-50 transition">
-                    
+
                     {/* NAME (NAME) */}
                     <td className="py-3.5 font-bold text-slate-900 flex items-center gap-3">
                       {user.image ? (
@@ -303,13 +303,12 @@ export default function AdminDashboardPage() {
                       ) : null}
                       <div
                         style={{ display: user.image ? 'none' : 'flex' }}
-                        className={`w-8 h-8 rounded-full font-black text-xs flex items-center justify-center shrink-0 border ${
-                          user.role === 'admin'
-                            ? 'bg-purple-100 text-purple-700 border-purple-200'
-                            : user.role === 'guest'
+                        className={`w-8 h-8 rounded-full font-black text-xs flex items-center justify-center shrink-0 border ${user.role === 'admin'
+                          ? 'bg-purple-100 text-purple-700 border-purple-200'
+                          : user.role === 'guest'
                             ? 'bg-amber-100 text-amber-700 border-amber-200'
                             : 'bg-blue-100 text-blue-700 border-blue-200'
-                        }`}
+                          }`}
                       >
                         {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                       </div>
@@ -322,13 +321,12 @@ export default function AdminDashboardPage() {
                     {/* ROLE (ROLE) Pill Badge */}
                     <td className="py-3.5">
                       <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
-                          user.role === 'admin'
-                            ? 'bg-purple-50 text-purple-700 border-purple-200'
-                            : user.role === 'guest'
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${user.role === 'admin'
+                          ? 'bg-purple-50 text-purple-700 border-purple-200'
+                          : user.role === 'guest'
                             ? 'bg-amber-50 text-amber-700 border-amber-200'
                             : 'bg-blue-50 text-blue-700 border-blue-200'
-                        }`}
+                          }`}
                       >
                         {user.role ? user.role.toUpperCase() : 'USER'}
                       </span>
@@ -348,13 +346,12 @@ export default function AdminDashboardPage() {
                           value={user.role || 'user'}
                           onChange={(e) => handleRoleSelect(user.id, e.target.value)}
                           disabled={updatingId === user.id}
-                          className={`px-3 py-1.5 rounded-xl font-extrabold text-xs border focus:outline-none transition cursor-pointer shadow-2xs ${
-                            user.role === 'admin'
-                              ? 'bg-purple-50 text-purple-700 border-purple-200 focus:border-purple-500'
-                              : user.role === 'guest'
+                          className={`px-3 py-1.5 rounded-xl font-extrabold text-xs border focus:outline-none transition cursor-pointer shadow-2xs ${user.role === 'admin'
+                            ? 'bg-purple-50 text-purple-700 border-purple-200 focus:border-purple-500'
+                            : user.role === 'guest'
                               ? 'bg-amber-50 text-amber-700 border-amber-200 focus:border-amber-500'
                               : 'bg-blue-50 text-blue-700 border-blue-200 focus:border-blue-500'
-                          }`}
+                            }`}
                         >
                           <option value="user" className="bg-white text-slate-800 font-bold">User (USER)</option>
                           <option value="guest" className="bg-white text-slate-800 font-bold">Guest (GUEST)</option>
@@ -388,7 +385,7 @@ export default function AdminDashboardPage() {
       {deleteModal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 border border-slate-100 shadow-2xl relative transition-all transform scale-100">
-            
+
             {/* Close Button */}
             <button
               onClick={closeDeleteModal}
