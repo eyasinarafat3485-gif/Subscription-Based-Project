@@ -12,7 +12,8 @@ import {
   ShieldCheck,
   PackageCheck,
   Loader2,
-  Package
+  Package,
+  Gem
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -111,11 +112,11 @@ export default function UserDashboardPage() {
           </div>
 
           <Link
-            href="/dashboard/user/my-collections"
+            href="/membership"
             className="px-5 py-3 rounded-2xl bg-white text-blue-600 hover:bg-slate-100 text-xs font-bold shadow-md flex items-center gap-2 transition-all hover:scale-105 shrink-0"
           >
-            <FolderHeart className="w-4 h-4" />
-            <span>View My Collections</span>
+            <Gem className="w-4 h-4" />
+            <span>Upgrade Plan</span>
           </Link>
         </div>
       </div>
@@ -230,10 +231,10 @@ export default function UserDashboardPage() {
                     <td className="py-3.5 text-slate-500">
                       {item.downloadedAt || item.savedAt
                         ? new Date(item.downloadedAt || item.savedAt).toLocaleDateString('en-US', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                          })
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })
                         : 'Recently'}
                     </td>
                     <td className="py-3.5 text-right">
