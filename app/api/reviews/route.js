@@ -70,7 +70,11 @@ export async function GET() {
     });
   } catch (error) {
     console.error('GET /api/reviews error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to fetch reviews' }, { status: 500 });
+    return NextResponse.json({ 
+      error: error.message || 'Failed to fetch reviews',
+      details: error.toString(),
+      stack: error.stack
+    }, { status: 500 });
   }
 }
 

@@ -251,7 +251,11 @@ export async function GET(req) {
     );
   } catch (error) {
     console.error('GET /api/products error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to fetch products' }, { status: 500 });
+    return NextResponse.json({ 
+      error: error.message || 'Failed to fetch products',
+      details: error.toString(),
+      stack: error.stack
+    }, { status: 500 });
   }
 }
 
