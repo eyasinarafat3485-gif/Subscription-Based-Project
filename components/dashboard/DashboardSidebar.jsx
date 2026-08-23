@@ -21,7 +21,13 @@ import {
   X,
   Sparkles,
   Award,
-  Bell
+  Bell,
+  FolderTree,
+  Tag,
+  Sliders,
+  Star,
+  Box,
+  Settings
 } from 'lucide-react';
 import { useSession, signOut } from '@/lib/auth-client';
 import { toast } from 'react-toastify';
@@ -78,6 +84,30 @@ export default function DashboardSidebar() {
     activeRole = 'guest';
   }
 
+  const isProductsPath =
+    pathname.startsWith('/dashboard/admin/all-products') ||
+    pathname.startsWith('/dashboard/admin/add-product') ||
+    pathname.startsWith('/dashboard/admin/brands') ||
+    pathname.startsWith('/dashboard/admin/categories') ||
+    pathname.startsWith('/dashboard/admin/tags') ||
+    pathname.startsWith('/dashboard/admin/attributes') ||
+    pathname.startsWith('/dashboard/admin/reviews');
+
+  const isSettingsPath =
+    pathname.startsWith('/dashboard/admin/my-profile') ||
+    pathname.startsWith('/dashboard/admin/my-collections') ||
+    pathname.startsWith('/dashboard/admin/get-cupon') ||
+    pathname.startsWith('/dashboard/admin/all-users') ||
+    pathname.startsWith('/dashboard/admin/public-collections');
+
+  const [productsOpen, setProductsOpen] = useState(isProductsPath);
+  const [settingsOpen, setSettingsOpen] = useState(isSettingsPath);
+
+  useEffect(() => {
+    if (isProductsPath) setProductsOpen(true);
+    if (isSettingsPath) setSettingsOpen(true);
+  }, [pathname]);
+
   // Admin Links
   const adminNavItems = [
     {
@@ -92,39 +122,32 @@ export default function DashboardSidebar() {
       icon: Bell,
     },
     {
-      title: 'My Profile',
-      href: '/dashboard/admin/my-profile',
-      icon: User,
+      id: 'products',
+      title: 'Products',
+      icon: Box,
+      isDropdown: true,
+      children: [
+        { title: 'All Products', href: '/dashboard/admin/all-products', icon: Layers },
+        { title: 'Add new product', href: '/dashboard/admin/add-product', icon: PlusCircle },
+        { title: 'Brands', href: '/dashboard/admin/brands', icon: Award },
+        { title: 'Categories', href: '/dashboard/admin/categories', icon: FolderTree },
+        { title: 'Tags', href: '/dashboard/admin/tags', icon: Tag },
+        { title: 'Attributes', href: '/dashboard/admin/attributes', icon: Sliders },
+        { title: 'Reviews', href: '/dashboard/admin/reviews', icon: Star },
+      ],
     },
     {
-      title: 'My Collection',
-      href: '/dashboard/admin/my-collections',
-      icon: FolderHeart,
-    },
-    {
-      title: 'Add Product',
-      href: '/dashboard/admin/add-product',
-      icon: PlusCircle,
-    },
-    {
-      title: 'All Products',
-      href: '/dashboard/admin/all-products',
-      icon: Layers,
-    },
-    {
-      title: 'Guest Coupon',
-      href: '/dashboard/admin/get-cupon',
-      icon: Ticket,
-    },
-    {
-      title: 'All Users',
-      href: '/dashboard/admin/all-users',
-      icon: Users,
-    },
-    {
-      title: 'Public Collection',
-      href: '/dashboard/admin/public-collections',
-      icon: Globe,
+      id: 'settings',
+      title: 'Settings',
+      icon: Settings,
+      isDropdown: true,
+      children: [
+        { title: 'My Profile', href: '/dashboard/admin/my-profile', icon: User },
+        { title: 'My Collection', href: '/dashboard/admin/my-collections', icon: FolderHeart },
+        { title: 'Guest Coupon', href: '/dashboard/admin/get-cupon', icon: Ticket },
+        { title: 'All Users', href: '/dashboard/admin/all-users', icon: Users },
+        { title: 'Public Collection', href: '/dashboard/admin/public-collections', icon: Globe },
+      ],
     },
   ];
 
@@ -233,13 +256,13 @@ export default function DashboardSidebar() {
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 text-slate-800 flex flex-col justify-between shadow-2xs transition-transform duration-300 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        className={`fixed lg:sticky lg:top-0 h-screen z-50 w-72 bg-white border-r border-slate-200 text-slate-800 flex flex-col justify-between shadow-2xs transition-transform duration-300 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
       >
-        {/* Top Header & Branding */}
-        <div>
+        {/* Top Section Wrapper */}
+        <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
           {/* Brand Logo Header */}
-          <div className="p-5 border-b border-slate-100">
+          <div className="p-5 border-b border-slate-100 shrink-0">
             <Link href="/" className="flex items-center gap-3 group">
               <div className="w-10 h-10 flex items-center justify-center group-hover:scale-105 transition-transform">
                 <img src="/icon.png" alt="Developers Club" className="w-9 h-9 object-contain" />
@@ -309,7 +332,7 @@ export default function DashboardSidebar() {
           </div>
 
           {/* Navigation Links */}
-          <nav className="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-310px)]">
+          <nav className="p-4 space-y-1.5 overflow-y-auto flex-1 min-h-0">
             <div className="px-3 py-1.5 text-[11px] font-bold tracking-wider text-slate-400 uppercase">
               {activeRole === 'admin'
                 ? 'Admin Navigation'
@@ -318,8 +341,132 @@ export default function DashboardSidebar() {
                   : 'User Navigation'}
             </div>
 
-            {currentNavItems.map((item) => {
+            {currentNavItems.map((item, idx) => {
               const Icon = item.icon;
+
+              if (item.isDropdown) {
+                const isProducts = item.id === 'products';
+                const isAnyChildActive = isProducts ? isProductsPath : isSettingsPath;
+                const isOpen = isProducts ? productsOpen : settingsOpen;
+
+                const setOpenState = (val) => {
+                  if (isProducts) setProductsOpen(val);
+                  else setSettingsOpen(val);
+                };
+
+                return (
+                  <div
+                    key={item.id || item.title || idx}
+                    className="space-y-1"
+                  >
+                    {/* Main Category Header Button */}
+                    <button
+                      type="button"
+                      onClick={() => setOpenState(!isOpen)}
+                      className={`w-full group relative flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
+                        isAnyChildActive
+                          ? 'bg-blue-600 text-white shadow-sm font-extrabold'
+                          : isOpen
+                            ? 'bg-blue-50/90 text-blue-700 border border-blue-200/80 shadow-2xs font-extrabold'
+                            : 'text-slate-700 hover:bg-slate-100/70 hover:text-blue-600'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                            isAnyChildActive
+                              ? 'bg-white/20 text-white shadow-2xs'
+                              : isOpen
+                                ? 'bg-blue-600 text-white shadow-2xs'
+                                : 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600'
+                          }`}
+                        >
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <span className="tracking-wide">{item.title}</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-[10px] font-mono font-black px-1.5 py-0.5 rounded-md ${
+                            isAnyChildActive
+                              ? 'bg-white/20 text-white'
+                              : isOpen
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'bg-slate-100 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600'
+                          }`}
+                        >
+                          {item.children.length}
+                        </span>
+                        <ChevronRight
+                          className={`w-4 h-4 transition-transform duration-300 ${
+                            isOpen
+                              ? 'rotate-90 ' + (isAnyChildActive ? 'text-white' : 'text-blue-600')
+                              : isAnyChildActive
+                                ? 'text-white'
+                                : 'text-slate-400 group-hover:text-blue-600'
+                          }`}
+                        />
+                      </div>
+                    </button>
+
+                    {/* Sleek Inline Bottom Dropdown Card with Dark Background */}
+                    {isOpen && (
+                      <div className="ml-2 mr-1 p-2 bg-slate-900 text-slate-100 rounded-2xl border border-slate-800/90 shadow-md space-y-1 my-1.5 transition-all duration-200 ease-in-out">
+                        {item.children.map((subItem) => {
+                          const SubIcon = subItem.icon;
+                          const isSubActive = subItem.href !== '#' && pathname === subItem.href;
+
+                          if (subItem.isPlaceholder) {
+                            return (
+                              <div
+                                key={subItem.title}
+                                className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-500 hover:text-slate-300 rounded-xl transition-colors cursor-default"
+                                title="Coming Soon"
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  {SubIcon && <SubIcon className="w-3.5 h-3.5 shrink-0 text-slate-500" />}
+                                  <span className="truncate text-[11px]">{subItem.title}</span>
+                                </div>
+                                <span className="text-[9px] font-mono font-bold tracking-wider text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">
+                                  SOON
+                                </span>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <Link
+                              key={subItem.title}
+                              href={subItem.href}
+                              onClick={() => setMobileOpen(false)}
+                              className={`flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 ${
+                                isSubActive
+                                  ? 'bg-blue-600 text-white font-extrabold shadow-xs'
+                                  : 'text-slate-300 hover:text-white hover:bg-slate-800/90 font-bold'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                {SubIcon && (
+                                  <SubIcon
+                                    className={`w-3.5 h-3.5 shrink-0 transition-colors ${
+                                      isSubActive ? 'text-white' : 'text-slate-400 group-hover:text-white'
+                                    }`}
+                                  />
+                                )}
+                                <span className="truncate">{subItem.title}</span>
+                              </div>
+
+                              {isSubActive && <span className="w-1.5 h-1.5 rounded-full bg-white shadow-xs shrink-0" />}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
               const active = isLinkActive(item);
 
               return (
@@ -327,17 +474,19 @@ export default function DashboardSidebar() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`group relative flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-all duration-200 ${active
-                    ? 'bg-blue-50 text-blue-600 border border-blue-200 shadow-xs'
-                    : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600'
-                    }`}
+                  className={`group relative flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-all duration-200 ${
+                    active
+                      ? 'bg-blue-50 text-blue-600 border border-blue-200 shadow-xs'
+                      : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600'
+                  }`}
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${active
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600'
-                        }`}
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                        active
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600'
+                      }`}
                     >
                       <Icon className="w-4 h-4" />
                     </div>
@@ -345,8 +494,9 @@ export default function DashboardSidebar() {
                   </div>
 
                   <ChevronRight
-                    className={`w-4 h-4 transition-transform ${active ? 'text-blue-600 translate-x-0.5' : 'text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5'
-                      }`}
+                    className={`w-4 h-4 transition-transform ${
+                      active ? 'text-blue-600 translate-x-0.5' : 'text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5'
+                    }`}
                   />
                 </Link>
               );
@@ -354,13 +504,13 @@ export default function DashboardSidebar() {
           </nav>
         </div>
 
-        {/* Bottom Actions Section (Home & Logout) */}
-        <div className="p-4 border-t border-slate-100 bg-slate-50/80 space-y-2">
+        {/* Bottom Actions Section (Home & Logout) Pushed to Bottom */}
+        <div className="p-4 border-t border-slate-100 bg-white space-y-2 shrink-0">
           {/* Home Button */}
           <Link
             href="/"
             onClick={() => setMobileOpen(false)}
-            className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 shadow-xs transition-all group"
+            className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 shadow-xs transition-all group"
           >
             <div className="flex items-center gap-2.5">
               <Home className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />

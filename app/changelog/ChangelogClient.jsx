@@ -53,12 +53,7 @@ export default function ChangelogClient() {
   }, [session]);
 
   const handleBuyNowClick = (e, item) => {
-    if (!session?.user) {
-      e.preventDefault();
-      router.push(`/login?redirectTo=${encodeURIComponent(`/checkout?product=${item.slug}`)}`);
-      return;
-    }
-    if (userMembership && (userMembership.status === 'active' || !userMembership.status)) {
+    if (session?.user && userMembership && (userMembership.status === 'active' || !userMembership.status)) {
       e.preventDefault();
       setSelectedProductForDownload(item);
       setIsConfirmModalOpen(true);
@@ -87,10 +82,7 @@ export default function ChangelogClient() {
   }, [page]);
 
   const handleProtectedAction = (e, targetUrl) => {
-    if (!session?.user) {
-      e.preventDefault();
-      router.push(`/login?redirectTo=${encodeURIComponent(targetUrl)}`);
-    }
+    // Guest users can view product details freely
   };
 
   // Format Date to DD/MM/YYYY hh:mm AM/PM (BDT Time)
@@ -121,7 +113,7 @@ export default function ChangelogClient() {
         <Header />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-          
+
           {/* Section Header Title Bar */}
           <div className="flex items-center justify-between border-l-4 border-indigo-600 pl-3 py-1">
             <div className="flex items-center gap-2">
@@ -260,11 +252,10 @@ export default function ChangelogClient() {
                     <button
                       key={pageItem}
                       onClick={() => setPage(pageItem)}
-                      className={`min-w-[32px] h-[32px] rounded-lg text-xs font-black transition cursor-pointer ${
-                        isCurrent
+                      className={`min-w-[32px] h-[32px] rounded-lg text-xs font-black transition cursor-pointer ${isCurrent
                           ? 'bg-indigo-600 text-white shadow-xs'
                           : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'
-                      }`}
+                        }`}
                     >
                       {pageItem}
                     </button>

@@ -82,22 +82,22 @@ function TemplateCardImage({ item }) {
               style={
                 isTallImage
                   ? {
-                      transform: isHovered ? 'translateY(calc(-100% + 420px))' : 'translateY(0px)',
-                      transition: isHovered ? 'transform 6500ms cubic-bezier(0.25, 1, 0.5, 1)' : 'transform 1000ms ease-out',
-                      willChange: 'transform',
-                      imageRendering: '-webkit-optimize-contrast',
-                      backfaceVisibility: 'hidden',
-                      WebkitBackfaceVisibility: 'hidden',
-                      filter: 'contrast(102%) brightness(101%)',
-                    }
+                    transform: isHovered ? 'translateY(calc(-100% + 420px))' : 'translateY(0px)',
+                    transition: isHovered ? 'transform 6500ms cubic-bezier(0.25, 1, 0.5, 1)' : 'transform 1000ms ease-out',
+                    willChange: 'transform',
+                    imageRendering: '-webkit-optimize-contrast',
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden',
+                    filter: 'contrast(102%) brightness(101%)',
+                  }
                   : {
-                      transform: isHovered ? 'scale(1.05)' : 'scale(1)',
-                      transition: 'transform 500ms ease-out',
-                      imageRendering: '-webkit-optimize-contrast',
-                      backfaceVisibility: 'hidden',
-                      WebkitBackfaceVisibility: 'hidden',
-                      filter: 'contrast(102%) brightness(101%)',
-                    }
+                    transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+                    transition: 'transform 500ms ease-out',
+                    imageRendering: '-webkit-optimize-contrast',
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden',
+                    filter: 'contrast(102%) brightness(101%)',
+                  }
               }
               className={isTallImage ? "w-full h-auto object-top absolute top-0 left-0" : "w-full h-full object-cover object-top"}
             />
@@ -170,12 +170,7 @@ export default function TemplatesClient() {
   }, [session]);
 
   const handleBuyNowClick = (e, item) => {
-    if (!session?.user) {
-      e.preventDefault();
-      router.push(`/login?redirectTo=${encodeURIComponent(`/checkout?product=${item.slug}`)}`);
-      return;
-    }
-    if (userMembership && (userMembership.status === 'active' || !userMembership.status)) {
+    if (session?.user && userMembership && (userMembership.status === 'active' || !userMembership.status)) {
       e.preventDefault();
       setSelectedProductForDownload(item);
       setIsConfirmModalOpen(true);
@@ -183,10 +178,7 @@ export default function TemplatesClient() {
   };
 
   const handleProtectedAction = (e, targetUrl) => {
-    if (!session?.user) {
-      e.preventDefault();
-      router.push(`/login?redirectTo=${encodeURIComponent(targetUrl)}`);
-    }
+    // Guest users and logged-in users can view product details freely
   };
 
   // Fetch Readymade Website Templates
@@ -200,7 +192,7 @@ export default function TemplatesClient() {
       }
 
       let url = `/api/products?page=${pageNum}&limit=${BATCH_SIZE}`;
-      
+
       if (tab && tab !== 'All') {
         url += `&category=${encodeURIComponent(tab)}`;
       } else {
@@ -310,7 +302,7 @@ export default function TemplatesClient() {
             </div>
           ) : (
             <div className="space-y-10">
-              
+
               {/* 3-Column Vertical Website Preview Grid (Matching Reference Screenshot) */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
                 {products.map((item) => {

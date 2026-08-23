@@ -21,7 +21,8 @@ import {
   Clock,
   Loader2,
   Download,
-  FolderHeart
+  FolderHeart,
+  Bell
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useSession, signOut } from '@/lib/auth-client';
@@ -523,9 +524,9 @@ export default function Header() {
                       {/* Header */}
                       <div className="p-4 bg-slate-50 border-b border-slate-150 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Download className="w-4 h-4 text-indigo-600" />
+                          <Bell className="w-4 h-4 text-indigo-600" />
                           <h3 className="text-xs font-extrabold text-slate-900">
-                            Download Notifications
+                            All Notifications
                           </h3>
                         </div>
                         {unreadDownloadCount > 0 ? (
@@ -548,7 +549,7 @@ export default function Header() {
                             <p className="text-[11px] text-slate-400">Products you download will appear here.</p>
                           </div>
                         ) : (
-                          downloadNotifications.map((item, idx) => (
+                          downloadNotifications.slice(0, 3).map((item, idx) => (
                             <div key={item._id || idx} className="p-3.5 hover:bg-slate-50/80 transition space-y-2 text-xs">
                               <div className="flex items-start gap-3">
                                 {item.image ? (

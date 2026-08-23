@@ -11,25 +11,57 @@ export async function GET(req) {
       headers: await headers(),
     });
 
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized: Please login first' }, { status: 401 });
     }
+
+    const userEmail = session.user.email.toLowerCase().trim();
 
     const mongooseConn = await connectToDatabase();
     const db = mongooseConn.connection.db;
 
-    const user = await db.collection('user').findOne({ email: session.user.email.toLowerCase() });
+    const userDoc = await db.collection('user').findOne({ email: userEmail });
+    const userId = userDoc?._id;
 
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    // Query STRICTLY from 'orders' collection matching user's email or userId
+    const queryConditions = [
+      { 'customer.email': userEmail },
+      { billingEmail: userEmail },
+    ];
+    if (userId) {
+      queryConditions.push({ userId: userId });
     }
 
-    const rawCollections = user.collections || user.downloadHistory || [];
-    
-    // Sort collections by downloadedAt descending (newest first)
-    const collections = [...rawCollections].sort((a, b) => {
-      const dateA = new Date(a.downloadedAt || 0);
-      const dateB = new Date(b.downloadedAt || 0);
+    const userOrders = await db.collection('orders').find({
+      $or: queryConditions,
+    }).toArray();
+
+    // Map orders into collection items format for My Collections page
+    const collections = userOrders
+      .filter((ord) => ord.type === 'product' || ord.type === 'membership_download' || ord.productId)
+      .map((ord) => {
+        return {
+          _id: ord._id.toString(),
+          orderId: ord.orderId,
+          productId: ord.productId || null,
+          title: ord.productTitle || ord.title || 'WordPress Resource',
+          productTitle: ord.productTitle || ord.title || 'WordPress Resource',
+          slug: ord.productSlug || '',
+          category: ord.category || 'Plugin',
+          version: ord.version || 'Latest',
+          image: ord.productImage || ord.image || '',
+          downloadUrl: ord.downloadUrl || '',
+          downloadedAt: ord.createdAt || new Date(),
+          price: ord.price || 0,
+          type: ord.type || 'product',
+          isVisitor: Boolean(ord.isVisitor),
+        };
+      });
+
+    // Sort collections by downloadedAt / createdAt descending (newest first)
+    collections.sort((a, b) => {
+      const dateA = new Date(a.downloadedAt || a.createdAt || 0);
+      const dateB = new Date(b.downloadedAt || b.createdAt || 0);
       return dateB - dateA;
     });
 
@@ -39,6 +71,6 @@ export async function GET(req) {
     });
   } catch (error) {
     console.error('GET User Collections Error:', error);
-    return NextResponse.json({ error: 'Server Error' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Server Error' }, { status: 500 });
   }
 }

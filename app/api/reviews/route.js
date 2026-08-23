@@ -3,41 +3,6 @@ import connectToDatabase from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
-const INITIAL_REVIEWS = [
-  {
-    name: 'Zahid Hasan',
-    role: 'WordPress Developer',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop',
-    comment: 'Developers Club আমার ওয়েবসাইট তৈরির কাজ অনেক সহজ করে দিয়েছে। প্রিমিয়াম কোয়ালিটি একদম বাজেটে!',
-    rating: 5,
-    createdAt: new Date('2026-02-10').toISOString(),
-  },
-  {
-    name: 'Rasel Ahmed',
-    role: 'Agency Owner',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop',
-    comment: 'Developers Club থেকে theme & plugin নিয়ে আমি ১০০% সন্তুষ্ট। দ্রুত ডাউনলোড এবং চমৎকার সাপোর্ট পেয়েছি।',
-    rating: 5,
-    createdAt: new Date('2026-02-12').toISOString(),
-  },
-  {
-    name: 'Munir Akter',
-    role: 'Freelancer',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop',
-    comment: 'Developers Club এর সাপোর্ট সেরা! যে কোনো সময় ২৪/৭ দ্রুত রেসপন্স পাই। Highly recommended.',
-    rating: 5,
-    createdAt: new Date('2026-02-14').toISOString(),
-  },
-  {
-    name: 'Tanvir Hossain',
-    role: 'UI/UX Designer',
-    avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=200&auto=format&fit=crop',
-    comment: 'Instant access and authentic virus-free themes. Developers Club membership is the best investment!',
-    rating: 4.8,
-    createdAt: new Date('2026-02-15').toISOString(),
-  },
-];
-
 export async function GET() {
   try {
     const mongooseConn = await connectToDatabase();
@@ -70,7 +35,7 @@ export async function GET() {
     });
   } catch (error) {
     console.error('GET /api/reviews error:', error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: error.message || 'Failed to fetch reviews',
       details: error.toString(),
       stack: error.stack

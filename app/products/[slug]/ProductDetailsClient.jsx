@@ -112,12 +112,6 @@ export default function ProductDetailsClient({ params }) {
   const { data: session, isPending } = useSession();
   const router = useRouter();
 
-  // Redirect to login ONLY when session is loaded AND user is not authenticated
-  useEffect(() => {
-    if (!isPending && session !== undefined && !session?.user) {
-      router.replace(`/login?redirectTo=${encodeURIComponent(`/products/${slug}`)}`);
-    }
-  }, [session, isPending, slug, router]);
 
   // Synchronize name and email from logged-in user's session
   useEffect(() => {
@@ -206,7 +200,7 @@ export default function ProductDetailsClient({ params }) {
         toast.success('Review submitted successfully!');
         setCommentInput('');
         setRatingInput(5); // reset rating input
-        
+
         // Handle saving info in localStorage
         if (saveInfo) {
           localStorage.setItem('reviewer_name', nameInput.trim());
@@ -263,11 +257,11 @@ export default function ProductDetailsClient({ params }) {
 
         // Dynamic WhatsApp Click-to-Chat Notification
         const whatsappMsg = `Hi, I have requested an update for *${product?.title || 'this product'}*.\n` +
-                            `Requested Version: *${updateVersion}*\n` +
-                            `Email: ${updateEmail}\n` +
-                            `WhatsApp: ${updateWhatsapp || 'N/A'}\n` +
-                            `Message: ${updateMessage || 'N/A'}`;
-        
+          `Requested Version: *${updateVersion}*\n` +
+          `Email: ${updateEmail}\n` +
+          `WhatsApp: ${updateWhatsapp || 'N/A'}\n` +
+          `Message: ${updateMessage || 'N/A'}`;
+
         const whatsappUrl = `https://api.whatsapp.com/send?phone=8801793679254&text=${encodeURIComponent(whatsappMsg)}`;
         window.open(whatsappUrl, '_blank');
 
@@ -508,9 +502,8 @@ export default function ProductDetailsClient({ params }) {
                   />
                   {/* Subtle Hover Inspection Indicator */}
                   <div
-                    className={`absolute bottom-3 right-3 z-20 bg-slate-900/75 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-1 rounded-full pointer-events-none transition-opacity duration-300 flex items-center gap-1.5 ${
-                      isImageHovered ? 'opacity-0' : 'opacity-70 group-hover:opacity-100'
-                    }`}
+                    className={`absolute bottom-3 right-3 z-20 bg-slate-900/75 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-1 rounded-full pointer-events-none transition-opacity duration-300 flex items-center gap-1.5 ${isImageHovered ? 'opacity-0' : 'opacity-70 group-hover:opacity-100'
+                      }`}
                   >
                     <Eye className="w-3.5 h-3.5 text-indigo-400" />
                     Hover to inspect
@@ -560,7 +553,7 @@ export default function ProductDetailsClient({ params }) {
               </div>
             </div>
 
-             {/* Quick Action Navigation Bar */}
+            {/* Quick Action Navigation Bar */}
             <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs font-bold text-slate-700">
               <a
                 href={product.demoUrl || '#'}
@@ -739,11 +732,10 @@ export default function ProductDetailsClient({ params }) {
           <div className="flex border-b border-slate-200 bg-slate-50/50">
             <button
               onClick={() => setActiveTab('description')}
-              className={`px-6 py-4 text-xs font-bold transition-all relative cursor-pointer ${
-                activeTab === 'description'
+              className={`px-6 py-4 text-xs font-bold transition-all relative cursor-pointer ${activeTab === 'description'
                   ? 'text-blue-600'
                   : 'text-slate-500 hover:text-slate-900'
-              }`}
+                }`}
             >
               <span>Description</span>
               {activeTab === 'description' && (
@@ -752,11 +744,10 @@ export default function ProductDetailsClient({ params }) {
             </button>
             <button
               onClick={() => setActiveTab('reviews')}
-              className={`px-6 py-4 text-xs font-bold transition-all relative cursor-pointer flex items-center gap-1.5 ${
-                activeTab === 'reviews'
+              className={`px-6 py-4 text-xs font-bold transition-all relative cursor-pointer flex items-center gap-1.5 ${activeTab === 'reviews'
                   ? 'text-blue-600'
                   : 'text-slate-500 hover:text-slate-900'
-              }`}
+                }`}
             >
               <span>Reviews ({reviews.length})</span>
               {activeTab === 'reviews' && (
@@ -781,7 +772,7 @@ export default function ProductDetailsClient({ params }) {
                   {/* Main Product Description Text or HTML */}
                   {product.description && !/[\u0980-\u09FF]/.test(product.description) ? (
                     typeof product.description === 'string' && (product.description.includes('<') && product.description.includes('>')) ? (
-                      <div 
+                      <div
                         className="prose prose-slate max-w-none text-slate-700 text-xs sm:text-sm font-medium leading-relaxed"
                         dangerouslySetInnerHTML={{ __html: product.description }}
                       />
@@ -862,9 +853,8 @@ export default function ProductDetailsClient({ params }) {
                   <h4 className="text-base font-medium text-slate-800">
                     {reviews.length === 0
                       ? 'No reviews yet'
-                      : `${reviews.length} review${
-                          reviews.length === 1 ? '' : 's'
-                        } for ${product.title}`}
+                      : `${reviews.length} review${reviews.length === 1 ? '' : 's'
+                      } for ${product.title}`}
                   </h4>
 
                   {reviews.length > 0 && (
@@ -890,7 +880,7 @@ export default function ProductDetailsClient({ params }) {
                                 {rev.name?.charAt(0) || 'U'}
                               </span>
                             </div>
-                            
+
                             {/* Review Details */}
                             <div className="space-y-1">
                               <div className="flex items-center gap-2 flex-wrap">
@@ -899,11 +889,11 @@ export default function ProductDetailsClient({ params }) {
                                   Verified {rev.userRole || 'Owner'}
                                 </span>
                               </div>
-                              
+
                               <p className="text-[10px] text-slate-400 font-medium">
                                 {formatBDTDateTime(rev.createdAt)}
                               </p>
-                              
+
                               <p className="text-xs text-slate-600 leading-relaxed font-medium mt-1">
                                 {rev.comment}
                               </p>
@@ -915,9 +905,8 @@ export default function ProductDetailsClient({ params }) {
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className={`w-3.5 h-3.5 ${
-                                  i < rev.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'
-                                }`}
+                                className={`w-3.5 h-3.5 ${i < rev.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'
+                                  }`}
                               />
                             ))}
                           </div>
@@ -968,11 +957,10 @@ export default function ProductDetailsClient({ params }) {
                                 className="hover:scale-110 transition cursor-pointer"
                               >
                                 <Star
-                                  className={`w-5 h-5 ${
-                                    starVal <= ratingInput 
-                                      ? 'fill-amber-400 text-amber-400 stroke-amber-400' 
+                                  className={`w-5 h-5 ${starVal <= ratingInput
+                                      ? 'fill-amber-400 text-amber-400 stroke-amber-400'
                                       : 'text-teal-600 stroke-teal-600'
-                                  }`}
+                                    }`}
                                 />
                               </button>
                             );

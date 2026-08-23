@@ -72,13 +72,26 @@ export async function POST(req) {
     const dailyLimit = membership.dailyLimit || (planId === 'premium' ? 20 : planId === 'standard' ? 10 : 5);
 
     // Check daily download limit reset date
-    const todayStr = new Date().toISOString().split('T')[0];
-    const lastDateStr = membership.lastDownloadDate ? new Date(membership.lastDownloadDate).toISOString().split('T')[0] : '';
+    const now = new Date();
+    const todayLocalStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const todayUTCStr = now.toISOString().split('T')[0];
 
-    let downloadsToday = membership.downloadsToday ?? 0;
-    if (lastDateStr !== todayStr) {
-      downloadsToday = 0; // Reset for new day
+    const lastDownloadDate = membership.lastDownloadDate;
+    let isLastDownloadToday = false;
+    if (lastDownloadDate) {
+      try {
+        const ld = new Date(lastDownloadDate);
+        if (!isNaN(ld.getTime())) {
+          const ldLocal = `${ld.getFullYear()}-${String(ld.getMonth() + 1).padStart(2, '0')}-${String(ld.getDate()).padStart(2, '0')}`;
+          const ldUTC = ld.toISOString().split('T')[0];
+          if (ldLocal === todayLocalStr || ldUTC === todayUTCStr) {
+            isLastDownloadToday = true;
+          }
+        }
+      } catch (e) {}
     }
+
+    let downloadsToday = isLastDownloadToday ? (membership.downloadsToday ?? 0) : 0;
 
     if (downloadsToday >= dailyLimit) {
       return NextResponse.json(
@@ -137,6 +150,32 @@ export async function POST(req) {
         },
       }
     );
+
+    // Also record this membership download item in the 'orders' collection
+    const downloadOrderId = 'ORD-DL-' + Math.floor(100000 + Math.random() * 900000);
+    const newDownloadOrder = {
+      orderId: downloadOrderId,
+      type: 'membership_download',
+      productId: productId || null,
+      productTitle: productTitle || 'WordPress Resource',
+      productSlug: slug || null,
+      productImage: image || null,
+      price: 0,
+      userId: user._id,
+      isVisitor: false,
+      customer: {
+        name: user.name || session.user.name || 'Member User',
+        email: user.email.toLowerCase(),
+        phone: user.phone || 'N/A',
+      },
+      paymentMethod: 'membership_plan',
+      senderAccount: 'Membership Plan',
+      transactionId: 'MBR-' + (membership.planId || 'standard').toUpperCase(),
+      status: 'completed',
+      createdAt: new Date(),
+    };
+
+    await db.collection('orders').insertOne(newDownloadOrder);
 
     return NextResponse.json({
       success: true,

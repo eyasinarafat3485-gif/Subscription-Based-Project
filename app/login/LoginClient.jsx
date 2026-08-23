@@ -47,13 +47,17 @@ function LoginPageForm() {
     setLoading(true);
     setError('');
 
+    const cleanEmail = email.trim().toLowerCase();
+
     try {
       const res = await signIn.email({
-        email,
+        email: cleanEmail,
         password,
       });
       if (res?.error) {
-        const msg = res.error.message || 'Login failed';
+        const msg = res.error.status === 401 || res.error.message?.includes('not found')
+          ? 'Invalid email or password. If you do not have an account, please create an account first.'
+          : (res.error.message || 'Login failed. Please check your credentials.');
         setError(msg);
         toast.error(msg);
       } else {
@@ -66,7 +70,7 @@ function LoginPageForm() {
         }, 800);
       }
     } catch (err) {
-      const msg = err.message || 'Something went wrong';
+      const msg = err.message || 'Invalid email or password. Please try again.';
       setError(msg);
       toast.error(msg);
     } finally {

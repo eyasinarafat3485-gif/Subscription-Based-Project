@@ -131,12 +131,7 @@ export default function CategoryClient({ params }) {
   }, [session]);
 
   const handleBuyNowClick = (e, item) => {
-    if (!session?.user) {
-      e.preventDefault();
-      router.push(`/login?redirectTo=${encodeURIComponent(`/checkout?product=${item.slug}`)}`);
-      return;
-    }
-    if (userMembership && (userMembership.status === 'active' || !userMembership.status)) {
+    if (session?.user && userMembership && (userMembership.status === 'active' || !userMembership.status)) {
       e.preventDefault();
       setSelectedProductForDownload(item);
       setIsConfirmModalOpen(true);
@@ -152,10 +147,7 @@ export default function CategoryClient({ params }) {
   const BATCH_SIZE = 16;
 
   const handleProtectedAction = (e, targetUrl) => {
-    if (!session?.user) {
-      e.preventDefault();
-      router.push(`/login?redirectTo=${encodeURIComponent(targetUrl)}`);
-    }
+    // Guest users and logged-in users can view product details freely
   };
 
   const toggleExpand = (catSlug) => {
@@ -238,12 +230,12 @@ export default function CategoryClient({ params }) {
   const displaySidebarCategories = (rawCategorySlug === 'resources' || !rawCategorySlug || rawCategorySlug === 'all')
     ? SIDEBAR_CATEGORIES
     : SIDEBAR_CATEGORIES.filter((group) => {
-        if (rawCategorySlug === 'wordpress-plugins') return group.slug === 'Plugins';
-        if (rawCategorySlug === 'wordpress-themes') return group.slug === 'Themes';
-        if (rawCategorySlug === 'seo-tools') return group.slug === 'SEO';
-        if (rawCategorySlug === 'landing-pages') return group.slug === 'Page Builders';
-        return true;
-      });
+      if (rawCategorySlug === 'wordpress-plugins') return group.slug === 'Plugins';
+      if (rawCategorySlug === 'wordpress-themes') return group.slug === 'Themes';
+      if (rawCategorySlug === 'seo-tools') return group.slug === 'SEO';
+      if (rawCategorySlug === 'landing-pages') return group.slug === 'Page Builders';
+      return true;
+    });
 
   return (
     <div className="min-h-screen bg-slate-50/70 text-slate-900 font-sans flex flex-col justify-between">
@@ -308,8 +300,8 @@ export default function CategoryClient({ params }) {
                             if (hasSubcats) toggleExpand(catGroup.slug);
                           }}
                           className={`w-full flex items-center justify-between p-2 rounded-xl text-left font-bold transition ${selectedSubcat === catGroup.slug
-                              ? 'bg-indigo-50 text-indigo-600 font-extrabold'
-                              : 'text-slate-700 hover:bg-slate-50 hover:text-indigo-600'
+                            ? 'bg-indigo-50 text-indigo-600 font-extrabold'
+                            : 'text-slate-700 hover:bg-slate-50 hover:text-indigo-600'
                             }`}
                         >
                           <span className="truncate">{catGroup.name}</span>
@@ -329,8 +321,8 @@ export default function CategoryClient({ params }) {
                                   key={sub.name}
                                   onClick={() => setSelectedSubcat(sub.slug)}
                                   className={`w-full text-left py-1.5 px-2 rounded-lg text-[11px] font-semibold transition flex items-center justify-between ${isSubActive
-                                      ? 'text-indigo-600 font-extrabold bg-indigo-50/60'
-                                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                                    ? 'text-indigo-600 font-extrabold bg-indigo-50/60'
+                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                                     }`}
                                 >
                                   <span>{sub.name}</span>

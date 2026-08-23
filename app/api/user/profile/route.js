@@ -34,28 +34,50 @@ export async function GET(req) {
 
     const totalDownloads = userCollections.length;
 
-    // Robust daily download count calculation
+    // Robust daily download count calculation for TODAY ONLY
     const todayDownloadsFromCollections = userCollections.filter((item) => {
       const itemDate = item.downloadedAt || item.createdAt || item.savedAt;
-      if (!itemDate) return true;
+      if (!itemDate) return false;
       try {
         const d = new Date(itemDate);
-        if (isNaN(d.getTime())) return true;
+        if (isNaN(d.getTime())) return false;
         const itemLocal = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         const itemUTC = d.toISOString().split('T')[0];
         return itemLocal === todayLocalStr || itemUTC === todayUTCStr;
       } catch (e) {
-        return true;
+        return false;
       }
     }).length;
 
-    const rawMemDownloads = user.membership?.downloadsToday ?? (typeof user.downloadsToday === 'number' ? user.downloadsToday : 0);
+    const lastDownloadDate = user.membership?.lastDownloadDate;
+    let isLastDownloadToday = false;
+    if (lastDownloadDate) {
+      try {
+        const ld = new Date(lastDownloadDate);
+        if (!isNaN(ld.getTime())) {
+          const ldLocal = `${ld.getFullYear()}-${String(ld.getMonth() + 1).padStart(2, '0')}-${String(ld.getDate()).padStart(2, '0')}`;
+          const ldUTC = ld.toISOString().split('T')[0];
+          if (ldLocal === todayLocalStr || ldUTC === todayUTCStr) {
+            isLastDownloadToday = true;
+          }
+        }
+      } catch (e) {}
+    }
 
-    let currentDownloadsToday = Math.max(
-      rawMemDownloads,
-      todayDownloadsFromCollections,
-      userCollections.length > 0 ? userCollections.length : 0
-    );
+    let currentDownloadsToday = 0;
+    if (isLastDownloadToday) {
+      const storedCount = user.membership?.downloadsToday ?? 0;
+      currentDownloadsToday = Math.max(storedCount, todayDownloadsFromCollections);
+    } else {
+      currentDownloadsToday = todayDownloadsFromCollections;
+      // Automatically reset downloadsToday in DB for the new day
+      if (user.membership && user.membership.downloadsToday !== todayDownloadsFromCollections) {
+        await db.collection('user').updateOne(
+          { email: user.email.toLowerCase() },
+          { $set: { 'membership.downloadsToday': todayDownloadsFromCollections } }
+        );
+      }
+    }
 
     let userMembership = null;
 

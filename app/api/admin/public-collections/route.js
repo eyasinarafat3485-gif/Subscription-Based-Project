@@ -23,67 +23,99 @@ export async function GET(req) {
     const limit = parseInt(searchParams.get('limit') || '10', 10);
     const search = (searchParams.get('search') || '').trim().toLowerCase();
 
-    // Fetch all users with their collections
-    const users = await db.collection('user').find({}).toArray();
-
-    let allDownloads = [];
-
-    users.forEach((user) => {
-      const userCollections = user.collections || user.downloadHistory || [];
-      userCollections.forEach((item, idx) => {
-        allDownloads.push({
-          _id: item._id || `${user._id}_${idx}`,
-          productId: item.productId || null,
-          productTitle: item.title || item.productTitle || 'WordPress Resource',
-          slug: item.slug || '',
-          category: item.category || 'Plugin',
-          version: item.version || 'Latest',
-          image: item.image || '',
-          downloadUrl: item.downloadUrl || '',
-          downloadedAt: item.downloadedAt || user.createdAt || new Date(),
-          status: 'Completed',
-          userId: user._id,
-          userName: user.name || 'Anonymous User',
-          userEmail: user.email || 'user@developersclub.com',
-          userImage: user.image || '',
-        });
-      });
+    // Fetch all users to map user roles
+    const userDocs = await db.collection('user').find({}, { projection: { email: 1, role: 1 } }).toArray();
+    const userRoleMap = new Map();
+    userDocs.forEach((u) => {
+      if (u.email) {
+        userRoleMap.set(u.email.toLowerCase().trim(), u.role || 'user');
+      }
     });
 
-    // Filter by search query if provided
+    // Fetch all orders from orders collection
+    const rawOrders = await db.collection('orders').find({}).toArray();
+
+    let allOrders = rawOrders.map((ord) => {
+      const customerName = ord.customer?.name || ord.billingName || 'Guest Visitor';
+      const customerEmail = ord.customer?.email || ord.billingEmail || 'N/A';
+      const customerPhone = ord.customer?.phone || ord.billingPhone || 'N/A';
+      const title = ord.productTitle || ord.planTitle || (ord.type === 'product' ? 'Product Order' : 'Membership Plan');
+      const orderPrice = Number(ord.price || ord.planPrice || 0);
+
+      const emailKey = customerEmail.toLowerCase().trim();
+      let role = 'visitor';
+      if (ord.isVisitor) {
+        role = 'visitor';
+      } else if (userRoleMap.has(emailKey)) {
+        role = userRoleMap.get(emailKey) || 'user';
+      } else if (ord.userId) {
+        role = 'user';
+      }
+
+      return {
+        _id: ord._id.toString(),
+        orderId: ord.orderId || 'ORD-' + ord._id.toString().slice(-6),
+        type: ord.type || 'product',
+        title,
+        productTitle: ord.productTitle || null,
+        productSlug: ord.productSlug || null,
+        productImage: ord.productImage || null,
+        planTitle: ord.planTitle || null,
+        price: orderPrice,
+        isVisitor: Boolean(ord.isVisitor),
+        role: role,
+        customer: {
+          name: customerName,
+          email: customerEmail,
+          phone: customerPhone,
+        },
+        paymentMethod: ord.paymentMethod || 'nagad',
+        senderAccount: ord.senderAccount || 'N/A',
+        transactionId: ord.transactionId || 'N/A',
+        status: ord.status || 'completed',
+        createdAt: ord.createdAt || new Date(),
+      };
+    });
+
+    // Filter by search query
     if (search) {
-      allDownloads = allDownloads.filter(
-        (item) =>
-          item.productTitle.toLowerCase().includes(search) ||
-          item.category.toLowerCase().includes(search) ||
-          item.userName.toLowerCase().includes(search) ||
-          item.userEmail.toLowerCase().includes(search)
+      allOrders = allOrders.filter(
+        (ord) =>
+          ord.orderId.toLowerCase().includes(search) ||
+          ord.title.toLowerCase().includes(search) ||
+          ord.customer.name.toLowerCase().includes(search) ||
+          ord.customer.email.toLowerCase().includes(search) ||
+          ord.customer.phone.toLowerCase().includes(search) ||
+          ord.transactionId.toLowerCase().includes(search) ||
+          ord.paymentMethod.toLowerCase().includes(search)
       );
     }
 
-    // Sort by downloadedAt descending (newest downloads first)
-    allDownloads.sort((a, b) => new Date(b.downloadedAt) - new Date(a.downloadedAt));
+    // Sort newest orders first
+    allOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-    const totalItems = allDownloads.length;
+    const totalItems = allOrders.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / limit));
     const startIndex = (page - 1) * limit;
-    const paginatedItems = allDownloads.slice(startIndex, startIndex + limit);
+    const paginatedOrders = allOrders.slice(startIndex, startIndex + limit);
 
-    // Calculate stats
-    const uniqueProductsCount = new Set(allDownloads.map((i) => i.productTitle)).size;
-    const activeUsersCount = new Set(allDownloads.map((i) => i.userEmail)).size;
+    // Calculate revenue stats
+    const totalRevenue = allOrders.reduce((sum, item) => sum + (item.price || 0), 0);
+    const visitorCount = allOrders.filter((o) => o.isVisitor).length;
+    const registeredCount = allOrders.filter((o) => !o.isVisitor).length;
 
     return NextResponse.json({
       success: true,
-      collections: paginatedItems,
+      orders: paginatedOrders,
       page,
       limit,
       totalItems,
       totalPages,
       stats: {
-        totalDownloads: allDownloads.length,
-        uniqueProducts: uniqueProductsCount,
-        activeUsers: activeUsersCount,
+        totalOrders: totalItems,
+        totalRevenue,
+        visitorOrders: visitorCount,
+        registeredOrders: registeredCount,
       },
     });
   } catch (error) {

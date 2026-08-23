@@ -60,13 +60,6 @@ function CheckoutContent() {
     document.title = 'Checkout | Developers Club';
   }, []);
 
-  // Protect checkout page: redirect unauthenticated users to /login with return URL
-  useEffect(() => {
-    if (!isPending && session !== undefined && !session?.user) {
-      const fullPath = window.location.pathname + window.location.search;
-      router.replace(`/login?redirectTo=${encodeURIComponent(fullPath)}`);
-    }
-  }, [session, isPending, router]);
 
   const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -172,15 +165,23 @@ function CheckoutContent() {
     const errs = [];
     const fields = {};
 
-    if (!formData.phone.trim()) {
-      errs.push('Billing Phone is a required field.');
-      fields.phone = 'Billing Phone is a required field.';
+    if (!session?.user && !formData.name?.trim()) {
+      errs.push('Full Name is a required field.');
+      fields.name = 'Full Name is required.';
     }
-    if (!formData.senderAccount.trim()) {
+    if (!session?.user && !formData.email?.trim()) {
+      errs.push('Email Address is a required field.');
+      fields.email = 'Email Address is required.';
+    }
+    if (!formData.phone?.trim()) {
+      errs.push('Billing Phone is a required field.');
+      fields.phone = 'Billing Phone is required.';
+    }
+    if (!formData.senderAccount?.trim()) {
       errs.push('Sender Account Number is required.');
       fields.senderAccount = 'Sender Account Number is required.';
     }
-    if (!formData.transactionId.trim()) {
+    if (!formData.transactionId?.trim()) {
       errs.push('Transaction ID is required.');
       fields.transactionId = 'Transaction ID is required.';
     }
@@ -207,12 +208,19 @@ function CheckoutContent() {
       const finalPrice = Math.max(0, plan.price - discount);
 
       const payload = {
-        planId: plan.id,
-        planTitle: plan.title,
+        isVisitor: !session?.user,
+        type: selectedProduct ? 'product' : 'membership',
+        productId: selectedProduct?._id || selectedProduct?.id || selectedProduct?.slug || null,
+        productTitle: selectedProduct?.title || null,
+        productSlug: selectedProduct?.slug || null,
+        productImage: selectedProduct?.image || selectedProduct?.thumbnail || selectedProduct?.featuredImage || selectedProduct?.coverImage || null,
+        price: finalPrice,
+        planId: selectedProduct ? null : plan.id,
+        planTitle: selectedProduct ? null : plan.title,
         planPrice: finalPrice,
-        billingName: formData.name || 'Member User',
+        billingName: session?.user ? (formData.name || session.user.name || '') : formData.name,
         billingPhone: formData.phone,
-        billingEmail: formData.email || 'user@developersclub.com',
+        billingEmail: session?.user ? (formData.email || session.user.email || '') : formData.email,
         password: formData.password || 'secured',
         paymentMethod,
         senderAccount: formData.senderAccount,
@@ -344,71 +352,139 @@ function CheckoutContent() {
             <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-5">
               <h2 className="text-lg font-black text-slate-900 border-b border-slate-100 pb-3 flex items-center justify-between">
                 <span>Billing Details</span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-md">Account Verified</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-md">
+                  {session?.user ? 'Account Verified' : 'Guest Checkout'}
+                </span>
               </h2>
 
-              <div className="space-y-1">
-                <label className="block text-xs font-extrabold text-slate-700">
-                  Name <span className="text-slate-400 font-semibold">(Verified)</span>
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name || 'Member User'}
-                  readOnly
-                  tabIndex={-1}
-                  className="w-full px-4 py-3 bg-slate-100/90 border border-slate-200 rounded-xl text-xs font-semibold text-slate-500 cursor-not-allowed select-none focus:outline-none"
-                />
-              </div>
+              {session?.user ? (
+                <>
+                  <div className="space-y-1">
+                    <label className="block text-xs font-extrabold text-slate-700">
+                      Name <span className="text-slate-400 font-semibold">(Verified)</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name || session.user.name || ''}
+                      readOnly
+                      tabIndex={-1}
+                      className="w-full px-4 py-3 bg-slate-100/90 border border-slate-200 rounded-xl text-xs font-semibold text-slate-500 cursor-not-allowed select-none focus:outline-none"
+                    />
+                  </div>
 
-              <div className="space-y-1">
-                <label className="block text-xs font-extrabold text-slate-700">
-                  Phone <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="Enter Phone Number (e.g. 017XXXXXXXX)"
-                  autoFocus
-                  className={`w-full px-4 py-3 bg-white border rounded-xl text-xs font-bold text-slate-900 focus:outline-none transition ${fieldErrors.phone
-                      ? 'border-indigo-600 ring-1 ring-indigo-500'
-                      : 'border-slate-300 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-500'
-                    }`}
-                />
-                {fieldErrors.phone && (
-                  <p className="text-[11px] font-extrabold text-red-600 mt-1">{fieldErrors.phone}</p>
-                )}
-              </div>
+                  <div className="space-y-1">
+                    <label className="block text-xs font-extrabold text-slate-700">
+                      Phone <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="Enter Phone Number (e.g. 017XXXXXXXX)"
+                      autoFocus
+                      className={`w-full px-4 py-3 bg-white border rounded-xl text-xs font-bold text-slate-900 focus:outline-none transition ${fieldErrors.phone
+                        ? 'border-indigo-600 ring-1 ring-indigo-500'
+                        : 'border-slate-300 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-500'
+                        }`}
+                    />
+                    {fieldErrors.phone && (
+                      <p className="text-[11px] font-extrabold text-red-600 mt-1">{fieldErrors.phone}</p>
+                    )}
+                  </div>
 
-              <div className="space-y-1">
-                <label className="block text-xs font-extrabold text-slate-700">
-                  Email Address <span className="text-slate-400 font-semibold">(Verified)</span>
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email || 'user@developersclub.com'}
-                  readOnly
-                  tabIndex={-1}
-                  className="w-full px-4 py-3 bg-slate-100/90 border border-slate-200 rounded-xl text-xs font-semibold text-slate-500 cursor-not-allowed select-none focus:outline-none"
-                />
-              </div>
+                  <div className="space-y-1">
+                    <label className="block text-xs font-extrabold text-slate-700">
+                      Email Address <span className="text-slate-400 font-semibold">(Verified)</span>
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email || session.user.email || ''}
+                      readOnly
+                      tabIndex={-1}
+                      className="w-full px-4 py-3 bg-slate-100/90 border border-slate-200 rounded-xl text-xs font-semibold text-slate-500 cursor-not-allowed select-none focus:outline-none"
+                    />
+                  </div>
 
-              <div className="space-y-1">
-                <label className="block text-xs font-extrabold text-slate-700">
-                  Account Password <span className="text-slate-400 font-semibold">(Auto Secured)</span>
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password || '••••••••••••'}
-                  readOnly
-                  tabIndex={-1}
-                  className="w-full px-4 py-3 bg-slate-100/90 border border-slate-200 rounded-xl text-xs font-semibold text-slate-500 cursor-not-allowed select-none focus:outline-none"
-                />
-              </div>
+                  <div className="space-y-1">
+                    <label className="block text-xs font-extrabold text-slate-700">
+                      Account Password <span className="text-slate-400 font-semibold">(Auto Secured)</span>
+                    </label>
+                    <input
+                      type="password"
+                      name="password"
+                      value="••••••••••••"
+                      readOnly
+                      tabIndex={-1}
+                      className="w-full px-4 py-3 bg-slate-100/90 border border-slate-200 rounded-xl text-xs font-semibold text-slate-500 cursor-not-allowed select-none focus:outline-none"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-1">
+                    <label className="block text-xs font-extrabold text-slate-700">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="Enter Full Name"
+                      className={`w-full px-4 py-3 bg-white border rounded-xl text-xs font-bold text-slate-900 focus:outline-none transition ${fieldErrors.name
+                        ? 'border-indigo-600 ring-1 ring-indigo-500'
+                        : 'border-slate-300 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-500'
+                        }`}
+                    />
+                    {fieldErrors.name && (
+                      <p className="text-[11px] font-extrabold text-red-600 mt-1">{fieldErrors.name}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-xs font-extrabold text-slate-700">
+                      Email Address <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="Enter Email Address (e.g. user@gmail.com)"
+                      className={`w-full px-4 py-3 bg-white border rounded-xl text-xs font-bold text-slate-900 focus:outline-none transition ${fieldErrors.email
+                        ? 'border-indigo-600 ring-1 ring-indigo-500'
+                        : 'border-slate-300 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-500'
+                        }`}
+                    />
+                    {fieldErrors.email && (
+                      <p className="text-[11px] font-extrabold text-red-600 mt-1">{fieldErrors.email}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-xs font-extrabold text-slate-700">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="Enter Phone Number (e.g. 017XXXXXXXX)"
+                      className={`w-full px-4 py-3 bg-white border rounded-xl text-xs font-bold text-slate-900 focus:outline-none transition ${fieldErrors.phone
+                        ? 'border-indigo-600 ring-1 ring-indigo-500'
+                        : 'border-slate-300 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-500'
+                        }`}
+                    />
+                    {fieldErrors.phone && (
+                      <p className="text-[11px] font-extrabold text-red-600 mt-1">{fieldErrors.phone}</p>
+                    )}
+                  </div>
+                </>
+              )}
 
             </div>
 

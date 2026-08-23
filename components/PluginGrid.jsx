@@ -56,12 +56,7 @@ export default function PluginGrid({ onDownloadClick }) {
   }, [session]);
 
   const handleBuyNowClick = (e, item) => {
-    if (!session?.user) {
-      e.preventDefault();
-      router.push(`/login?redirectTo=${encodeURIComponent(`/checkout?product=${item.slug}`)}`);
-      return;
-    }
-    if (userMembership && (userMembership.status === 'active' || !userMembership.status)) {
+    if (session?.user && userMembership && (userMembership.status === 'active' || !userMembership.status)) {
       e.preventDefault();
       setSelectedProductForDownload(item);
       setIsConfirmModalOpen(true);
@@ -69,10 +64,7 @@ export default function PluginGrid({ onDownloadClick }) {
   };
 
   const handleProtectedAction = (e, targetUrl) => {
-    if (!session?.user) {
-      e.preventDefault();
-      router.push(`/login?redirectTo=${encodeURIComponent(targetUrl)}`);
-    }
+    // Guest users and logged-in users can view product details freely
   };
 
   const LIMIT = 20; // 4 rows * 5 columns = 20 products per batch
