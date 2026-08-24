@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PlusCircle, Link as LinkIcon, Image as ImageIcon, Layers, Plus, Trash2, Clock, Upload } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -32,6 +32,24 @@ export default function AdminAddProductPage() {
   ]);
 
   const [loading, setLoading] = useState(false);
+  const [dbCategories, setDbCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch('/api/categories');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.categories)) {
+            setDbCategories(data.categories);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching categories for product form:', err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const isBundlePackage = form.category === 'Offer' || form.isOffer;
 
@@ -233,7 +251,7 @@ export default function AdminAddProductPage() {
               <select
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none focus:border-blue-500 transition font-medium"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none focus:border-blue-500 transition font-medium capitalize"
               >
                 <option value="Plugins">Plugins</option>
                 <option value="Themes">Themes</option>
@@ -241,6 +259,18 @@ export default function AdminAddProductPage() {
                 <option value="SEO">SEO</option>
                 <option value="Page Builders">Page Builders</option>
                 <option value="Offer">Offer</option>
+                {dbCategories.map((c) => {
+                  const val = c.name;
+                  const isStandard = ['plugins', 'themes', 'templates', 'seo', 'seo tools', 'page builders', 'offer'].some(
+                    (s) => s === val.toLowerCase() || (val.toLowerCase().includes('seo') && s.includes('seo'))
+                  );
+                  if (isStandard) return null;
+                  return (
+                    <option key={c.id || c.slug || c._id} value={val}>
+                      {val}
+                    </option>
+                  );
+                })}
               </select>
             </div>
           </div>

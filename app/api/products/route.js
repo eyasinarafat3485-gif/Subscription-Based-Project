@@ -33,8 +33,8 @@ export async function GET(req) {
     if (category && category !== 'All' && category !== 'all') {
       const lowerCat = category.toLowerCase().trim();
 
-      if (lowerCat === 'offer' || lowerCat === 'offers' || lowerCat === 'bundle') {
-        query.$or = [{ isOffer: true }, { category: /offer|bundle/i }];
+      if (lowerCat.includes('offer') || lowerCat.includes('bundle')) {
+        query.$or = [{ isOffer: true }, { category: /offer|bundle/i }, { title: /offer|bundle/i }];
       } else if (lowerCat === 'plugins' || lowerCat === 'plugin') {
         query.$or = [
           { category: /plugin/i },

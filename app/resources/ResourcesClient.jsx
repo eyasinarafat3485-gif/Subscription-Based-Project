@@ -98,6 +98,7 @@ function ResourcesContent() {
   const [userMembership, setUserMembership] = useState(null);
   const [selectedProductForDownload, setSelectedProductForDownload] = useState(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [dbCategories, setDbCategories] = useState([]);
   const [expandedCats, setExpandedCats] = useState({
     'Resources': true,
     'Themes': true,
@@ -109,6 +110,23 @@ function ResourcesContent() {
 
   useEffect(() => {
     document.title = 'Resources | Developers Club';
+  }, []);
+
+  useEffect(() => {
+    const fetchDbCategories = async () => {
+      try {
+        const res = await fetch('/api/categories');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.categories)) {
+            setDbCategories(data.categories);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching dynamic categories:', err);
+      }
+    };
+    fetchDbCategories();
   }, []);
 
   useEffect(() => {
@@ -291,55 +309,77 @@ function ResourcesContent() {
                 </div>
 
                 <div className="space-y-1 text-xs">
-                  {SIDEBAR_CATEGORIES.map((catGroup) => {
-                    const isExpanded = expandedCats[catGroup.slug] !== false;
-                    const hasSubcats = catGroup.subcategories && catGroup.subcategories.length > 0;
+                  {(() => {
+                    const displaySidebarCategories = [...SIDEBAR_CATEGORIES];
+                    if (dbCategories && dbCategories.length > 0) {
+                      const existingNamesOrSlugs = new Set([
+                        'resources', 'themes', 'theme', 'plugins', 'plugin', 'seo', 'seo tools', 'seo tools & utilities', 'page builders', 'templates', 'all',
+                        'wordpress resources', 'wordpress themes', 'wordpress plugins', 'seo tools & utilities', 'landing pages & templates'
+                      ]);
+                      dbCategories.forEach((cat) => {
+                        const nameLower = (cat.name || '').toLowerCase().trim();
+                        const slugLower = (cat.slug || '').toLowerCase().trim();
+                        if (!existingNamesOrSlugs.has(nameLower) && !existingNamesOrSlugs.has(slugLower)) {
+                          displaySidebarCategories.push({
+                            name: cat.name,
+                            slug: cat.slug || cat.name,
+                            subcategories: [],
+                          });
+                        }
+                      });
+                    }
 
-                    return (
-                      <div key={catGroup.name} className="space-y-1">
-                        {/* Parent Category Header */}
-                        <button
-                          onClick={() => {
-                            setSelectedSubcat(catGroup.slug);
-                            if (hasSubcats) toggleExpand(catGroup.slug);
-                          }}
-                          className={`w-full flex items-center justify-between p-2 rounded-xl text-left font-bold transition cursor-pointer ${selectedSubcat === catGroup.slug
-                            ? 'bg-indigo-50 text-indigo-600 font-extrabold'
-                            : 'text-slate-700 hover:bg-slate-50 hover:text-indigo-600'
-                            }`}
-                        >
-                          <span className="truncate">{catGroup.name}</span>
-                          {hasSubcats && (
-                            <span className="text-slate-400">
-                              {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                            </span>
+                    return displaySidebarCategories.map((catGroup) => {
+                      const isExpanded = expandedCats[catGroup.slug] !== false;
+                      const hasSubcats = catGroup.subcategories && catGroup.subcategories.length > 0;
+                      const isGroupActive = selectedSubcat === catGroup.slug || selectedSubcat === catGroup.name;
+
+                      return (
+                        <div key={catGroup.name} className="space-y-1">
+                          {/* Parent Category Header */}
+                          <button
+                            onClick={() => {
+                              setSelectedSubcat(catGroup.slug || catGroup.name);
+                              if (hasSubcats) toggleExpand(catGroup.slug);
+                            }}
+                            className={`w-full flex items-center justify-between p-2 rounded-xl text-left font-bold transition cursor-pointer ${isGroupActive
+                              ? 'bg-indigo-50 text-indigo-600 font-extrabold'
+                              : 'text-slate-700 hover:bg-slate-50 hover:text-indigo-600'
+                              }`}
+                          >
+                            <span className="truncate capitalize">{catGroup.name}</span>
+                            {hasSubcats ? (
+                              <span className="text-slate-400">
+                                {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                              </span>
+                            ) : null}
+                          </button>
+
+                          {/* Subcategories Dropdown */}
+                          {hasSubcats && isExpanded && (
+                            <div className="pl-4 space-y-1 border-l-2 border-slate-100 ml-3 my-1">
+                              {catGroup.subcategories.map((sub) => {
+                                const isSubActive = selectedSubcat === sub.slug;
+                                return (
+                                  <button
+                                    key={sub.name}
+                                    onClick={() => setSelectedSubcat(sub.slug)}
+                                    className={`w-full text-left py-1.5 px-2 rounded-lg text-[11px] font-semibold transition flex items-center justify-between cursor-pointer ${isSubActive
+                                      ? 'text-indigo-600 font-extrabold bg-indigo-50/60'
+                                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                                      }`}
+                                  >
+                                    <span>{sub.name}</span>
+                                    {isSubActive && <CheckCircle2 className="w-3 h-3 text-indigo-600 shrink-0" />}
+                                  </button>
+                                );
+                              })}
+                            </div>
                           )}
-                        </button>
-
-                        {/* Subcategories Dropdown */}
-                        {hasSubcats && isExpanded && (
-                          <div className="pl-4 space-y-1 border-l-2 border-slate-100 ml-3 my-1">
-                            {catGroup.subcategories.map((sub) => {
-                              const isSubActive = selectedSubcat === sub.slug;
-                              return (
-                                <button
-                                  key={sub.name}
-                                  onClick={() => setSelectedSubcat(sub.slug)}
-                                  className={`w-full text-left py-1.5 px-2 rounded-lg text-[11px] font-semibold transition flex items-center justify-between cursor-pointer ${isSubActive
-                                    ? 'text-indigo-600 font-extrabold bg-indigo-50/60'
-                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
-                                    }`}
-                                >
-                                  <span>{sub.name}</span>
-                                  {isSubActive && <CheckCircle2 className="w-3 h-3 text-indigo-600 shrink-0" />}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
 
