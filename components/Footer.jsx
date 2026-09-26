@@ -9,56 +9,56 @@ export default function Footer() {
       {/* Top Feature Highlights Banner Bar */}
       <div className="bg-slate-50/50 pt-10 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-t-3xl rounded-b-none p-6 sm:p-7 border border-slate-100/50 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+          <div className="bg-white rounded-t-3xl rounded-b-none p-4 sm:p-7 border border-slate-100/50 shadow-sm grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 text-center">
 
             {/* Feature 1 */}
             <div className="group flex flex-col items-center cursor-default transition-all duration-300">
-              <div className="w-13 h-13 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 mb-3.5 shadow-2xs group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 group-hover:-translate-y-1 group-hover:shadow-lg group-hover:shadow-indigo-600/30 transition-all duration-300">
-                <Download className="w-6 h-6 stroke-[2]" />
+              <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 mb-2.5 sm:mb-3.5 shadow-2xs group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 group-hover:-translate-y-1 group-hover:shadow-lg group-hover:shadow-indigo-600/30 transition-all duration-300">
+                <Download className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
               </div>
-              <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors">
+              <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors">
                 Instant Download Access
               </h4>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">
+              <p className="text-[10px] sm:text-xs text-slate-400 font-medium mt-0.5">
                 Access immediately after ordering!
               </p>
             </div>
 
             {/* Feature 2 */}
             <div className="group flex flex-col items-center cursor-default transition-all duration-300">
-              <div className="w-13 h-13 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 mb-3.5 shadow-2xs group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 group-hover:-translate-y-1 group-hover:shadow-lg group-hover:shadow-indigo-600/30 transition-all duration-300">
-                <RefreshCw className="w-6 h-6 stroke-[2] group-hover:rotate-180 transition-transform duration-500" />
+              <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 mb-2.5 sm:mb-3.5 shadow-2xs group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 group-hover:-translate-y-1 group-hover:shadow-lg group-hover:shadow-indigo-600/30 transition-all duration-300">
+                <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2] group-hover:rotate-180 transition-transform duration-500" />
               </div>
-              <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors">
+              <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors">
                 Regular Updates
               </h4>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">
+              <p className="text-[10px] sm:text-xs text-slate-400 font-medium mt-0.5">
                 Get new official updates!
               </p>
             </div>
 
             {/* Feature 3 */}
             <div className="group flex flex-col items-center cursor-default transition-all duration-300">
-              <div className="w-13 h-13 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 mb-3.5 shadow-2xs group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 group-hover:-translate-y-1 group-hover:shadow-lg group-hover:shadow-indigo-600/30 transition-all duration-300">
-                <Infinity className="w-6 h-6 stroke-[2]" />
+              <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 mb-2.5 sm:mb-3.5 shadow-2xs group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 group-hover:-translate-y-1 group-hover:shadow-lg group-hover:shadow-indigo-600/30 transition-all duration-300">
+                <Infinity className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
               </div>
-              <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors">
+              <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors">
                 Unlimited Domain Use
               </h4>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">
+              <p className="text-[10px] sm:text-xs text-slate-400 font-medium mt-0.5">
                 You can use it as you wish.
               </p>
             </div>
 
             {/* Feature 4 */}
             <div className="group flex flex-col items-center cursor-default transition-all duration-300">
-              <div className="w-13 h-13 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 mb-3.5 shadow-2xs group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 group-hover:-translate-y-1 group-hover:shadow-lg group-hover:shadow-indigo-600/30 transition-all duration-300">
-                <Headphones className="w-6 h-6 stroke-[2]" />
+              <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 mb-2.5 sm:mb-3.5 shadow-2xs group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 group-hover:-translate-y-1 group-hover:shadow-lg group-hover:shadow-indigo-600/30 transition-all duration-300">
+                <Headphones className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
               </div>
-              <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors">
+              <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors">
                 24/7 Customer Support
               </h4>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">
+              <p className="text-[10px] sm:text-xs text-slate-400 font-medium mt-0.5">
                 +880 1793-679254
               </p>
             </div>

@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/lib/auth-client';
-import { ArrowRight, ShoppingBag, Eye, Tag, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, ShoppingBag, Eye, Tag, Loader2, Sparkles, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import DemoModal from './DemoModal';
 import ConfirmDownloadModal from './ConfirmDownloadModal';
 
@@ -28,6 +28,26 @@ export default function PluginGrid({ onDownloadClick }) {
   const [failedImages, setFailedImages] = useState({});
   const [userMembership, setUserMembership] = useState(null);
   const [selectedProductForDownload, setSelectedProductForDownload] = useState(null);
+
+  const filterTabsRef = useRef(null);
+
+  const scrollFilterTabs = (direction) => {
+    if (filterTabsRef.current) {
+      const scrollAmount = direction === 'left' ? -160 : 160;
+      filterTabsRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const handleCategoryClick = (catId, event) => {
+    setActiveCategory(catId);
+    if (event?.currentTarget) {
+      event.currentTarget.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest',
+      });
+    }
+  };
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   const { data: session } = useSession();
@@ -143,7 +163,7 @@ export default function PluginGrid({ onDownloadClick }) {
         {/* Header & Section Title */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <h2 className="text-lg sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
               <span>Popular WordPress Themes & Plugins</span>
             </h2>
             <p className="text-xs text-slate-500 mt-1 font-medium">
@@ -153,27 +173,27 @@ export default function PluginGrid({ onDownloadClick }) {
 
           <Link
             href="/resources"
-            className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 transition"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 transition"
           >
             <span>View All</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
-        {/* Qulabi-style Category Filter Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        {/* Category Filter Tabs: Clean Compact 1-Line Row */}
+        <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto py-1 scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full">
           {categories.map((cat) => {
             const isActive = activeCategory === cat.id;
             return (
               <button
                 key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition shrink-0 border ${isActive
+                onClick={(e) => handleCategoryClick(cat.id, e)}
+                className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition shrink-0 border whitespace-nowrap cursor-pointer ${isActive
                   ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20'
                   : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                   }`}
               >
-                {cat.id === 'Offer' && <Sparkles className="w-3.5 h-3.5 inline mr-1 text-amber-300 animate-pulse" />}
+                {cat.id === 'Offer' && <Sparkles className="w-3 h-3 inline mr-1 text-amber-300 animate-pulse" />}
                 {cat.label}
               </button>
             );
@@ -200,7 +220,7 @@ export default function PluginGrid({ onDownloadClick }) {
                 return (
                   <div
                     key={item._id ? `${item._id.toString()}-${index}` : `${item.slug || 'product'}-${index}`}
-                    className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:-translate-y-1"
+                    className={`bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:-translate-y-1 ${index >= 3 ? 'hidden sm:flex' : 'flex'}`}
                   >
                     <div>
                       {/* Image Container with Badges - Dynamic Ambient Blur & Standardized Aspect Ratio */}

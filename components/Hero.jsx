@@ -11,7 +11,7 @@ export default function Hero() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
 
           {/* Left Content (6 columns) */}
-          <div className="lg:col-span-6 space-y-6 text-left">
+          <div className="lg:col-span-6 space-y-6 text-left order-2 lg:order-1">
             {/* Top Flag Tagline with professional animations */}
             <div className="relative overflow-hidden inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-100/70 border border-blue-200/60 rounded-full text-xs font-semibold text-blue-800">
               {/* Shiny animated border line sweep */}
@@ -45,7 +45,7 @@ export default function Hero() {
             </div>
 
             {/* Main Headline (Always Strictly 2 Balanced Lines in Bangla & English) */}
-            <h1 className="text-3xl sm:text-4xl lg:text-[45px] font-black text-slate-900 leading-[1.2] tracking-tight">
+            <h1 className="text-2xl sm:text-4xl lg:text-[45px] font-black text-slate-900 leading-[1.2] tracking-tight">
               <span className="block whitespace-nowrap">
                 WordPress <span className="text-blue-600">Developer</span>
               </span>
@@ -59,20 +59,20 @@ export default function Hero() {
               Premium plugins, themes, templates, resources and documentation — all in one place.
             </p>
 
-            {/* CTA Action Buttons */}
-            <div className="flex flex-wrap items-center gap-4 pt-2">
+            {/* CTA Action Buttons (1 Line Grid on Mobile, Flex on Desktop) */}
+            <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5 sm:gap-4 pt-2">
               <Link
                 href="/resources"
-                className="py-3.5 px-7 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/25 transition-all hover:shadow-blue-600/40 flex items-center gap-2"
+                className="w-full sm:w-auto justify-center px-3 sm:px-6 py-3 sm:py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-blue-600/25 transition-all hover:shadow-blue-600/40 flex items-center gap-1.5 whitespace-nowrap"
               >
                 <span>View All Items</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
               </Link>
               <Link
                 href="#pricing"
-                className="py-3.5 px-7 bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm rounded-xl border border-slate-200 transition shadow-xs"
+                className="w-full sm:w-auto justify-center text-center px-3 sm:px-6 py-3 sm:py-3.5 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs sm:text-sm rounded-xl border border-slate-200 transition shadow-2xs whitespace-nowrap flex items-center"
               >
-                View Pricing
+                <span>View Pricing</span>
               </Link>
             </div>
 
@@ -121,7 +121,7 @@ export default function Hero() {
           </div>
 
           {/* Right 3D Showcase Graphic (6 columns, larger professional display) */}
-          <div className="lg:col-span-6 relative flex items-center justify-center">
+          <div className="lg:col-span-6 relative flex items-center justify-center order-1 lg:order-2">
             <div className="w-full max-w-md lg:max-w-lg mx-auto flex items-center justify-center">
               <img
                 src="/hero-showcase.png"

@@ -64,7 +64,7 @@ export default function Pricing() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-lg sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
               Choose Your Membership Plan
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">

@@ -22,7 +22,8 @@ import {
   Loader2,
   Download,
   FolderHeart,
-  Bell
+  Bell,
+  User
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useSession, signOut } from '@/lib/auth-client';
@@ -374,7 +375,7 @@ export default function Header() {
           </form>
 
           {/* Right Action Controls: Membership CTA, Cart, User Session & Mobile Toggle */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
 
             {/* Get Membership CTA Button OR Active Membership Live Countdown Display OR Professional Loading Spinner */}
             {isMembershipLoading || isSessionLoading ? (
@@ -469,13 +470,11 @@ export default function Header() {
             ) : (
               <a
                 href="/login"
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-indigo-50 text-slate-800 hover:text-indigo-600 font-medium text-xs rounded-xl transition border border-slate-200 shadow-2xs cursor-pointer"
+                className="flex items-center gap-1.5 p-2 sm:px-3.5 sm:py-2 bg-slate-100 hover:bg-indigo-50 text-slate-800 hover:text-indigo-600 font-medium text-xs rounded-xl transition border border-slate-200 shadow-2xs cursor-pointer shrink-0"
                 title="Login to Account"
               >
-                <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                <span>Login</span>
+                <User className="w-5 h-5 sm:w-4 sm:h-4 text-indigo-600 shrink-0" />
+                <span className="hidden sm:inline">Login</span>
               </a>
             )}
 
@@ -777,6 +776,45 @@ export default function Header() {
                     <Search className="w-4 h-4" />
                   </button>
                 </form>
+
+                {/* Mobile Drawer VIP Membership CTA Banner / Countdown Display */}
+                {activeSubscription && (!subTimeLeft.isExpired || subTimeLeft.isLifetime) ? (
+                  <Link
+                    href="/membership"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between p-3 rounded-2xl bg-indigo-50/90 border border-indigo-200/80 shadow-2xs transition hover:bg-indigo-100/70"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Clock className="w-4 h-4 text-red-500 animate-pulse shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-900 truncate">
+                          {(activeSubscription.planId || activeSubscription.planTitle || 'PRO').toUpperCase()} MEMBERSHIP
+                        </div>
+                        <div className="text-[10px] font-bold text-red-500 font-mono truncate">
+                          {subTimeLeft.isLifetime ? 'LIFETIME ACCESS' : `${subTimeLeft.days}d ${String(subTimeLeft.hours).padStart(2, '0')}h ${String(subTimeLeft.minutes).padStart(2, '0')}m left`}
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                  </Link>
+                ) : (
+                  <Link
+                    href="/membership"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-600 text-white shadow-md hover:shadow-indigo-500/25 transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                        <Gift className="w-4.5 h-4.5 text-white" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-black tracking-wide">VIP Membership</div>
+                        <div className="text-[10px] text-indigo-100 font-medium">Get Unlimited Downloads</div>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-indigo-200 shrink-0" />
+                  </Link>
+                )}
               </div>
 
               {/* Vertical Menu Items (Matching Image 2 Text Items) */}
@@ -801,28 +839,11 @@ export default function Header() {
               </nav>
             </div>
 
-            {/* Bottom Icon Action Items (Matching Image 2 Bottom Layout: Changelog & Cart) */}
-            <div className="pt-6 border-t border-slate-100 space-y-3 text-xs font-bold text-slate-700">
-              <Link
-                href="/changelog"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 py-2 px-3 hover:bg-slate-50 rounded-xl transition"
-              >
-                <FileText className="w-4 h-4 text-slate-800 shrink-0" />
-                <span>Changelog</span>
-              </Link>
-
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full flex items-center gap-3 py-2 px-3 hover:bg-slate-50 rounded-xl transition text-left cursor-pointer"
-              >
-                <ShoppingCart className="w-4 h-4 text-slate-800 shrink-0" />
-                <span>Cart</span>
-              </button>
-
+            {/* Bottom Action Item: Support Call Only */}
+            <div className="pt-6 border-t border-slate-100">
               <a
                 href="tel:01796679254"
-                className="flex items-center gap-3 py-2.5 px-3 bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100 transition font-extrabold"
+                className="flex items-center gap-3 py-2.5 px-3 bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100 transition font-extrabold text-xs"
               >
                 <Phone className="w-4 h-4 text-indigo-600 shrink-0" />
                 <span>Call: 01796-679254</span>

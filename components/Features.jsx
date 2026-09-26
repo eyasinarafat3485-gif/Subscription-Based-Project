@@ -45,7 +45,7 @@ export default function Features() {
           {/* Left Side: Features Matrix */}
           <div className="lg:col-span-7 space-y-8">
             <div>
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight leading-tight">
                 Why Developers Club <br />
                 <span className="text-blue-600">is Your Best Choice?</span>
               </h2>

@@ -41,7 +41,7 @@ export default function Articles() {
         
         {/* Section Header */}
         <div className="flex items-center justify-between mb-10">
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-lg sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
             Recent Articles
           </h2>
           <Link
