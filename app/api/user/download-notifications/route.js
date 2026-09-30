@@ -27,6 +27,37 @@ export async function GET(req) {
 
     let notifications = user.downloadNotifications || [];
 
+    // Also fetch orders for this user to ensure all payments are represented
+    const userOrders = await db.collection('orders').find({
+      $or: [
+        { 'customer.email': session.user.email.toLowerCase() },
+        { billingEmail: session.user.email.toLowerCase() },
+        { userId: user._id }
+      ]
+    }).sort({ createdAt: -1 }).limit(25).toArray();
+
+    const existingOrderIds = new Set(notifications.map(n => n.orderId).filter(Boolean));
+
+    const orderNotifs = userOrders
+      .filter(ord => !existingOrderIds.has(ord.orderId))
+      .map(ord => ({
+        _id: `ord_${ord._id}`,
+        type: 'PAYMENT_SUCCESS',
+        title: 'Payment Received & Order Successful',
+        message: `Your payment of ৳${ord.price || ord.planPrice || ord.amount || 0} via ${(ord.paymentMethod || 'BKASH').toUpperCase()} (TrxID: ${ord.transactionId || 'N/A'}) for "${ord.productTitle || ord.planTitle || 'Order'}" was confirmed.`,
+        orderId: ord.orderId,
+        productTitle: ord.productTitle || ord.planTitle || 'Order',
+        amount: ord.price || ord.planPrice || ord.amount || 0,
+        paymentMethod: (ord.paymentMethod || 'BKASH').toUpperCase(),
+        transactionId: ord.transactionId || 'N/A',
+        senderAccount: ord.senderAccount || 'N/A',
+        downloadedAt: ord.createdAt || new Date(),
+        createdAt: ord.createdAt || new Date(),
+        isRead: ord.isReadByUser ?? false,
+      }));
+
+    notifications = [...notifications, ...orderNotifs];
+
     // Fallback: If no explicit downloadNotifications array exists yet but user has collections, format collections as notifications
     if (notifications.length === 0 && (user.collections || user.downloadHistory)) {
       const collections = user.collections || user.downloadHistory || [];
@@ -48,7 +79,7 @@ export async function GET(req) {
     }
 
     // Sort newest first
-    notifications.sort((a, b) => new Date(b.downloadedAt || 0) - new Date(a.downloadedAt || 0));
+    notifications.sort((a, b) => new Date(b.downloadedAt || b.createdAt || 0) - new Date(a.downloadedAt || a.createdAt || 0));
 
     const unreadCount = notifications.filter((n) => !n.isRead).length;
 

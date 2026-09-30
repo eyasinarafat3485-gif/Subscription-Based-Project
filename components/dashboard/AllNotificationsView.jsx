@@ -262,10 +262,13 @@ export default function AllNotificationsView({ userRole = 'user' }) {
   }, [search, statusFilter]);
 
   // Client-side search and status filtering across product title, message, name, email, and coupon
+  // Client-side search and status filtering across product title, message, name, email, coupon, orderId, and transactionId
   const filteredRequests = requests.filter((item) => {
     // Status Filter
     if (statusFilter === 'DOWNLOAD') {
-      if (item.type !== 'DOWNLOAD' && !item.productTitle) return false;
+      if (item.type !== 'DOWNLOAD') return false;
+    } else if (statusFilter === 'PAYMENT') {
+      if (item.type !== 'PAYMENT_ORDER' && item.type !== 'PAYMENT_SUCCESS') return false;
     } else if (statusFilter !== 'all') {
       if (item.status !== statusFilter) return false;
     }
@@ -278,13 +281,21 @@ export default function AllNotificationsView({ userRole = 'user' }) {
     const name = (item.userName || item.name || '').toLowerCase();
     const email = (item.userEmail || item.email || '').toLowerCase();
     const coupon = (item.couponCode || '').toLowerCase();
+    const orderId = (item.orderId || '').toLowerCase();
+    const trxId = (item.transactionId || '').toLowerCase();
+    const phone = (item.userPhone || item.senderAccount || '').toLowerCase();
+    const method = (item.paymentMethod || '').toLowerCase();
 
     return (
       title.includes(q) ||
       msg.includes(q) ||
       name.includes(q) ||
       email.includes(q) ||
-      coupon.includes(q)
+      coupon.includes(q) ||
+      orderId.includes(q) ||
+      trxId.includes(q) ||
+      phone.includes(q) ||
+      method.includes(q)
     );
   });
 
@@ -302,7 +313,7 @@ export default function AllNotificationsView({ userRole = 'user' }) {
             <span>All Notifications</span>
           </h1>
           <p className="text-slate-500 text-xs mt-1">
-            Manage, search and view all user notifications, download history, and guest role requests.
+            Manage, search and view all user notifications, payment orders, download history, and guest role requests.
           </p>
         </div>
 
@@ -311,7 +322,7 @@ export default function AllNotificationsView({ userRole = 'user' }) {
           <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-64">
             <input
               type="text"
-              placeholder="Search product, title, email or name..."
+              placeholder="Search product, TrxID, order, email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 pl-8 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition shadow-2xs font-medium"
@@ -325,6 +336,7 @@ export default function AllNotificationsView({ userRole = 'user' }) {
             className="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 font-bold shadow-2xs cursor-pointer"
           >
             <option value="all">All Notifications</option>
+            <option value="PAYMENT">Payments & Orders 💳</option>
             <option value="DOWNLOAD">Downloads Only 📥</option>
             <option value="REQUESTED">Requested (Waiting Coupon)</option>
             <option value="COUPON_SENT">Coupon Sent</option>
@@ -346,12 +358,114 @@ export default function AllNotificationsView({ userRole = 'user' }) {
           <div className="py-10 text-center text-slate-400">
             <Bell className="w-7 h-7 mx-auto mb-2 text-slate-300" />
             <p className="text-xs font-bold text-slate-700">No Notifications Found</p>
-            <p className="text-[11px] text-slate-400 mt-0.5">There are no guest requests matching your filter.</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">There are no records matching your filter.</p>
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
             {displayedRequests.map((req) => {
-              if (req.type === 'DOWNLOAD' || req.productTitle) {
+              // 1. ADMIN PAYMENT ORDER NOTIFICATION
+              if (req.type === 'PAYMENT_ORDER') {
+                return (
+                  <div
+                    key={req._id}
+                    className="py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-slate-50/70 transition px-2.5 rounded-xl text-xs"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className={`w-10 h-10 rounded-xl font-black text-xs flex items-center justify-center shrink-0 border shadow-2xs ${
+                        req.paymentMethod === 'BKASH' ? 'bg-pink-50 text-pink-600 border-pink-200' :
+                        req.paymentMethod === 'NAGAD' ? 'bg-orange-50 text-orange-600 border-orange-200' :
+                        'bg-purple-50 text-purple-600 border-purple-200'
+                      }`}>
+                        {req.paymentMethod}
+                      </div>
+
+                      <div className="space-y-0.5 flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-extrabold text-slate-900">{req.userName}</span>
+                          <span className="text-[11px] text-slate-400 font-mono">({req.userEmail})</span>
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            PAID ৳{req.amount}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                            #{req.orderId}
+                          </span>
+                        </div>
+
+                        <p className="text-[11px] text-slate-600">
+                          Purchased <strong>{req.productTitle}</strong> via <strong className="uppercase">{req.paymentMethod}</strong> (Sender: <span className="font-mono font-bold">{req.userPhone}</span>).
+                        </p>
+
+                        <div className="flex items-center gap-3 text-[10px] text-slate-400 font-medium pt-0.5">
+                          <span>TrxID: <strong className="text-indigo-600 font-mono">{req.transactionId}</strong></span>
+                          <span>•</span>
+                          <span>Time: {new Date(req.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => copyCode(req.transactionId)}
+                        className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-mono font-bold text-[11px] rounded-xl flex items-center gap-1 transition cursor-pointer border"
+                      >
+                        {copiedCode === req.transactionId ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>Copy TrxID</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              }
+
+              // 2. USER PAYMENT SUCCESS NOTIFICATION
+              if (req.type === 'PAYMENT_SUCCESS') {
+                return (
+                  <div
+                    key={req._id}
+                    className="py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-slate-50/70 transition px-2.5 rounded-xl text-xs"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 font-black text-xs flex items-center justify-center shrink-0 border border-emerald-200 shadow-2xs">
+                        <ShieldCheck className="w-5 h-5" />
+                      </div>
+
+                      <div className="space-y-0.5 flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-extrabold text-emerald-800">Payment Confirmed</span>
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            {req.paymentMethod} • ৳{req.amount}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                            #{req.orderId}
+                          </span>
+                        </div>
+
+                        <p className="text-[11px] text-slate-600">
+                          {req.message || `Your payment for ${req.productTitle} was processed successfully.`}
+                        </p>
+
+                        <div className="flex items-center gap-3 text-[10px] text-slate-400 font-medium pt-0.5">
+                          <span>TrxID: <strong className="text-emerald-700 font-mono">{req.transactionId}</strong></span>
+                          <span>•</span>
+                          <span>Time: {req.downloadedAt ? new Date(req.downloadedAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : 'Recently'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="shrink-0">
+                      <Link
+                        href={userRole === 'admin' ? '/dashboard/admin/my-collections' : '/dashboard/user/my-collections'}
+                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-2xs inline-block"
+                      >
+                        Access Dashboard →
+                      </Link>
+                    </div>
+                  </div>
+                );
+              }
+
+              // 3. PRODUCT DOWNLOAD NOTIFICATION
+              if (req.type === 'DOWNLOAD' || (req.productTitle && !req.status)) {
                 const collectionsPath = userRole === 'admin'
                   ? '/dashboard/admin/my-collections'
                   : userRole === 'guest'

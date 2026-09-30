@@ -142,13 +142,13 @@ export default function CategoryBannerCTA() {
     const usedDownloads = typeof activeSubscription?.downloadsToday === 'number' ? activeSubscription.downloadsToday : 0;
 
     return (
-      <div className="w-full xl:w-auto bg-white border border-slate-200/90 rounded-2xl p-3 sm:p-3.5 shadow-2xs flex flex-col lg:flex-row items-center justify-between gap-3 shrink-0">
-        <div className="flex items-center gap-3 text-center sm:text-left min-w-0">
+      <div className="w-full xl:w-auto bg-white border border-slate-200/90 rounded-2xl p-3 sm:p-3.5 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 shrink-0">
+        <div className="flex items-center gap-3 text-left min-w-0">
           <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
+            <div className="flex items-center gap-2 justify-start flex-wrap">
               <span className="text-[10px] font-black uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200/70 whitespace-nowrap shrink-0">
                 ACTIVE MEMBERSHIP
               </span>
@@ -156,13 +156,13 @@ export default function CategoryBannerCTA() {
                 Order #{activeSubscription.orderId || 'SUCCESS'}
               </span>
             </div>
-            <h2 className="text-sm font-black text-slate-900 leading-tight mt-0.5 whitespace-nowrap truncate">
+            <h2 className="text-sm font-black text-slate-900 leading-tight mt-0.5 truncate">
               {activeSubscription.planTitle || 'Basic Membership Plan'}
             </h2>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0 justify-between lg:justify-end">
           {/* Live Subscription Timer Display */}
           <div className="bg-slate-50 border border-slate-200/80 rounded-2xl px-3 sm:px-4 py-2 flex items-center gap-2.5 shadow-2xs shrink-0 max-w-full">
             <div className="text-right hidden sm:block whitespace-nowrap">
@@ -231,24 +231,25 @@ export default function CategoryBannerCTA() {
 
   // DEFAULT STATE (NO ACTIVE MEMBERSHIP / GUEST): Render "Download For FREE" Banner (Right Side)
   return (
-    <div className="w-full md:w-auto bg-gradient-to-r from-indigo-50/90 via-purple-50/50 to-blue-50/80 border border-dashed border-indigo-300/90 rounded-xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
-      <div className="flex items-center gap-3 text-center sm:text-left">
-        <div className="w-10 h-10 rounded-xl bg-indigo-100/90 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-200">
+    <div className="w-full md:w-auto bg-gradient-to-r from-indigo-50/90 via-purple-50/40 to-blue-50/80 border border-dashed border-indigo-300/80 rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 shadow-2xs hover:border-indigo-400/80 transition-all">
+      <div className="flex items-center gap-3 text-left">
+        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100 shadow-2xs">
           <Gift className="w-5 h-5" />
         </div>
-        <div>
-          <h3 className="text-xs font-black text-indigo-900 tracking-tight">
+        <div className="min-w-0">
+          <h3 className="text-xs sm:text-sm font-black text-indigo-950 tracking-tight leading-snug">
             Download For FREE
           </h3>
-          <p className="text-[11px] text-slate-600 font-semibold mt-0.5">
-            Get this product FREE + access to all premium products for just <strong className="text-indigo-600 font-black">৳ 499 /- Monthly</strong>.
+          <p className="text-[11px] sm:text-xs text-slate-600 font-medium leading-normal mt-0.5">
+            Get this product FREE + access to all premium products for just{' '}
+            <strong className="text-indigo-600 font-bold whitespace-nowrap">৳ 499 /- Monthly</strong>.
           </p>
         </div>
       </div>
 
       <Link
         href="/membership"
-        className="px-4 py-2.5 bg-white hover:bg-indigo-50 text-indigo-600 hover:text-indigo-700 font-black text-xs rounded-xl border border-indigo-200 shadow-2xs transition flex items-center gap-1.5 shrink-0 hover:scale-102 cursor-pointer"
+        className="w-full sm:w-auto justify-center px-4 py-2.5 bg-white hover:bg-indigo-50 active:scale-[0.98] text-indigo-600 hover:text-indigo-700 font-bold text-xs rounded-xl border border-indigo-200/90 shadow-2xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
       >
         <span>Get Membership</span>
         <ArrowRight className="w-3.5 h-3.5" />

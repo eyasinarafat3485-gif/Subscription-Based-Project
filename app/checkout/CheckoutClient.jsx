@@ -573,54 +573,59 @@ function CheckoutContent() {
 
               <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
                 <div className="space-y-3">
-                  <label className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="bkash"
-                      checked={paymentMethod === 'bkash'}
-                      onChange={() => setPaymentMethod('bkash')}
-                      className="text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="text-xs font-bold text-slate-800">bKash - Auto Payment Gateway</span>
-                  </label>
-
-                  <div className={`rounded-xl border transition-all ${paymentMethod === 'nagad' ? 'border-indigo-500 bg-indigo-50/20' : 'border-slate-200'}`}>
-                    <label className="flex items-center gap-3 p-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="nagad"
-                        checked={paymentMethod === 'nagad'}
-                        onChange={() => setPaymentMethod('nagad')}
-                        className="text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <span className="text-xs font-extrabold text-slate-900">nagad</span>
+                  {/* bKash Payment Method */}
+                  <div className={`rounded-xl border transition-all ${paymentMethod === 'bkash' ? 'border-pink-500 bg-pink-50/20 shadow-xs' : 'border-slate-200'}`}>
+                    <label className="flex items-center justify-between p-3.5 cursor-pointer">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="bkash"
+                          checked={paymentMethod === 'bkash'}
+                          onChange={() => setPaymentMethod('bkash')}
+                          className="text-pink-600 focus:ring-pink-500"
+                        />
+                        <span className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                          <span>bKash</span>
+                          <span className="text-[10px] font-bold text-pink-700 bg-pink-100/80 px-2 py-0.5 rounded-md">Personal Send Money</span>
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-extrabold text-pink-600">বিকাশ</span>
                     </label>
 
-                    {paymentMethod === 'nagad' && (
-                      <div className="p-4 pt-0 space-y-3 text-xs text-slate-700 border-t border-indigo-100/80">
-                        <p className="text-[11px] leading-relaxed text-slate-600 font-medium bg-white p-3 rounded-xl border border-slate-100">
-                          অর্ডারটি সফলভাবে সম্পন্ন করতে এই <strong className="text-slate-900 font-black">01964-820004</strong> একটি পার্সোনাল বিকাশ/নগদ নম্বর থেকে সেন্ডমানি করে, আপনার মোবাইল নম্বর এবং ট্রানজেকশন আইডিটি নিচের ফর্মে জমা দিন। পেমেন্টটি সঠিক হলে সাথে সাথেই ডাউনলোড একসেস পাবেন। প্রয়োজনে: 01964-820004 যোগাযোগ করুন।
-                        </p>
+                    {paymentMethod === 'bkash' && (
+                      <div className="p-4 pt-0 space-y-3 text-xs text-slate-700 border-t border-pink-100">
+                        <div className="text-[11px] leading-relaxed text-slate-600 font-medium bg-white p-3 rounded-xl border border-pink-100 space-y-1.5">
+                          <p>
+                            অর্ডারটি সম্পন্ন করতে নিচের <strong className="text-slate-900 font-black">01796-679254</strong> পার্সোনাল বিকাশ নম্বরে <strong className="text-pink-600 font-bold">Send Money</strong> করুন। এরপর আপনার বিকাশ মোবাইল নম্বর এবং ট্রানজেকশন আইডি (TrxID) জমা দিন।
+                          </p>
+                          <p className="text-[10px] text-slate-400">
+                            পেমেন্ট ভেরিফাই হলে স্বয়ংক্রিয়ভাবে ডাউনলোড ও মেম্বারশিপ অ্যাক্সেস আনলক হবে। প্রয়োজনে হেল্পলাইন: 01796-679254।
+                          </p>
+                        </div>
 
-                        <div className="space-y-1 font-bold text-slate-900">
-                          <p className="text-indigo-700">You need to send us: <strong className="text-base font-black">৳ {finalTotal}</strong></p>
-                          <p className="text-[11px] text-slate-500">Account Type: <span className="text-slate-800">Personal</span></p>
-                          <p className="text-[11px] text-slate-500">Account Number: <span className="text-slate-900 font-mono">01964-820004</span></p>
+                        <div className="space-y-1.5 font-bold text-slate-900 bg-pink-50/50 p-3 rounded-xl border border-pink-100/70">
+                          <p className="text-pink-700 flex items-center justify-between">
+                            <span>You need to send:</span>
+                            <strong className="text-base font-black text-slate-900">৳ {finalTotal}</strong>
+                          </p>
+                          <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-pink-100">
+                            <span>Account Type: <strong className="text-slate-800">Personal (Send Money)</strong></span>
+                            <span className="font-mono text-slate-900 font-bold">01796-679254</span>
+                          </div>
                         </div>
 
                         <div className="space-y-1">
                           <label className="block text-[11px] font-extrabold text-slate-700">
-                            Your Nagad Account Number
+                            Your bKash Account Number <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
                             name="senderAccount"
                             value={formData.senderAccount}
                             onChange={handleChange}
-                            placeholder="013XXXXXXXX"
-                            className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:border-indigo-600"
+                            placeholder="017XXXXXXXX"
+                            className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:border-pink-600 focus:ring-1 focus:ring-pink-500"
                           />
                           {fieldErrors.senderAccount && (
                             <p className="text-[10px] font-bold text-red-600">{fieldErrors.senderAccount}</p>
@@ -629,15 +634,15 @@ function CheckoutContent() {
 
                         <div className="space-y-1">
                           <label className="block text-[11px] font-extrabold text-slate-700">
-                            Your Nagad Transaction ID
+                            Your bKash Transaction ID (TrxID) <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
                             name="transactionId"
                             value={formData.transactionId}
                             onChange={handleChange}
-                            placeholder="2M7AS"
-                            className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono font-bold uppercase text-slate-900 focus:outline-none focus:border-indigo-600"
+                            placeholder="e.g. 9K2AS87M"
+                            className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono font-bold uppercase text-slate-900 focus:outline-none focus:border-pink-600 focus:ring-1 focus:ring-pink-500"
                           />
                           {fieldErrors.transactionId && (
                             <p className="text-[10px] font-bold text-red-600">{fieldErrors.transactionId}</p>
@@ -647,17 +652,163 @@ function CheckoutContent() {
                     )}
                   </div>
 
-                  <label className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="rocket"
-                      checked={paymentMethod === 'rocket'}
-                      onChange={() => setPaymentMethod('rocket')}
-                      className="text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="text-xs font-bold text-slate-800">rocket</span>
-                  </label>
+                  {/* Nagad Payment Method */}
+                  <div className={`rounded-xl border transition-all ${paymentMethod === 'nagad' ? 'border-orange-500 bg-orange-50/20 shadow-xs' : 'border-slate-200'}`}>
+                    <label className="flex items-center justify-between p-3.5 cursor-pointer">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="nagad"
+                          checked={paymentMethod === 'nagad'}
+                          onChange={() => setPaymentMethod('nagad')}
+                          className="text-orange-600 focus:ring-orange-500"
+                        />
+                        <span className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                          <span>Nagad</span>
+                          <span className="text-[10px] font-bold text-orange-700 bg-orange-100/80 px-2 py-0.5 rounded-md">Personal Send Money</span>
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-extrabold text-orange-600">নগদ</span>
+                    </label>
+
+                    {paymentMethod === 'nagad' && (
+                      <div className="p-4 pt-0 space-y-3 text-xs text-slate-700 border-t border-orange-100">
+                        <div className="text-[11px] leading-relaxed text-slate-600 font-medium bg-white p-3 rounded-xl border border-orange-100 space-y-1.5">
+                          <p>
+                            অর্ডারটি সম্পন্ন করতে নিচের <strong className="text-slate-900 font-black">01796-679254</strong> পার্সোনাল নগদ নম্বরে <strong className="text-orange-600 font-bold">Send Money</strong> করুন। এরপর আপনার নগদ মোবাইল নম্বর এবং ট্রানজেকশন আইডি (TrxID) জমা দিন।
+                          </p>
+                          <p className="text-[10px] text-slate-400">
+                            পেমেন্ট ভেরিফাই হলে স্বয়ংক্রিয়ভাবে ডাউনলোড ও মেম্বারশিপ অ্যাক্সেস আনলক হবে। প্রয়োজনে হেল্পলাইন: 01796-679254।
+                          </p>
+                        </div>
+
+                        <div className="space-y-1.5 font-bold text-slate-900 bg-orange-50/50 p-3 rounded-xl border border-orange-100/70">
+                          <p className="text-orange-700 flex items-center justify-between">
+                            <span>You need to send:</span>
+                            <strong className="text-base font-black text-slate-900">৳ {finalTotal}</strong>
+                          </p>
+                          <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-orange-100">
+                            <span>Account Type: <strong className="text-slate-800">Personal (Send Money)</strong></span>
+                            <span className="font-mono text-slate-900 font-bold">01796-679254</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-extrabold text-slate-700">
+                            Your Nagad Account Number <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            name="senderAccount"
+                            value={formData.senderAccount}
+                            onChange={handleChange}
+                            placeholder="013XXXXXXXX"
+                            className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:border-orange-600 focus:ring-1 focus:ring-orange-500"
+                          />
+                          {fieldErrors.senderAccount && (
+                            <p className="text-[10px] font-bold text-red-600">{fieldErrors.senderAccount}</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-extrabold text-slate-700">
+                            Your Nagad Transaction ID (TrxID) <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            name="transactionId"
+                            value={formData.transactionId}
+                            onChange={handleChange}
+                            placeholder="e.g. 7MB4Q"
+                            className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono font-bold uppercase text-slate-900 focus:outline-none focus:border-orange-600 focus:ring-1 focus:ring-orange-500"
+                          />
+                          {fieldErrors.transactionId && (
+                            <p className="text-[10px] font-bold text-red-600">{fieldErrors.transactionId}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Rocket Payment Method */}
+                  <div className={`rounded-xl border transition-all ${paymentMethod === 'rocket' ? 'border-purple-500 bg-purple-50/20 shadow-xs' : 'border-slate-200'}`}>
+                    <label className="flex items-center justify-between p-3.5 cursor-pointer">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="rocket"
+                          checked={paymentMethod === 'rocket'}
+                          onChange={() => setPaymentMethod('rocket')}
+                          className="text-purple-600 focus:ring-purple-500"
+                        />
+                        <span className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                          <span>Rocket</span>
+                          <span className="text-[10px] font-bold text-purple-700 bg-purple-100/80 px-2 py-0.5 rounded-md">Personal Send Money</span>
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-extrabold text-purple-600">রকেট</span>
+                    </label>
+
+                    {paymentMethod === 'rocket' && (
+                      <div className="p-4 pt-0 space-y-3 text-xs text-slate-700 border-t border-purple-100">
+                        <div className="text-[11px] leading-relaxed text-slate-600 font-medium bg-white p-3 rounded-xl border border-purple-100 space-y-1.5">
+                          <p>
+                            অর্ডারটি সম্পন্ন করতে নিচের <strong className="text-slate-900 font-black">01796-679254</strong> পার্সোনাল রকেট নম্বরে <strong className="text-purple-600 font-bold">Send Money</strong> করুন। এরপর আপনার রকেট মোবাইল নম্বর এবং ট্রানজেকশন আইডি (TrxID) জমা দিন।
+                          </p>
+                          <p className="text-[10px] text-slate-400">
+                            পেমেন্ট ভেরিফাই হলে স্বয়ংক্রিয়ভাবে ডাউনলোড ও মেম্বারশিপ অ্যাক্সেস আনলক হবে। প্রয়োজনে হেল্পলাইন: 01796-679254।
+                          </p>
+                        </div>
+
+                        <div className="space-y-1.5 font-bold text-slate-900 bg-purple-50/50 p-3 rounded-xl border border-purple-100/70">
+                          <p className="text-purple-700 flex items-center justify-between">
+                            <span>You need to send:</span>
+                            <strong className="text-base font-black text-slate-900">৳ {finalTotal}</strong>
+                          </p>
+                          <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-purple-100">
+                            <span>Account Type: <strong className="text-slate-800">Personal (Send Money)</strong></span>
+                            <span className="font-mono text-slate-900 font-bold">01796-679254</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-extrabold text-slate-700">
+                            Your Rocket Account Number <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            name="senderAccount"
+                            value={formData.senderAccount}
+                            onChange={handleChange}
+                            placeholder="019XXXXXXXX"
+                            className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-500"
+                          />
+                          {fieldErrors.senderAccount && (
+                            <p className="text-[10px] font-bold text-red-600">{fieldErrors.senderAccount}</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-extrabold text-slate-700">
+                            Your Rocket Transaction ID (TrxID) <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            name="transactionId"
+                            value={formData.transactionId}
+                            onChange={handleChange}
+                            placeholder="e.g. 5RT91"
+                            className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono font-bold uppercase text-slate-900 focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-500"
+                          />
+                          {fieldErrors.transactionId && (
+                            <p className="text-[10px] font-bold text-red-600">{fieldErrors.transactionId}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                 </div>
 

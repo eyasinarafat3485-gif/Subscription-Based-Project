@@ -34,10 +34,11 @@ export async function GET(req) {
     const status = searchParams.get('status') || '';
     const search = searchParams.get('search') || '';
 
-    await connectToDatabase();
+    const mongooseConn = await connectToDatabase();
+    const db = mongooseConn.connection.db;
 
     const query = {};
-    if (status && status !== 'all') {
+    if (status && status !== 'all' && status !== 'PAYMENT') {
       query.status = status;
     }
     if (search) {
@@ -48,24 +49,78 @@ export async function GET(req) {
       ];
     }
 
-    const totalRequests = await GuestRequest.countDocuments(query);
-    const totalPages = Math.max(1, Math.ceil(totalRequests / limit));
-    const skip = (page - 1) * limit;
-
     const requests = await GuestRequest.find(query)
-      .sort({ updatedAt: -1 })
-      .skip(skip)
-      .limit(limit)
+      .sort({ updatedAt: -1, createdAt: -1 })
       .lean();
 
-    const unreadCount = await GuestRequest.countDocuments({
+    // Also fetch recent Payment Orders
+    const orderQuery = {};
+    if (search) {
+      orderQuery.$or = [
+        { orderId: new RegExp(search, 'i') },
+        { 'customer.name': new RegExp(search, 'i') },
+        { 'customer.email': new RegExp(search, 'i') },
+        { billingName: new RegExp(search, 'i') },
+        { billingEmail: new RegExp(search, 'i') },
+        { transactionId: new RegExp(search, 'i') },
+        { senderAccount: new RegExp(search, 'i') },
+        { paymentMethod: new RegExp(search, 'i') },
+      ];
+    }
+
+    let formattedOrders = [];
+    if (!status || status === 'all' || status === 'PAYMENT') {
+      const orders = await db.collection('orders')
+        .find(orderQuery)
+        .sort({ createdAt: -1 })
+        .limit(50)
+        .toArray();
+
+      formattedOrders = orders.map((ord) => ({
+        _id: ord._id.toString(),
+        type: 'PAYMENT_ORDER',
+        orderId: ord.orderId,
+        userName: ord.customer?.name || ord.billingName || 'Valued Customer',
+        userEmail: ord.customer?.email || ord.billingEmail || 'N/A',
+        userPhone: ord.customer?.phone || ord.billingPhone || ord.senderAccount || 'N/A',
+        productTitle: ord.productTitle || ord.planTitle || (ord.type === 'membership' ? 'Membership Plan' : 'Product'),
+        amount: ord.price || ord.planPrice || ord.amount || 0,
+        paymentMethod: (ord.paymentMethod || 'bkash').toUpperCase(),
+        senderAccount: ord.senderAccount || 'N/A',
+        transactionId: ord.transactionId || 'N/A',
+        status: ord.status === 'completed' ? 'PAID' : 'PENDING',
+        requestedAt: ord.createdAt || new Date(),
+        createdAt: ord.createdAt || new Date(),
+        isReadByAdmin: ord.isReadByAdmin ?? false,
+      }));
+    }
+
+    const unreadGuestCount = await GuestRequest.countDocuments({
       isReadByAdmin: false,
       status: { $in: ['REQUESTED', 'COUPON_SUBMITTED'] },
     });
 
+    const unreadOrderCount = await db.collection('orders').countDocuments({
+      isReadByAdmin: false,
+    });
+
+    const unreadCount = unreadGuestCount + unreadOrderCount;
+
+    // Merge and sort newest first
+    const combined = [...requests, ...formattedOrders].sort((a, b) => {
+      const timeA = new Date(a.requestedAt || a.createdAt || 0);
+      const timeB = new Date(b.requestedAt || b.createdAt || 0);
+      return timeB - timeA;
+    });
+
+    const totalRequests = combined.length;
+    const totalPages = Math.max(1, Math.ceil(totalRequests / limit));
+    const skip = (page - 1) * limit;
+    const paginatedRequests = combined.slice(skip, skip + limit);
+
     return NextResponse.json({
       success: true,
-      requests,
+      requests: paginatedRequests,
       unreadCount,
       page,
       limit,
@@ -304,11 +359,19 @@ export async function PATCH(req) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await connectToDatabase();
-    await GuestRequest.updateMany(
-      { isReadByAdmin: false },
-      { $set: { isReadByAdmin: true } }
-    );
+    const mongooseConn = await connectToDatabase();
+    const db = mongooseConn.connection.db;
+
+    await Promise.all([
+      GuestRequest.updateMany(
+        { isReadByAdmin: false },
+        { $set: { isReadByAdmin: true } }
+      ),
+      db.collection('orders').updateMany(
+        { isReadByAdmin: false },
+        { $set: { isReadByAdmin: true } }
+      ),
+    ]);
 
     return NextResponse.json({ success: true, message: 'Admin notifications marked as read' });
   } catch (error) {

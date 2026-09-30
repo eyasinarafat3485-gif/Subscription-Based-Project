@@ -171,13 +171,37 @@ export default function DashboardHeader() {
           }
         }
       } else {
-        const res = await fetch('/api/user/guest-request');
-        if (res.ok) {
-          const data = await res.json();
-          const allReqs = data.requests || (data.request ? [data.request] : []);
-          setNotifications(allReqs);
-          setUnreadCount(typeof data.unreadCount === 'number' ? data.unreadCount : 0);
+        const [reqRes, dlRes] = await Promise.all([
+          fetch('/api/user/guest-request'),
+          fetch('/api/user/download-notifications'),
+        ]);
+
+        let guestReqs = [];
+        let unreadGuest = 0;
+        if (reqRes.ok) {
+          const data = await reqRes.json();
+          guestReqs = data.requests || (data.request ? [data.request] : []);
+          unreadGuest = typeof data.unreadCount === 'number' ? data.unreadCount : 0;
         }
+
+        let downloadNotifs = [];
+        let unreadDl = 0;
+        if (dlRes.ok) {
+          const dlData = await dlRes.json();
+          if (dlData.success && Array.isArray(dlData.notifications)) {
+            downloadNotifs = dlData.notifications;
+            unreadDl = dlData.unreadCount || 0;
+          }
+        }
+
+        const combined = [...guestReqs, ...downloadNotifs].sort((a, b) => {
+          const timeA = new Date(a.downloadedAt || a.requestedAt || a.createdAt || 0);
+          const timeB = new Date(b.downloadedAt || b.requestedAt || b.createdAt || 0);
+          return timeB - timeA;
+        });
+
+        setNotifications(combined);
+        setUnreadCount(unreadGuest + unreadDl);
       }
     } catch (err) {
       console.error('Failed to fetch notifications:', err);
@@ -423,193 +447,262 @@ export default function DashboardHeader() {
                 ) : notifications.length === 0 ? (
                   <div className="py-8 text-center text-slate-400">
                     <p className="text-xs font-medium">No new notifications</p>
-                  </div>
-                ) : userRole === 'admin' ? (
+                  </di                ) : userRole === 'admin' ? (
                   // ================= ADMIN VIEW =================
-                  notifications.map((req) => (
-                    <div key={req._id} className="p-4 hover:bg-slate-50/80 transition space-y-2.5 text-xs">
-                      {/* User Info Header: Avatar, Name, Email */}
-                      <div className="flex items-start gap-3">
-                        {req.userImage ? (
-                          <img
-                            src={req.userImage}
-                            alt={req.userName}
-                            className="w-9 h-9 rounded-xl object-cover border border-slate-200 shrink-0 shadow-2xs"
-                          />
-                        ) : (
-                          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
-                            {req.userName ? req.userName.charAt(0).toUpperCase() : 'U'}
+                  notifications.map((req) => {
+                    if (req.type === 'PAYMENT_ORDER') {
+                      return (
+                        <div key={req._id} className="p-4 hover:bg-slate-50/80 transition space-y-2 text-xs border-b border-slate-100 last:border-0">
+                          <div className="flex items-center justify-between">
+                            <span className="flex items-center gap-1.5 font-bold text-slate-900">
+                              <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider ${
+                                req.paymentMethod === 'BKASH' ? 'bg-pink-100 text-pink-700' :
+                                req.paymentMethod === 'NAGAD' ? 'bg-orange-100 text-orange-700' :
+                                'bg-purple-100 text-purple-700'
+                              }`}>
+                                {req.paymentMethod}
+                              </span>
+                              <span>Order #{req.orderId}</span>
+                            </span>
+                            <span className="font-black text-emerald-600">৳ {req.amount}</span>
+                          </div>
+                          <p className="text-[11px] text-slate-600">
+                            <strong>{req.userName}</strong> ({req.userEmail}) purchased <strong>{req.productTitle}</strong>.
+                          </p>
+                          <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono bg-slate-50 p-2 rounded-lg border border-slate-100">
+                            <span>Phone: <strong>{req.userPhone}</strong></span>
+                            <span>TrxID: <strong className="text-indigo-600">{req.transactionId}</strong></span>
+                          </div>
+                          <div className="text-[10px] text-slate-400">
+                            {new Date(req.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div key={req._id} className="p-4 hover:bg-slate-50/80 transition space-y-2.5 text-xs">
+                        {/* User Info Header: Avatar, Name, Email */}
+                        <div className="flex items-start gap-3">
+                          {req.userImage ? (
+                            <img
+                              src={req.userImage}
+                              alt={req.userName}
+                              className="w-9 h-9 rounded-xl object-cover border border-slate-200 shrink-0 shadow-2xs"
+                            />
+                          ) : (
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                              {req.userName ? req.userName.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                          )}
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-extrabold text-slate-900 truncate max-w-[140px]">
+                                {req.userName}
+                              </h4>
+                              <span
+                                className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${req.status === 'REQUESTED'
+                                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                    : req.status === 'COUPON_SENT'
+                                      ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                      : req.status === 'COUPON_SUBMITTED'
+                                        ? 'bg-amber-50 text-amber-700 border-amber-200 animate-pulse'
+                                        : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                  }`}
+                              >
+                                {req.status === 'REQUESTED' && 'Coupon Requested'}
+                                {req.status === 'COUPON_SENT' && 'Coupon Sent'}
+                                {req.status === 'COUPON_SUBMITTED' && 'Pending Approval'}
+                                {req.status === 'APPROVED' && 'Guest Active'}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 truncate">{req.userEmail}</p>
+
+                            {/* Timestamps */}
+                            <div className="flex items-center gap-3 text-[10px] text-slate-400 mt-1">
+                              <span>Account: {req.userCreatedAt ? new Date(req.userCreatedAt).toLocaleDateString() : 'N/A'}</span>
+                              <span>•</span>
+                              <span>Req: {new Date(req.requestedAt || req.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Details & Actions based on status */}
+                        {req.status === 'REQUESTED' && (
+                          <div className="pt-1 flex items-center justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleAdminSendCoupon(req._id, req.userEmail, req.userName)}
+                              disabled={actionLoadingId === req._id}
+                              className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] flex items-center gap-1.5 shadow-xs transition cursor-pointer disabled:opacity-50"
+                            >
+                              {actionLoadingId === req._id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Send className="w-3.5 h-3.5" />
+                              )}
+                              <span>Generate & Send Coupon</span>
+                            </button>
                           </div>
                         )}
 
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-extrabold text-slate-900 truncate max-w-[140px]">
-                              {req.userName}
-                            </h4>
-                            <span
-                              className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${req.status === 'REQUESTED'
-                                  ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                  : req.status === 'COUPON_SENT'
-                                    ? 'bg-purple-50 text-purple-700 border-purple-200'
-                                    : req.status === 'COUPON_SUBMITTED'
-                                      ? 'bg-amber-50 text-amber-700 border-amber-200 animate-pulse'
-                                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                }`}
-                            >
-                              {req.status === 'REQUESTED' && 'Coupon Requested'}
-                              {req.status === 'COUPON_SENT' && 'Coupon Sent'}
-                              {req.status === 'COUPON_SUBMITTED' && 'Pending Approval'}
-                              {req.status === 'APPROVED' && 'Guest Active'}
-                            </span>
+                        {req.status === 'COUPON_SENT' && (
+                          <div className="p-2 rounded-lg bg-purple-50 text-purple-800 text-[11px] flex items-center justify-between">
+                            <span>Sent Code: <strong className="font-mono font-bold">{req.couponCode}</strong></span>
+                            <span className="text-[10px] text-purple-600">Waiting for user</span>
                           </div>
-                          <p className="text-[11px] text-slate-500 truncate">{req.userEmail}</p>
+                        )}
 
-                          {/* Timestamps */}
-                          <div className="flex items-center gap-3 text-[10px] text-slate-400 mt-1">
-                            <span>Account: {req.userCreatedAt ? new Date(req.userCreatedAt).toLocaleDateString() : 'N/A'}</span>
-                            <span>•</span>
-                            <span>Req: {new Date(req.requestedAt || req.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Details & Actions based on status */}
-                      {req.status === 'REQUESTED' && (
-                        <div className="pt-1 flex items-center justify-end gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleAdminSendCoupon(req._id, req.userEmail, req.userName)}
-                            disabled={actionLoadingId === req._id}
-                            className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] flex items-center gap-1.5 shadow-xs transition cursor-pointer disabled:opacity-50"
-                          >
-                            {actionLoadingId === req._id ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <Send className="w-3.5 h-3.5" />
-                            )}
-                            <span>Generate & Send Coupon</span>
-                          </button>
-                        </div>
-                      )}
-
-                      {req.status === 'COUPON_SENT' && (
-                        <div className="p-2 rounded-lg bg-purple-50 text-purple-800 text-[11px] flex items-center justify-between">
-                          <span>Sent Code: <strong className="font-mono font-bold">{req.couponCode}</strong></span>
-                          <span className="text-[10px] text-purple-600">Waiting for user</span>
-                        </div>
-                      )}
-
-                      {req.status === 'COUPON_SUBMITTED' && (
-                        <div className="space-y-2 pt-1">
-                          <div className="p-2 rounded-lg bg-amber-50 text-amber-800 text-[11px] flex items-center justify-between">
-                            <span>Submitted: <strong className="font-mono font-bold">{req.couponCode}</strong></span>
-                            <span className="text-[10px] font-bold text-amber-600">Action Required</span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => handleAdminApproveRole(req._id, req.userEmail, req.userName)}
-                            disabled={actionLoadingId === req._id}
-                            className="w-full py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition cursor-pointer disabled:opacity-50"
-                          >
-                            {actionLoadingId === req._id ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <Check className="w-3.5 h-3.5" />
-                            )}
-                            <span>Approve Guest Role for {req.userName}</span>
-                          </button>
-                        </div>
-                      )}
-
-                      {req.status === 'APPROVED' && (
-                        <div className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
-                          <ShieldCheck className="w-3.5 h-3.5" />
-                          <span>Guest role successfully approved</span>
-                        </div>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  // ================= USER VIEW =================
-                  notifications.map((req, idx) => (
-                    <div key={idx} className="p-4 hover:bg-slate-50 transition space-y-2 text-xs">
-                      {req.status === 'COUPON_SENT' && (
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-emerald-700 font-bold">
-                            <Gift className="w-4 h-4 text-emerald-600" />
-                            <span>Admin Sent Your Guest VIP Coupon!</span>
-                          </div>
-                          <p className="text-[11px] text-slate-600">
-                            Use this coupon code on your profile page to apply for Guest access:
-                          </p>
-                          <div className="flex items-center justify-between p-2.5 bg-slate-100 rounded-xl font-mono font-bold text-blue-700">
-                            <span>{req.couponCode}</span>
+                        {req.status === 'COUPON_SUBMITTED' && (
+                          <div className="space-y-2 pt-1">
+                            <div className="p-2 rounded-lg bg-amber-50 text-amber-800 text-[11px] flex items-center justify-between">
+                              <span>Submitted: <strong className="font-mono font-bold">{req.couponCode}</strong></span>
+                              <span className="text-[10px] font-bold text-amber-600">Action Required</span>
+                            </div>
                             <button
-                              onClick={() => copyToClipboard(req.couponCode)}
-                              className="px-2 py-1 bg-white hover:bg-slate-200 text-slate-800 text-[10px] font-bold rounded-lg border flex items-center gap-1"
+                              type="button"
+                              onClick={() => handleAdminApproveRole(req._id, req.userEmail, req.userName)}
+                              disabled={actionLoadingId === req._id}
+                              className="w-full py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition cursor-pointer disabled:opacity-50"
                             >
-                              {copiedCode === req.couponCode ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                              <span>{copiedCode === req.couponCode ? 'Copied' : 'Copy'}</span>
+                              {actionLoadingId === req._id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Check className="w-3.5 h-3.5" />
+                              )}
+                              <span>Approve Guest Role for {req.userName}</span>
                             </button>
                           </div>
-                          <Link
-                            href="/dashboard/user/my-profile"
-                            onClick={() => setIsNotifOpen(false)}
-                            className="block text-center py-1.5 bg-blue-600 text-white font-bold rounded-xl text-[11px] hover:bg-blue-700 transition"
-                          >
-                            Go to Profile & Submit
-                          </Link>
-                        </div>
-                      )}
+                        )}
 
-                      {req.status === 'COUPON_SUBMITTED' && (
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1.5 text-amber-700 font-bold">
-                            <Clock className="w-3.5 h-3.5" />
-                            <span>Request Pending Admin Review</span>
+                        {req.status === 'APPROVED' && (
+                          <div className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                            <ShieldCheck className="w-3.5 h-3.5" />
+                            <span>Guest role successfully approved</span>
                           </div>
-                          <p className="text-[11px] text-slate-500">
-                            Your coupon is verified and submitted. Admin will activate your Guest role shortly.
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  // ================= USER VIEW =================
+                  notifications.map((req, idx) => {
+                    if (req.type === 'PAYMENT_SUCCESS') {
+                      return (
+                        <div key={idx} className="p-4 hover:bg-slate-50 transition space-y-2 text-xs border-b border-slate-100 last:border-0">
+                          <div className="flex items-center gap-2 text-emerald-700 font-bold">
+                            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                            <span>Payment Received Successfully!</span>
+                          </div>
+                          <p className="text-[11px] text-slate-600 leading-relaxed">
+                            {req.message || `Your payment for ${req.productTitle || 'order'} via ${req.paymentMethod} was confirmed.`}
                           </p>
+                          <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono bg-emerald-50/60 p-2 rounded-lg border border-emerald-100">
+                            <span>Order: <strong>#{req.orderId}</strong></span>
+                            <span>TrxID: <strong className="text-emerald-700">{req.transactionId}</strong></span>
+                          </div>
+                          <div className="text-[10px] text-slate-400">
+                            {req.downloadedAt ? new Date(req.downloadedAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : 'Recently'}
+                          </div>
                         </div>
-                      )}
+                      );
+                    }
 
-                      {req.status === 'APPROVED' && (
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1.5 text-purple-700 font-bold">
-                            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                            <span>🎉 Congratulations! Guest Role Approved!</span>
+                    if (req.type === 'DOWNLOAD' || (req.productTitle && !req.status)) {
+                      return (
+                        <div key={idx} className="p-4 hover:bg-slate-50 transition space-y-1.5 text-xs border-b border-slate-100 last:border-0">
+                          <div className="flex items-center gap-2 text-indigo-700 font-bold">
+                            <Download className="w-4 h-4 text-indigo-600" />
+                            <span>Product Downloaded</span>
                           </div>
-                          <p className="text-[11px] text-slate-600">
-                            You now have full Guest access to plugins and resources.
-                          </p>
+                          <p className="text-[11px] text-slate-600 font-semibold">{req.productTitle || req.title}</p>
+                          <div className="text-[10px] text-slate-400">
+                            {req.downloadedAt ? new Date(req.downloadedAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : 'Recently'}
+                          </div>
                         </div>
-                      )}
+                      );
+                    }
 
-                      {req.status === 'REJECTED' && (
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1.5 text-amber-800 font-bold">
-                            <span>❌ Request Declined</span>
+                    return (
+                      <div key={idx} className="p-4 hover:bg-slate-50 transition space-y-2 text-xs">
+                        {req.status === 'COUPON_SENT' && (
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-emerald-700 font-bold">
+                              <Gift className="w-4 h-4 text-emerald-600" />
+                              <span>Admin Sent Your Guest VIP Coupon!</span>
+                            </div>
+                            <p className="text-[11px] text-slate-600">
+                              Use this coupon code on your profile page to apply for Guest access:
+                            </p>
+                            <div className="flex items-center justify-between p-2.5 bg-slate-100 rounded-xl font-mono font-bold text-blue-700">
+                              <span>{req.couponCode}</span>
+                              <button
+                                onClick={() => copyToClipboard(req.couponCode)}
+                                className="px-2 py-1 bg-white hover:bg-slate-200 text-slate-800 text-[10px] font-bold rounded-lg border flex items-center gap-1"
+                              >
+                                {copiedCode === req.couponCode ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                                <span>{copiedCode === req.couponCode ? 'Copied' : 'Copy'}</span>
+                              </button>
+                            </div>
+                            <Link
+                              href="/dashboard/user/my-profile"
+                              onClick={() => setIsNotifOpen(false)}
+                              className="block text-center py-1.5 bg-blue-600 text-white font-bold rounded-xl text-[11px] hover:bg-blue-700 transition"
+                            >
+                              Go to Profile & Submit
+                            </Link>
                           </div>
-                          <p className="text-[11px] text-slate-500">
-                            Your Guest Role request was rejected by Admin.
-                          </p>
-                        </div>
-                      )}
+                        )}
 
-                      {req.status === 'DELETED' && (
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1.5 text-red-600 font-bold">
-                            <span>🗑️ Request Cancelled</span>
+                        {req.status === 'COUPON_SUBMITTED' && (
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1.5 text-amber-700 font-bold">
+                              <Clock className="w-3.5 h-3.5" />
+                              <span>Request Pending Admin Review</span>
+                            </div>
+                            <p className="text-[11px] text-slate-500">
+                              Your coupon is verified and submitted. Admin will activate your Guest role shortly.
+                            </p>
                           </div>
-                          <p className="text-[11px] text-slate-500">
-                            Your request was deleted/cancelled by Admin.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  ))
+                        )}
+
+                        {req.status === 'APPROVED' && (
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1.5 text-purple-700 font-bold">
+                              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                              <span>🎉 Congratulations! Guest Role Approved!</span>
+                            </div>
+                            <p className="text-[11px] text-slate-600">
+                              You now have full Guest access to plugins and resources.
+                            </p>
+                          </div>
+                        )}
+
+                        {req.status === 'REJECTED' && (
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1.5 text-amber-800 font-bold">
+                              <span>❌ Request Declined</span>
+                            </div>
+                            <p className="text-[11px] text-slate-500">
+                              Your Guest Role request was rejected by Admin.
+                            </p>
+                          </div>
+                        )}
+
+                        {req.status === 'DELETED' && (
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1.5 text-red-600 font-bold">
+                              <span>🗑️ Request Cancelled</span>
+                            </div>
+                            <p className="text-[11px] text-slate-500">
+                              Your request was deleted/cancelled by Admin.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })             ))
                 )}
               </div>
 

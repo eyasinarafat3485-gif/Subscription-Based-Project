@@ -8,8 +8,9 @@ const OrderSchema = new mongoose.Schema(
     planId: { type: String },
     items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     amount: { type: Number, required: true },
-    paymentMethod: { type: String, enum: ['bkash', 'nagad', 'sslcommerz', 'stripe'], required: true },
+    paymentMethod: { type: String, enum: ['bkash', 'nagad', 'rocket', 'sslcommerz', 'stripe'], required: true },
     transactionId: { type: String },
+    senderAccount: { type: String },
     paymentStatus: { type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' },
   },
   { timestamps: true }
