@@ -4,6 +4,18 @@
 
 ### Premium WordPress Developer Platform & Subscription Marketplace
 
+<div align="center">
+
+<p align="center">
+  <img
+    src="./public/subs.png"
+    alt="StyleHub Luxury Fashion Storefront Preview"
+    width="400"
+    height="450"
+    style="max-width: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);"
+  />
+</p>
+
 A full-stack, enterprise-grade digital marketplace and subscription management platform built with **Next.js 16 (App Router)**, **React 19**, **Tailwind CSS v4**, **MongoDB**, and **Better Auth**. Designed for WordPress developers, agencies, and creators to access GPL plugins, themes, templates, and web development resources seamlessly.
 
 [![Live Demo](https://img.shields.io/badge/Demo-Live%20Preview-0070F3?style=for-the-badge&logo=vercel&logoColor=white)](https://subscription-based-project.vercel.app/)
