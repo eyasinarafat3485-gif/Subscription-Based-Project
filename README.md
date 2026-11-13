@@ -4,8 +4,6 @@
 
 ### Premium WordPress Developer Platform & Subscription Marketplace
 
-<div align="center">
-
 <p align="center">
   <img
     src="./public/subs.png"
